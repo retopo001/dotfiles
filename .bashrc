@@ -8,6 +8,20 @@
 # --- PATH ---
 export PATH="/usr/bin:$HOME/.local/bin:$PATH"
 
+# --- Go (for Mason's gopls installation) ---
+# Mason uses 'go install' for gopls, so Go must be in PATH
+if [ -d "/c/Program Files/Go/bin" ]; then
+  export PATH="/c/Program Files/Go/bin:$PATH"
+fi
+
+# --- tmuxifier (tmux session templates) ---
+# Install with: git clone https://github.com/jimeh/tmuxifier.git ~/.tmuxifier
+if [ -d "$HOME/.tmuxifier" ] && [ -f "$HOME/.tmuxifier/bin/tmuxifier" ]; then
+  export PATH="$HOME/.tmuxifier/bin:$PATH"
+  # Initialize tmuxifier (suppress errors if it fails)
+  eval "$($HOME/.tmuxifier/bin/tmuxifier init -)" 2>/dev/null || true
+fi
+
 # --- Aliases ---
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'

@@ -2,35 +2,44 @@
 
 Dense keybinding reference for your configuration. Every key listed should be pressed at least once.
 
-**Legend:**
-- `[CUSTOM]` = Defined in your dotfiles (overrides defaults)
-- `[DEFAULT]` = Standard NvChad/Neovim/tmux binding
-- `Prefix` = `Ctrl+Space` (your tmux prefix)
-- `Leader` = `Space` (your Neovim leader key)
+**Legend — Where each mapping comes from:**
+- `[.wezterm.lua]` = Your WezTerm config
+- `[.tmux.conf]` = Your tmux config
+- `[mappings.lua]` = Your Neovim mappings
+- `[TMUX]` = Tmux default
+- `[NVCHAD]` = NvChad default mapping
+- `[NVIMTREE]` = NvimTree plugin default
+- `[TELESCOPE]` = Telescope plugin default
+- `[NEOVIM]` = Vanilla Neovim/Vim default
+- `[FZF]` = FZF shell integration default
+- `[ZOXIDE]` = Zoxide default
+
+**Prefix** = `Ctrl+Space` (your tmux prefix, defined in .tmux.conf)
+**Leader** = `Space` (NvChad default)
 
 ---
 
 ## STAGE 1: Terminal & Tmux
 
-Your terminal auto-starts tmux when you open WezTerm.
+Your terminal auto-starts tmux when you open WezTerm (configured in .bashrc).
 
 ### WezTerm Tab Management
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Ctrl+Shift+T` | [CUSTOM] | New bash tab (bypasses tmux) |
-| `Ctrl+Shift+N` | [CUSTOM] | New Neovim tab (bypasses tmux) |
+| `Ctrl+Shift+T` | [.wezterm.lua] | New bash tab (bypasses tmux) |
+| `Ctrl+Shift+N` | [.wezterm.lua] | New Neovim tab (bypasses tmux) |
 
 ### Tmux Session Management
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Ctrl+Space` | [CUSTOM] | Tmux prefix (hold Ctrl, tap Space) |
-| `Prefix d` | [DEFAULT] | Detach from session (exit without closing) |
-| `Prefix s` | [DEFAULT] | List/switch sessions |
-| `Prefix $` | [DEFAULT] | Rename current session |
-| `Prefix (` | [DEFAULT] | Switch to previous session |
-| `Prefix )` | [DEFAULT] | Switch to next session |
+| `Ctrl+Space` | [.tmux.conf] | Tmux prefix (replaces default `Ctrl+b`) |
+| `Prefix d` | [TMUX] | Detach from session (exit without closing) |
+| `Prefix s` | [TMUX] | List/switch sessions |
+| `Prefix $` | [TMUX] | Rename current session |
+| `Prefix (` | [TMUX] | Switch to previous session |
+| `Prefix )` | [TMUX] | Switch to next session |
 
 **Shell command:** `tmux attach -t main` - Reattach after detach
 
@@ -38,48 +47,48 @@ Your terminal auto-starts tmux when you open WezTerm.
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Prefix c` | [CUSTOM] | Create new window |
-| `Prefix &` | [CUSTOM] | Kill current window |
-| `Prefix 1` | [DEFAULT] | Switch to window 1 |
-| `Prefix 2` | [DEFAULT] | Switch to window 2 |
-| `Prefix n` | [DEFAULT] | Next window |
-| `Prefix p` | [DEFAULT] | Previous window |
-| `Prefix w` | [DEFAULT] | List windows (interactive picker) |
-| `Prefix ,` | [DEFAULT] | Rename current window |
+| `Prefix c` | [.tmux.conf] | Create new window (rebind of tmux default) |
+| `Prefix &` | [.tmux.conf] | Kill current window (rebind of tmux default) |
+| `Prefix 1` | [TMUX] | Switch to window 1 |
+| `Prefix 2` | [TMUX] | Switch to window 2 |
+| `Prefix n` | [TMUX] | Next window |
+| `Prefix p` | [TMUX] | Previous window |
+| `Prefix w` | [TMUX] | List windows (interactive picker) |
+| `Prefix ,` | [TMUX] | Rename current window |
 
 ### Tmux Pane Management
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Prefix \|` | [CUSTOM] | Split pane vertically (side by side) |
-| `Prefix -` | [CUSTOM] | Split pane horizontally (top/bottom) |
-| `Prefix h` | [CUSTOM] | Move to left pane |
-| `Prefix j` | [CUSTOM] | Move to pane below |
-| `Prefix k` | [CUSTOM] | Move to pane above |
-| `Prefix l` | [CUSTOM] | Move to right pane |
-| `Prefix x` | [CUSTOM] | Kill current pane |
-| `Prefix <` | [CUSTOM] | Resize pane left (repeatable) |
-| `Prefix >` | [CUSTOM] | Resize pane right (repeatable) |
-| `Prefix +` | [CUSTOM] | Resize pane up (repeatable) |
-| `Prefix =` | [CUSTOM] | Resize pane down (repeatable) |
-| `Prefix z` | [DEFAULT] | Toggle pane zoom (fullscreen) |
-| `Prefix q` | [DEFAULT] | Show pane numbers (then press number to jump) |
-| `Prefix {` | [DEFAULT] | Swap pane with previous |
-| `Prefix }` | [DEFAULT] | Swap pane with next |
+| `Prefix \|` | [.tmux.conf] | Split vertically (replaces default `%`) |
+| `Prefix -` | [.tmux.conf] | Split horizontally (replaces default `"`) |
+| `Prefix h` | [.tmux.conf] | Move to left pane (custom vim-style) |
+| `Prefix j` | [.tmux.conf] | Move to pane below (custom vim-style) |
+| `Prefix k` | [.tmux.conf] | Move to pane above (custom vim-style) |
+| `Prefix l` | [.tmux.conf] | Move to right pane (custom vim-style) |
+| `Prefix x` | [.tmux.conf] | Kill current pane (rebind of tmux default) |
+| `Prefix <` | [.tmux.conf] | Resize pane left 5 units (repeatable) |
+| `Prefix >` | [.tmux.conf] | Resize pane right 5 units (repeatable) |
+| `Prefix +` | [.tmux.conf] | Resize pane up 2 units (repeatable) |
+| `Prefix =` | [.tmux.conf] | Resize pane down 2 units (repeatable) |
+| `Prefix z` | [TMUX] | Toggle pane zoom (fullscreen) |
+| `Prefix q` | [TMUX] | Show pane numbers (then press number to jump) |
+| `Prefix {` | [TMUX] | Swap pane with previous |
+| `Prefix }` | [TMUX] | Swap pane with next |
 
-### Tmux Copy Mode (vi-style)
+### Tmux Copy Mode (vi-style enabled in .tmux.conf)
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Prefix [` | [DEFAULT] | Enter copy mode |
-| `q` | [DEFAULT] | Exit copy mode |
-| `h/j/k/l` | [CUSTOM] | Navigate in copy mode |
-| `v` | [CUSTOM] | Begin selection |
-| `y` | [CUSTOM] | Yank selection |
-| `/` | [DEFAULT] | Search forward |
-| `?` | [DEFAULT] | Search backward |
-| `n` | [DEFAULT] | Next search result |
-| `N` | [DEFAULT] | Previous search result |
+| `Prefix [` | [TMUX] | Enter copy mode |
+| `q` | [TMUX] | Exit copy mode |
+| `h/j/k/l` | [.tmux.conf] | Navigate in copy mode (vi mode-keys setting) |
+| `v` | [.tmux.conf] | Begin selection (custom binding) |
+| `y` | [.tmux.conf] | Yank selection (custom binding) |
+| `/` | [TMUX] | Search forward |
+| `?` | [TMUX] | Search backward |
+| `n` | [TMUX] | Next search result |
+| `N` | [TMUX] | Previous search result |
 
 ---
 
@@ -89,8 +98,8 @@ Your terminal auto-starts tmux when you open WezTerm.
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Ctrl+n` | [DEFAULT] | Toggle NvimTree open/close |
-| `Leader e` | [DEFAULT] | Focus NvimTree (cursor jumps to tree) |
+| `Ctrl+n` | [NVCHAD] | Toggle NvimTree open/close |
+| `Leader e` | [NVCHAD] | Focus NvimTree (cursor jumps to tree) |
 
 **Note:** `Leader` = tap `Space` once, then release and tap the next key.
 
@@ -98,59 +107,59 @@ Your terminal auto-starts tmux when you open WezTerm.
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `j` | [DEFAULT] | Move cursor down |
-| `k` | [DEFAULT] | Move cursor up |
-| `Enter` | [DEFAULT] | Open file / expand folder |
-| `o` | [DEFAULT] | Open file / expand folder (same as Enter) |
-| `l` | [DEFAULT] | Open file / expand folder |
-| `h` | [DEFAULT] | Close folder / go to parent |
-| `Tab` | [DEFAULT] | Preview file (doesn't switch focus) |
-| `Backspace` | [DEFAULT] | Close parent folder |
-| `P` | [DEFAULT] | Go to parent directory |
-| `-` | [DEFAULT] | Navigate up one directory |
-| `Ctrl+]` | [DEFAULT] | cd into directory under cursor |
+| `j` | [NVIMTREE] | Move cursor down |
+| `k` | [NVIMTREE] | Move cursor up |
+| `Enter` | [NVIMTREE] | Open file / expand folder |
+| `o` | [NVIMTREE] | Open file / expand folder (same as Enter) |
+| `l` | [NVIMTREE] | Open file / expand folder |
+| `h` | [NVIMTREE] | Close folder / go to parent |
+| `Tab` | [NVIMTREE] | Preview file (doesn't switch focus) |
+| `Backspace` | [NVIMTREE] | Close parent folder |
+| `P` | [NVIMTREE] | Go to parent directory |
+| `-` | [NVIMTREE] | Navigate up one directory |
+| `Ctrl+]` | [NVIMTREE] | cd into directory under cursor |
 
 ### File Operations
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `a` | [DEFAULT] | Create new file (add `/` at end for folder) |
-| `r` | [DEFAULT] | Rename file/folder |
-| `d` | [DEFAULT] | Delete file/folder |
-| `x` | [DEFAULT] | Cut file/folder |
-| `c` | [DEFAULT] | Copy file/folder |
-| `p` | [DEFAULT] | Paste file/folder |
-| `y` | [DEFAULT] | Copy filename to clipboard |
-| `Y` | [DEFAULT] | Copy relative path to clipboard |
-| `gy` | [DEFAULT] | Copy absolute path to clipboard |
-| `R` | [DEFAULT] | Refresh tree |
-| `H` | [DEFAULT] | Toggle hidden files (dotfiles) |
-| `I` | [DEFAULT] | Toggle gitignored files |
+| `a` | [NVIMTREE] | Create new file (add `/` at end for folder) |
+| `r` | [NVIMTREE] | Rename file/folder |
+| `d` | [NVIMTREE] | Delete file/folder |
+| `x` | [NVIMTREE] | Cut file/folder |
+| `c` | [NVIMTREE] | Copy file/folder |
+| `p` | [NVIMTREE] | Paste file/folder |
+| `y` | [NVIMTREE] | Copy filename to clipboard |
+| `Y` | [NVIMTREE] | Copy relative path to clipboard |
+| `gy` | [NVIMTREE] | Copy absolute path to clipboard |
+| `R` | [NVIMTREE] | Refresh tree |
+| `H` | [NVIMTREE] | Toggle hidden files (dotfiles) |
+| `I` | [NVIMTREE] | Toggle gitignored files |
 
 ### Marks and Bulk Operations
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `m` | [DEFAULT] | Toggle mark on file |
-| `bd` | [DEFAULT] | Delete all marked files |
-| `bmv` | [DEFAULT] | Move all marked files |
+| `m` | [NVIMTREE] | Toggle mark on file |
+| `bd` | [NVIMTREE] | Delete all marked files |
+| `bmv` | [NVIMTREE] | Move all marked files |
 
 ### Split Opening
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `v` | [DEFAULT] | Open in vertical split |
-| `s` | [DEFAULT] | Open in horizontal split |
-| `t` | [DEFAULT] | Open in new tab |
+| `v` | [NVIMTREE] | Open in vertical split |
+| `s` | [NVIMTREE] | Open in horizontal split |
+| `t` | [NVIMTREE] | Open in new tab |
 
 ### Switching Focus
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Ctrl+h` | [DEFAULT] | Move focus to left window (tree to editor) |
-| `Ctrl+l` | [DEFAULT] | Move focus to right window (editor to tree) |
-| `Ctrl+j` | [DEFAULT] | Move focus to window below |
-| `Ctrl+k` | [DEFAULT] | Move focus to window above |
+| `Ctrl+h` | [NVCHAD] | Move focus to left window |
+| `Ctrl+l` | [NVCHAD] | Move focus to right window |
+| `Ctrl+j` | [NVCHAD] | Move focus to window below |
+| `Ctrl+k` | [NVCHAD] | Move focus to window above |
 
 ---
 
@@ -160,16 +169,17 @@ Your terminal auto-starts tmux when you open WezTerm.
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Ctrl+r` | [DEFAULT] | Fuzzy search command history |
-| `Ctrl+t` | [DEFAULT] | Fuzzy find file and insert path |
-| `Alt+c` | [DEFAULT] | Fuzzy cd into directory |
+| `Ctrl+r` | [FZF] | Fuzzy search command history |
+| `Ctrl+t` | [FZF] | Fuzzy find file and insert path |
+| `Alt+c` | [FZF] | Fuzzy cd into directory |
 
 ### Zoxide (Smart Directory Jump)
 
-**Shell commands:**
-- `z <partial-name>` - Jump to frecent directory
-- `zi` - Interactive directory picker with fzf
-- `z -` - Jump to previous directory
+| Command | Source | Action |
+|---------|--------|--------|
+| `z <partial-name>` | [ZOXIDE] | Jump to frecent directory |
+| `zi` | [ZOXIDE] | Interactive directory picker with fzf |
+| `z -` | [ZOXIDE] | Jump to previous directory |
 
 ---
 
@@ -179,30 +189,30 @@ Your terminal auto-starts tmux when you open WezTerm.
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Tab` | [DEFAULT] | Next buffer (in tabufline) |
-| `Shift+Tab` | [DEFAULT] | Previous buffer |
-| `Leader x` | [DEFAULT] | Close current buffer |
-| `Leader b` | [DEFAULT] | New buffer |
+| `Tab` | [NVCHAD] | Next buffer (in tabufline) |
+| `Shift+Tab` | [NVCHAD] | Previous buffer |
+| `Leader x` | [NVCHAD] | Close current buffer |
+| `Leader b` | [NVCHAD] | New buffer |
 
 ### Window/Split Management
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Ctrl+h` | [DEFAULT] | Move to left window |
-| `Ctrl+j` | [DEFAULT] | Move to window below |
-| `Ctrl+k` | [DEFAULT] | Move to window above |
-| `Ctrl+l` | [DEFAULT] | Move to right window |
-| `:vsp` | [DEFAULT] | Create vertical split (command) |
-| `:sp` | [DEFAULT] | Create horizontal split (command) |
-| `Ctrl+w v` | [DEFAULT] | Create vertical split |
-| `Ctrl+w s` | [DEFAULT] | Create horizontal split |
-| `Ctrl+w q` | [DEFAULT] | Close current window |
-| `Ctrl+w o` | [DEFAULT] | Close all windows except current |
-| `Ctrl+w =` | [DEFAULT] | Make all windows equal size |
-| `Ctrl+w >` | [DEFAULT] | Increase window width |
-| `Ctrl+w <` | [DEFAULT] | Decrease window width |
-| `Ctrl+w +` | [DEFAULT] | Increase window height |
-| `Ctrl+w -` | [DEFAULT] | Decrease window height |
+| `Ctrl+h` | [NVCHAD] | Move to left window |
+| `Ctrl+j` | [NVCHAD] | Move to window below |
+| `Ctrl+k` | [NVCHAD] | Move to window above |
+| `Ctrl+l` | [NVCHAD] | Move to right window |
+| `:vsp` | [NEOVIM] | Create vertical split (command) |
+| `:sp` | [NEOVIM] | Create horizontal split (command) |
+| `Ctrl+w v` | [NEOVIM] | Create vertical split |
+| `Ctrl+w s` | [NEOVIM] | Create horizontal split |
+| `Ctrl+w q` | [NEOVIM] | Close current window |
+| `Ctrl+w o` | [NEOVIM] | Close all windows except current |
+| `Ctrl+w =` | [NEOVIM] | Make all windows equal size |
+| `Ctrl+w >` | [NEOVIM] | Increase window width |
+| `Ctrl+w <` | [NEOVIM] | Decrease window width |
+| `Ctrl+w +` | [NEOVIM] | Increase window height |
+| `Ctrl+w -` | [NEOVIM] | Decrease window height |
 
 ---
 
@@ -212,179 +222,182 @@ Your terminal auto-starts tmux when you open WezTerm.
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Leader f f` | [DEFAULT] | Find files in project |
-| `Leader f a` | [DEFAULT] | Find all files (including hidden) |
-| `Leader f o` | [DEFAULT] | Find recently opened files (oldfiles) |
-| `Leader f b` | [DEFAULT] | Find in open buffers |
-| `Leader f z` | [DEFAULT] | Find in current buffer (fuzzy) |
+| `Leader f f` | [NVCHAD] | Find files in project |
+| `Leader f a` | [NVCHAD] | Find all files (including hidden) |
+| `Leader f o` | [NVCHAD] | Find recently opened files (oldfiles) |
+| `Leader f b` | [NVCHAD] | Find in open buffers |
+| `Leader f z` | [NVCHAD] | Find in current buffer (fuzzy) |
 
 ### Text Search
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Leader f w` | [DEFAULT] | Live grep (search text in project) |
-| `Leader f W` | [DEFAULT] | Grep word under cursor |
+| `Leader f w` | [NVCHAD] | Live grep (search text in project) |
+| `Leader f W` | [NVCHAD] | Grep word under cursor |
 
 ### Telescope Pickers
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Leader f h` | [DEFAULT] | Help tags |
-| `Leader g t` | [DEFAULT] | Git status |
-| `Leader g c` | [DEFAULT] | Git commits |
-| `Leader p t` | [DEFAULT] | Pick hidden terminal |
-| `Leader m a` | [DEFAULT] | Find marks |
-| `Leader c m` | [DEFAULT] | Git commits |
+| `Leader f h` | [NVCHAD] | Help tags |
+| `Leader g t` | [NVCHAD] | Git status |
+| `Leader g c` | [NVCHAD] | Git commits |
+| `Leader p t` | [NVCHAD] | Pick hidden terminal |
+| `Leader m a` | [NVCHAD] | Find marks |
+| `Leader c m` | [NVCHAD] | Git commits |
 
 ### Theme & UI
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Leader t h` | [DEFAULT] | Theme picker (preview themes!) |
+| `Leader t h` | [NVCHAD] | Theme picker (preview themes!) |
 
 ### Inside Telescope Picker
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Ctrl+n` | [DEFAULT] | Move to next item |
-| `Ctrl+p` | [DEFAULT] | Move to previous item |
-| `j` / `k` | [DEFAULT] | Navigate (in normal mode) |
-| `Enter` | [DEFAULT] | Select item |
-| `Ctrl+x` | [DEFAULT] | Open in horizontal split |
-| `Ctrl+v` | [DEFAULT] | Open in vertical split |
-| `Ctrl+t` | [DEFAULT] | Open in new tab |
-| `Ctrl+u` | [DEFAULT] | Scroll preview up |
-| `Ctrl+d` | [DEFAULT] | Scroll preview down |
-| `Esc` | [DEFAULT] | Close picker (in insert mode) |
-| `q` | [DEFAULT] | Close picker (in normal mode) |
+| `Ctrl+n` | [TELESCOPE] | Move to next item |
+| `Ctrl+p` | [TELESCOPE] | Move to previous item |
+| `j` / `k` | [TELESCOPE] | Navigate (in normal mode) |
+| `Enter` | [TELESCOPE] | Select item |
+| `Ctrl+x` | [TELESCOPE] | Open in horizontal split |
+| `Ctrl+v` | [TELESCOPE] | Open in vertical split |
+| `Ctrl+t` | [TELESCOPE] | Open in new tab |
+| `Ctrl+u` | [TELESCOPE] | Scroll preview up |
+| `Ctrl+d` | [TELESCOPE] | Scroll preview down |
+| `Esc` | [TELESCOPE] | Close picker (in insert mode) |
+| `q` | [TELESCOPE] | Close picker (in normal mode) |
 
 ---
 
 ## STAGE 6: LSP (Language Server)
 
+These mappings are set by NvChad's lspconfig and only activate when an LSP server attaches to a buffer.
+
 ### Code Navigation
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `gd` | [DEFAULT] | Go to definition |
-| `gD` | [DEFAULT] | Go to declaration |
-| `gi` | [DEFAULT] | Go to implementation |
-| `gr` | [DEFAULT] | Go to references |
-| `K` | [DEFAULT] | Hover documentation |
-| `Ctrl+k` | [DEFAULT] | Signature help (in insert mode) |
+| `gd` | [NVCHAD lspconfig] | Go to definition |
+| `gD` | [NVCHAD lspconfig] | Go to declaration |
+| `gi` | [NVCHAD lspconfig] | Go to implementation |
+| `gr` | [NVCHAD lspconfig] | Go to references |
+| `K` | [NVCHAD lspconfig] | Hover documentation |
+| `Ctrl+k` | [NVCHAD lspconfig] | Signature help (in insert mode) |
 
 ### Code Actions
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Leader c a` | [DEFAULT] | Code actions |
-| `Leader r a` | [DEFAULT] | LSP rename symbol |
-| `Leader f m` | [DEFAULT] | Format file |
+| `Leader c a` | [NVCHAD] | Code actions |
+| `Leader r a` | [NVCHAD] | LSP rename symbol |
+| `Leader f m` | [NVCHAD] | Format file |
 
 ### Diagnostics
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `[d` | [DEFAULT] | Previous diagnostic |
-| `]d` | [DEFAULT] | Next diagnostic |
-| `Leader d` | [DEFAULT] | Floating diagnostic |
-| `Leader q` | [DEFAULT] | Diagnostic loclist |
+| `[d` | [NVCHAD lspconfig] | Previous diagnostic |
+| `]d` | [NVCHAD lspconfig] | Next diagnostic |
+| `Leader d` | [NVCHAD] | Floating diagnostic |
+| `Leader q` | [NVCHAD] | Diagnostic loclist |
 
 ---
 
 ## STAGE 7: Modal Editing Essentials
 
-### Your Custom Mappings
+### Your Custom Mappings (from mappings.lua)
 
-| Keys | Source | Action |
-|------|--------|--------|
-| `;` | [CUSTOM] | Enter command mode (instead of `:`) |
-| `jk` | [CUSTOM] | Exit insert mode (instead of `Esc`) |
+| Keys | Source | Action | Overrides |
+|------|--------|--------|-----------|
+| `;` | [mappings.lua] | Enter command mode | Overrides Neovim's `;` (repeat f/t forward) |
+| `jk` | [mappings.lua] | Exit insert mode | Alternative to `Esc` |
+
+**Note:** Because you mapped `;` to `:`, you lose the ability to repeat `f`/`t` searches forward with `;`. Use `,` for backward repeat, or press `f{char}` again.
 
 ### Modes
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `i` | [DEFAULT] | Insert mode (before cursor) |
-| `a` | [DEFAULT] | Insert mode (after cursor) |
-| `I` | [DEFAULT] | Insert at line beginning |
-| `A` | [DEFAULT] | Insert at line end |
-| `o` | [DEFAULT] | Insert on new line below |
-| `O` | [DEFAULT] | Insert on new line above |
-| `v` | [DEFAULT] | Visual mode (character) |
-| `V` | [DEFAULT] | Visual line mode |
-| `Ctrl+v` | [DEFAULT] | Visual block mode |
-| `Esc` | [DEFAULT] | Return to normal mode |
-| `jk` | [CUSTOM] | Return to normal mode (from insert) |
+| `i` | [NEOVIM] | Insert mode (before cursor) |
+| `a` | [NEOVIM] | Insert mode (after cursor) |
+| `I` | [NEOVIM] | Insert at line beginning |
+| `A` | [NEOVIM] | Insert at line end |
+| `o` | [NEOVIM] | Insert on new line below |
+| `O` | [NEOVIM] | Insert on new line above |
+| `v` | [NEOVIM] | Visual mode (character) |
+| `V` | [NEOVIM] | Visual line mode |
+| `Ctrl+v` | [NEOVIM] | Visual block mode |
+| `Esc` | [NEOVIM] | Return to normal mode |
+| `jk` | [mappings.lua] | Return to normal mode (from insert) |
 
 ### Movement
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `h` | [DEFAULT] | Left |
-| `j` | [DEFAULT] | Down |
-| `k` | [DEFAULT] | Up |
-| `l` | [DEFAULT] | Right |
-| `w` | [DEFAULT] | Next word start |
-| `W` | [DEFAULT] | Next WORD start (whitespace delimited) |
-| `b` | [DEFAULT] | Previous word start |
-| `B` | [DEFAULT] | Previous WORD start |
-| `e` | [DEFAULT] | Next word end |
-| `E` | [DEFAULT] | Next WORD end |
-| `0` | [DEFAULT] | Line beginning |
-| `^` | [DEFAULT] | First non-whitespace |
-| `$` | [DEFAULT] | Line end |
-| `gg` | [DEFAULT] | File beginning |
-| `G` | [DEFAULT] | File end |
-| `{` | [DEFAULT] | Previous paragraph |
-| `}` | [DEFAULT] | Next paragraph |
-| `%` | [DEFAULT] | Matching bracket |
-| `f{char}` | [DEFAULT] | Jump to next {char} |
-| `F{char}` | [DEFAULT] | Jump to previous {char} |
-| `t{char}` | [DEFAULT] | Jump to before next {char} |
-| `T{char}` | [DEFAULT] | Jump to after previous {char} |
-| `;` | [DEFAULT] | Repeat f/t forward (overridden in your config) |
-| `,` | [DEFAULT] | Repeat f/t backward |
-| `Ctrl+d` | [DEFAULT] | Half page down |
-| `Ctrl+u` | [DEFAULT] | Half page up |
-| `Ctrl+f` | [DEFAULT] | Full page down |
-| `Ctrl+b` | [DEFAULT] | Full page up |
-| `zz` | [DEFAULT] | Center cursor line |
-| `zt` | [DEFAULT] | Cursor line to top |
-| `zb` | [DEFAULT] | Cursor line to bottom |
+| `h` | [NEOVIM] | Left |
+| `j` | [NEOVIM] | Down |
+| `k` | [NEOVIM] | Up |
+| `l` | [NEOVIM] | Right |
+| `w` | [NEOVIM] | Next word start |
+| `W` | [NEOVIM] | Next WORD start (whitespace delimited) |
+| `b` | [NEOVIM] | Previous word start |
+| `B` | [NEOVIM] | Previous WORD start |
+| `e` | [NEOVIM] | Next word end |
+| `E` | [NEOVIM] | Next WORD end |
+| `0` | [NEOVIM] | Line beginning |
+| `^` | [NEOVIM] | First non-whitespace |
+| `$` | [NEOVIM] | Line end |
+| `gg` | [NEOVIM] | File beginning |
+| `G` | [NEOVIM] | File end |
+| `{` | [NEOVIM] | Previous paragraph |
+| `}` | [NEOVIM] | Next paragraph |
+| `%` | [NEOVIM] | Matching bracket |
+| `f{char}` | [NEOVIM] | Jump to next {char} |
+| `F{char}` | [NEOVIM] | Jump to previous {char} |
+| `t{char}` | [NEOVIM] | Jump to before next {char} |
+| `T{char}` | [NEOVIM] | Jump to after previous {char} |
+| `,` | [NEOVIM] | Repeat f/t backward (`;` forward is overridden) |
+| `Ctrl+d` | [NEOVIM] | Half page down |
+| `Ctrl+u` | [NEOVIM] | Half page up |
+| `Ctrl+f` | [NEOVIM] | Full page down |
+| `Ctrl+b` | [NEOVIM] | Full page up |
+| `zz` | [NEOVIM] | Center cursor line |
+| `zt` | [NEOVIM] | Cursor line to top |
+| `zb` | [NEOVIM] | Cursor line to bottom |
 
 ### Editing
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `x` | [DEFAULT] | Delete character |
-| `X` | [DEFAULT] | Delete character before cursor |
-| `r{char}` | [DEFAULT] | Replace character with {char} |
-| `s` | [DEFAULT] | Delete character and insert |
-| `S` | [DEFAULT] | Delete line and insert |
-| `dd` | [DEFAULT] | Delete line |
-| `D` | [DEFAULT] | Delete to line end |
-| `yy` | [DEFAULT] | Yank (copy) line |
-| `Y` | [DEFAULT] | Yank to line end |
-| `p` | [DEFAULT] | Paste after |
-| `P` | [DEFAULT] | Paste before |
-| `u` | [DEFAULT] | Undo |
-| `Ctrl+r` | [DEFAULT] | Redo |
-| `.` | [DEFAULT] | Repeat last change |
-| `~` | [DEFAULT] | Toggle case |
-| `>>` | [DEFAULT] | Indent line |
-| `<<` | [DEFAULT] | Unindent line |
-| `J` | [DEFAULT] | Join lines |
+| `x` | [NEOVIM] | Delete character |
+| `X` | [NEOVIM] | Delete character before cursor |
+| `r{char}` | [NEOVIM] | Replace character with {char} |
+| `s` | [NEOVIM] | Delete character and insert |
+| `S` | [NEOVIM] | Delete line and insert |
+| `dd` | [NEOVIM] | Delete line |
+| `D` | [NEOVIM] | Delete to line end |
+| `yy` | [NEOVIM] | Yank (copy) line |
+| `Y` | [NEOVIM] | Yank to line end |
+| `p` | [NEOVIM] | Paste after |
+| `P` | [NEOVIM] | Paste before |
+| `u` | [NEOVIM] | Undo |
+| `Ctrl+r` | [NEOVIM] | Redo |
+| `.` | [NEOVIM] | Repeat last change |
+| `~` | [NEOVIM] | Toggle case |
+| `>>` | [NEOVIM] | Indent line |
+| `<<` | [NEOVIM] | Unindent line |
+| `J` | [NEOVIM] | Join lines |
 
 ### Operators (combine with motion)
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `d{motion}` | [DEFAULT] | Delete |
-| `c{motion}` | [DEFAULT] | Change (delete and insert) |
-| `y{motion}` | [DEFAULT] | Yank |
-| `>>{motion}` | [DEFAULT] | Indent |
-| `<<{motion}` | [DEFAULT] | Unindent |
+| `d{motion}` | [NEOVIM] | Delete |
+| `c{motion}` | [NEOVIM] | Change (delete and insert) |
+| `y{motion}` | [NEOVIM] | Yank |
+| `>{motion}` | [NEOVIM] | Indent |
+| `<{motion}` | [NEOVIM] | Unindent |
 
 **Examples:**
 - `dw` = delete word
@@ -398,38 +411,38 @@ Your terminal auto-starts tmux when you open WezTerm.
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `iw` | [DEFAULT] | Inner word |
-| `aw` | [DEFAULT] | A word (includes space) |
-| `i"` | [DEFAULT] | Inside double quotes |
-| `a"` | [DEFAULT] | Around double quotes |
-| `i'` | [DEFAULT] | Inside single quotes |
-| `i(` or `ib` | [DEFAULT] | Inside parentheses |
-| `a(` or `ab` | [DEFAULT] | Around parentheses |
-| `i{` or `iB` | [DEFAULT] | Inside braces |
-| `i[` | [DEFAULT] | Inside brackets |
-| `it` | [DEFAULT] | Inside HTML tag |
-| `ip` | [DEFAULT] | Inner paragraph |
+| `iw` | [NEOVIM] | Inner word |
+| `aw` | [NEOVIM] | A word (includes space) |
+| `i"` | [NEOVIM] | Inside double quotes |
+| `a"` | [NEOVIM] | Around double quotes |
+| `i'` | [NEOVIM] | Inside single quotes |
+| `i(` or `ib` | [NEOVIM] | Inside parentheses |
+| `a(` or `ab` | [NEOVIM] | Around parentheses |
+| `i{` or `iB` | [NEOVIM] | Inside braces |
+| `i[` | [NEOVIM] | Inside brackets |
+| `it` | [NEOVIM] | Inside HTML tag |
+| `ip` | [NEOVIM] | Inner paragraph |
 
 ### Search
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `/{pattern}` | [DEFAULT] | Search forward |
-| `?{pattern}` | [DEFAULT] | Search backward |
-| `n` | [DEFAULT] | Next search result |
-| `N` | [DEFAULT] | Previous search result |
-| `*` | [DEFAULT] | Search word under cursor forward |
-| `#` | [DEFAULT] | Search word under cursor backward |
-| `Leader n` | [DEFAULT] | Clear search highlight |
+| `/{pattern}` | [NEOVIM] | Search forward |
+| `?{pattern}` | [NEOVIM] | Search backward |
+| `n` | [NEOVIM] | Next search result |
+| `N` | [NEOVIM] | Previous search result |
+| `*` | [NEOVIM] | Search word under cursor forward |
+| `#` | [NEOVIM] | Search word under cursor backward |
+| `Leader n` | [NVCHAD] | Clear search highlight |
 
 ### Marks
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `m{a-z}` | [DEFAULT] | Set mark |
-| `'{a-z}` | [DEFAULT] | Jump to mark line |
-| `` `{a-z} `` | [DEFAULT] | Jump to mark position |
-| `''` | [DEFAULT] | Jump to last position |
+| `m{a-z}` | [NEOVIM] | Set mark |
+| `'{a-z}` | [NEOVIM] | Jump to mark line |
+| `` `{a-z} `` | [NEOVIM] | Jump to mark position |
+| `''` | [NEOVIM] | Jump to last position |
 
 ---
 
@@ -439,31 +452,31 @@ Your terminal auto-starts tmux when you open WezTerm.
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Leader h` | [DEFAULT] | Horizontal terminal |
-| `Leader v` | [DEFAULT] | Vertical terminal |
-| `Alt+h` | [DEFAULT] | Toggle horizontal terminal |
-| `Alt+v` | [DEFAULT] | Toggle vertical terminal |
-| `Alt+i` | [DEFAULT] | Toggle floating terminal |
-| `Ctrl+x` | [DEFAULT] | Exit terminal mode (to normal) |
+| `Leader h` | [NVCHAD] | Horizontal terminal |
+| `Leader v` | [NVCHAD] | Vertical terminal |
+| `Alt+h` | [NVCHAD] | Toggle horizontal terminal |
+| `Alt+v` | [NVCHAD] | Toggle vertical terminal |
+| `Alt+i` | [NVCHAD] | Toggle floating terminal |
+| `Ctrl+x` | [NVCHAD] | Exit terminal mode (to normal) |
 
 ### Cheatsheet & Help
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Leader c h` | [DEFAULT] | Open NvChad cheatsheet |
-| `:Telescope keymaps` | [DEFAULT] | Searchable keybindings |
-| `:h {topic}` | [DEFAULT] | Neovim help |
+| `Leader c h` | [NVCHAD] | Open NvChad cheatsheet |
+| `:Telescope keymaps` | [TELESCOPE] | Searchable keybindings |
+| `:h {topic}` | [NEOVIM] | Neovim help |
 
 ### Line Numbers
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Leader n` | [DEFAULT] | Toggle line numbers |
-| `Leader r n` | [DEFAULT] | Toggle relative line numbers |
+| `Leader n` | [NVCHAD] | Toggle line numbers |
+| `Leader r n` | [NVCHAD] | Toggle relative line numbers |
 
 ### WhichKey (built-in helper)
 
-Press `Leader` (Space) and wait 500ms - a popup shows available keybindings.
+Press `Leader` (Space) and wait 500ms - a popup shows available keybindings. This is the [NVCHAD] which-key integration.
 
 ---
 
@@ -471,92 +484,92 @@ Press `Leader` (Space) and wait 500ms - a popup shows available keybindings.
 
 ### "I need to..."
 
-| Task | Keys |
-|------|------|
-| Open file tree | `Ctrl+n` |
-| Find file by name | `Leader f f` |
-| Search text in project | `Leader f w` |
-| Go to definition | `gd` |
-| Switch buffer | `Tab` / `Shift+Tab` |
-| Close buffer | `Leader x` |
-| Save file | `:w` or `; w Enter` |
-| Quit | `:q` or `; q Enter` |
-| Split vertical | `Ctrl+w v` |
-| Move between windows | `Ctrl+h/j/k/l` |
-| Change theme | `Leader t h` |
-| Open cheatsheet | `Leader c h` |
+| Task | Keys | Source |
+|------|------|--------|
+| Open file tree | `Ctrl+n` | [NVCHAD] |
+| Find file by name | `Leader f f` | [NVCHAD] |
+| Search text in project | `Leader f w` | [NVCHAD] |
+| Go to definition | `gd` | [NVCHAD lspconfig] |
+| Switch buffer | `Tab` / `Shift+Tab` | [NVCHAD] |
+| Close buffer | `Leader x` | [NVCHAD] |
+| Save file | `;w Enter` | [mappings.lua] + [NEOVIM] |
+| Quit | `;q Enter` | [mappings.lua] + [NEOVIM] |
+| Split vertical | `Ctrl+w v` | [NEOVIM] |
+| Move between windows | `Ctrl+h/j/k/l` | [NVCHAD] |
+| Change theme | `Leader t h` | [NVCHAD] |
+| Open cheatsheet | `Leader c h` | [NVCHAD] |
 
 ### "In tmux I need to..."
 
-| Task | Keys |
-|------|------|
-| New pane right | `Prefix \|` |
-| New pane below | `Prefix -` |
-| Move between panes | `Prefix h/j/k/l` |
-| New window | `Prefix c` |
-| Switch window | `Prefix 1/2/3...` |
-| Close pane | `Prefix x` |
-| Detach session | `Prefix d` |
-| Reattach session | `tmux attach -t main` (shell) |
+| Task | Keys | Source |
+|------|------|--------|
+| New pane right | `Prefix \|` | [.tmux.conf] |
+| New pane below | `Prefix -` | [.tmux.conf] |
+| Move between panes | `Prefix h/j/k/l` | [.tmux.conf] |
+| New window | `Prefix c` | [.tmux.conf] |
+| Switch window | `Prefix 1/2/3...` | [TMUX] |
+| Close pane | `Prefix x` | [.tmux.conf] |
+| Detach session | `Prefix d` | [TMUX] |
+| Reattach session | `tmux attach -t main` | shell command |
 
 ---
 
 ## Practice Drills
 
 ### Drill 1: Tmux Navigation
-1. `Prefix |` - split right
-2. `Prefix -` - split below (now 3 panes)
-3. `Prefix h` - go left
-4. `Prefix l` - go right
-5. `Prefix j` - go down
-6. `Prefix z` - zoom current pane
-7. `Prefix z` - unzoom
-8. `Prefix x` - kill pane
-9. `Prefix x` - kill another
+1. `Prefix |` [.tmux.conf] - split right
+2. `Prefix -` [.tmux.conf] - split below (now 3 panes)
+3. `Prefix h` [.tmux.conf] - go left
+4. `Prefix l` [.tmux.conf] - go right
+5. `Prefix j` [.tmux.conf] - go down
+6. `Prefix z` [TMUX] - zoom current pane
+7. `Prefix z` [TMUX] - unzoom
+8. `Prefix x` [.tmux.conf] - kill pane
+9. `Prefix x` [.tmux.conf] - kill another
 
 ### Drill 2: File Operations
-1. `Ctrl+n` - open tree
-2. `j j j` - move down
-3. `a` - create file, type `test.txt`, Enter
-4. `Enter` - open file
-5. `i` - insert mode
+1. `Ctrl+n` [NVCHAD] - open tree
+2. `j j j` [NVIMTREE] - move down
+3. `a` [NVIMTREE] - create file, type `test.txt`, Enter
+4. `Enter` [NVIMTREE] - open file
+5. `i` [NEOVIM] - insert mode
 6. Type something
-7. `jk` - back to normal mode
-8. `;w Enter` - save
-9. `Ctrl+n` - back to tree
-10. Navigate to test.txt, press `d` - delete
-11. `y` - confirm
+7. `jk` [mappings.lua] - back to normal mode
+8. `;w Enter` [mappings.lua]+[NEOVIM] - save
+9. `Ctrl+n` [NVCHAD] - back to tree
+10. Navigate to test.txt, press `d` [NVIMTREE] - delete
+11. `y` [NVIMTREE] - confirm
 
 ### Drill 3: Telescope Workflow
-1. `Leader f f` - find files
+1. `Leader f f` [NVCHAD] - find files
 2. Type partial filename
-3. `Ctrl+n` / `Ctrl+p` - navigate results
-4. `Enter` - open
-5. `Leader f w` - grep project
+3. `Ctrl+n` / `Ctrl+p` [TELESCOPE] - navigate results
+4. `Enter` [TELESCOPE] - open
+5. `Leader f w` [NVCHAD] - grep project
 6. Type search term
-7. `Enter` - jump to match
+7. `Enter` [TELESCOPE] - jump to match
 
 ### Drill 4: Buffer Workflow
-1. `Leader f f` - open file 1
-2. `Leader f f` - open file 2
-3. `Leader f f` - open file 3
-4. `Tab` - cycle forward
-5. `Shift+Tab` - cycle back
-6. `Leader x` - close current
-7. `Tab` - to next
+1. `Leader f f` [NVCHAD] - open file 1
+2. `Leader f f` [NVCHAD] - open file 2
+3. `Leader f f` [NVCHAD] - open file 3
+4. `Tab` [NVCHAD] - cycle forward
+5. `Shift+Tab` [NVCHAD] - cycle back
+6. `Leader x` [NVCHAD] - close current
+7. `Tab` [NVCHAD] - to next
 
 ### Drill 5: Modal Editing
-1. `gg` - go to top
-2. `G` - go to bottom
-3. `Ctrl+u` - half page up
-4. `/function` - search for "function"
-5. `n` - next match
-6. `N` - previous match
-7. `ciw` - change word under cursor
+1. `gg` [NEOVIM] - go to top
+2. `G` [NEOVIM] - go to bottom
+3. `Ctrl+u` [NEOVIM] - half page up
+4. `/function` [NEOVIM] - search for "function"
+5. `n` [NEOVIM] - next match
+6. `N` [NEOVIM] - previous match
+7. `ciw` [NEOVIM] - change word under cursor
 8. Type new word
-9. `jk` - back to normal
-10. `.` - repeat on another word
+9. `jk` [mappings.lua] - back to normal
+10. `.` [NEOVIM] - repeat on another word
 
 ---
 
-*Generated from your dotfiles configuration. When in doubt: `Leader c h`*
+*Generated from your dotfiles configuration. When in doubt: `Leader c h` [NVCHAD]*

@@ -5,8 +5,9 @@ return {
   default_domain = "WSL:archlinux",
 
   -- Font settings (Nerd Fonts for icons)
-  -- Primary font: Cascadia Code NF (installed by install.sh)
-  font = wezterm.font("Cascadia Code NF"),
+  -- Primary font: CascadiaCode NF (installed by install.sh)
+  -- Note: Font name must match exactly what's installed (no space in "CascadiaCode")
+  font = wezterm.font("CascadiaCode NF"),
   font_size = 11.5,
 
   -- Terminal appearance

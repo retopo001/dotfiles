@@ -79,10 +79,9 @@ ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf
 ln -sf ~/dotfiles/.config/nvim ~/.config/nvim
 ```
 
-### 5. WezTerm Config (Windows Side)
+### 5. WezTerm Config & Fonts (Windows Side)
 
-Copy `.wezterm.lua` to your Windows home directory:
-
+**Copy WezTerm config:**
 ```bash
 cp ~/dotfiles/.wezterm.lua /mnt/c/Users/YOUR_USERNAME/.wezterm.lua
 ```
@@ -91,6 +90,19 @@ Or from PowerShell:
 ```powershell
 Copy-Item "\\wsl$\archlinux\home\YOUR_WSL_USER\dotfiles\.wezterm.lua" "$HOME\.wezterm.lua"
 ```
+
+**Install Nerd Fonts (required for icons):**
+
+From PowerShell (run as Administrator for best results):
+```powershell
+# Option 1: Use the automated script
+powershell -ExecutionPolicy Bypass -File "\\wsl$\archlinux\home\YOUR_WSL_USER\dotfiles\install-fonts.ps1"
+
+# Option 2: Use winget (if available)
+winget install -e --id CascadiaCode.CascadiaCode-NF
+```
+
+The script will automatically download and install CascadiaCode Nerd Font. After installation, **restart WezTerm** for fonts to take effect.
 
 ### 6. Initialize Neovim
 

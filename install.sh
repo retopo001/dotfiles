@@ -5,7 +5,69 @@ set -e
 
 echo "=== Dotfiles Installer ==="
 
+# Install Go if not present (required for gopls LSP server)
+echo "Checking for Go installation..."
+if ! command -v go >/dev/null 2>&1; then
+  echo "Go not found. Installing Go..."
+  
+  # Try to detect the environment
+  if command -v pacman >/dev/null 2>&1; then
+    # Arch Linux - use pacman
+    echo "Detected Arch Linux. Installing Go via pacman..."
+    sudo pacman -S --noconfirm go
+  elif command -v apt >/dev/null 2>&1; then
+    # Debian/Ubuntu - use apt
+    echo "Detected Debian/Ubuntu. Installing Go via apt..."
+    sudo apt update
+    sudo apt install -y golang-go
+  else
+    # Fallback: download Go binary directly
+    echo "No package manager found. Downloading Go binary..."
+    GO_VERSION="1.23.4"
+    GO_ARCH="amd64"
+    GO_OS="linux"
+    
+    if [[ "$(uname -m)" == "aarch64" ]] || [[ "$(uname -m)" == "arm64" ]]; then
+      GO_ARCH="arm64"
+    fi
+    
+    GO_TAR="go${GO_VERSION}.${GO_OS}-${GO_ARCH}.tar.gz"
+    GO_URL="https://go.dev/dl/${GO_TAR}"
+    INSTALL_DIR="$HOME/.local"
+    
+    echo "Downloading Go ${GO_VERSION}..."
+    cd /tmp
+    curl -L -o "$GO_TAR" "$GO_URL"
+    
+    echo "Extracting Go..."
+    rm -rf "$INSTALL_DIR/go"
+    tar -C "$INSTALL_DIR" -xzf "$GO_TAR"
+    
+    # Add Go to PATH in .bashrc if not already there
+    if ! grep -q "$INSTALL_DIR/go/bin" ~/.bashrc 2>/dev/null; then
+      echo "" >> ~/.bashrc
+      echo "# Go (for gopls LSP server)" >> ~/.bashrc
+      echo "export PATH=\"$INSTALL_DIR/go/bin:\$PATH\"" >> ~/.bashrc
+    fi
+    
+    export PATH="$INSTALL_DIR/go/bin:$PATH"
+    echo "Go installed to $INSTALL_DIR/go"
+  fi
+  
+  # Verify installation
+  if command -v go >/dev/null 2>&1; then
+    echo "✓ Go installed successfully: $(go version)"
+  else
+    echo "⚠ Warning: Go installation may have failed. Please install manually."
+    echo "  Arch: sudo pacman -S go"
+    echo "  Debian/Ubuntu: sudo apt install golang-go"
+  fi
+else
+  echo "✓ Go already installed: $(go version)"
+fi
+
 # Backup existing configs
+echo ""
 echo "Backing up existing configs..."
 mkdir -p ~/.config_backup
 [ -f ~/.bashrc ] && mv ~/.bashrc ~/.config_backup/
@@ -24,13 +86,17 @@ ln -sf "$DOTFILES_DIR/.config/nvim" ~/.config/nvim
 echo "Symlinks created:"
 ls -la ~/.bashrc ~/.tmux.conf ~/.config/nvim
 
-# Remind about WezTerm
+# Remind about WezTerm and fonts
 echo ""
 echo "=== Manual Steps Required ==="
 echo "1. Copy WezTerm config to Windows:"
 echo "   cp $DOTFILES_DIR/.wezterm.lua /mnt/c/Users/YOUR_USERNAME/.wezterm.lua"
 echo ""
-echo "2. Launch nvim and wait for plugins to install"
-echo "3. Run :MasonInstallAll in Neovim"
+echo "2. Install Nerd Fonts on Windows (run from PowerShell):"
+echo "   powershell -ExecutionPolicy Bypass -File $DOTFILES_DIR/install-fonts.ps1"
+echo "   Or manually: winget install -e --id CascadiaCode.CascadiaCode-NF"
 echo ""
-echo "Done! Restart your terminal to apply changes."
+echo "3. Launch nvim and wait for plugins to install"
+echo "4. Run :MasonInstallAll in Neovim"
+echo ""
+echo "Done! Restart WezTerm to apply changes."

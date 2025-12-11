@@ -3,8 +3,8 @@
 Every keybinding you should know, organized by tool and source.
 
 **Legend — Where each mapping comes from:**
-- `[.wezterm.lua]` = Your WezTerm config
-- `[.tmux.conf]` = Your tmux config
+- `[.wezterm.lua]` = Your WezTerm config (in .config/wezterm/)
+- `[tmux.conf]` = Your tmux config (in .config/tmux/)
 - `[mappings.lua]` = Your Neovim mappings
 - `[TMUX]` = Tmux default
 - `[NVCHAD]` = NvChad default mapping
@@ -13,8 +13,19 @@ Every keybinding you should know, organized by tool and source.
 - `[NEOVIM]` = Vanilla Neovim/Vim default
 - `[FZF]` = FZF shell integration default
 - `[ZOXIDE]` = Zoxide default
+- `[flash.lua]` = flash.nvim plugin config
+- `[harpoon.lua]` = harpoon plugin config
+- `[lazygit.lua]` = lazygit.nvim plugin config
+- `[trouble.lua]` = trouble.nvim plugin config
+- `[todo-comments.lua]` = todo-comments.nvim plugin config
+- `[refactoring.lua]` = refactoring.nvim plugin config
+- `[oil.lua]` = oil.nvim plugin config
+- `[grug-far.lua]` = grug-far.nvim plugin config
+- `[gitlinker.lua]` = gitlinker.nvim plugin config
+- `[ufo.lua]` = nvim-ufo plugin config
+- `[init.lua]` = plugins/init.lua (inline plugin configs)
 
-**Prefix** = `Ctrl+Space` (your tmux prefix, defined in .tmux.conf)
+**Prefix** = `Ctrl+Space` (your tmux prefix, defined in tmux.conf)
 **Leader** = `Space` (NvChad default)
 
 ---
@@ -30,26 +41,40 @@ Your terminal auto-starts tmux when you open WezTerm (configured in .bashrc).
 | `Ctrl+Shift+T` | [.wezterm.lua] | New bash tab (bypasses tmux) |
 | `Ctrl+Shift+N` | [.wezterm.lua] | New Neovim tab (bypasses tmux) |
 
-### Tmux — Your Custom Bindings (.tmux.conf)
+### Tmux — Your Custom Bindings (tmux.conf)
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Ctrl+Space` | [.tmux.conf] | Tmux prefix (replaces default `Ctrl+b`) |
-| `Prefix \|` | [.tmux.conf] | Split pane vertically (replaces `%`) |
-| `Prefix -` | [.tmux.conf] | Split pane horizontally (replaces `"`) |
-| `Prefix h` | [.tmux.conf] | Select pane left (vim-style) |
-| `Prefix j` | [.tmux.conf] | Select pane down (vim-style) |
-| `Prefix k` | [.tmux.conf] | Select pane up (vim-style) |
-| `Prefix l` | [.tmux.conf] | Select pane right (vim-style) |
-| `Prefix <` | [.tmux.conf] | Resize pane left 5 units (repeatable) |
-| `Prefix >` | [.tmux.conf] | Resize pane right 5 units (repeatable) |
-| `Prefix +` | [.tmux.conf] | Resize pane up 2 units (repeatable) |
-| `Prefix =` | [.tmux.conf] | Resize pane down 2 units (repeatable) |
-| `Prefix c` | [.tmux.conf] | New window (rebind) |
-| `Prefix x` | [.tmux.conf] | Kill pane (rebind) |
-| `Prefix &` | [.tmux.conf] | Kill window (rebind) |
-| `v` (copy-mode) | [.tmux.conf] | Begin selection |
-| `y` (copy-mode) | [.tmux.conf] | Yank selection |
+| `Ctrl+Space` | [tmux.conf] | Tmux prefix (replaces default `Ctrl+b`) |
+| `Prefix \|` | [tmux.conf] | Split pane vertically (replaces `%`) |
+| `Prefix -` | [tmux.conf] | Split pane horizontally (replaces `"`) |
+| `Prefix h` | [tmux.conf] | Select pane left (vim-style backup) |
+| `Prefix j` | [tmux.conf] | Select pane down (vim-style backup) |
+| `Prefix k` | [tmux.conf] | Select pane up (vim-style backup) |
+| `Prefix l` | [tmux.conf] | Select pane right (vim-style backup) |
+| `Prefix <` | [tmux.conf] | Resize pane left 5 units (repeatable) |
+| `Prefix >` | [tmux.conf] | Resize pane right 5 units (repeatable) |
+| `Prefix +` | [tmux.conf] | Resize pane up 2 units (repeatable) |
+| `Prefix =` | [tmux.conf] | Resize pane down 2 units (repeatable) |
+| `Prefix c` | [tmux.conf] | New window (rebind) |
+| `Prefix x` | [tmux.conf] | Kill pane (rebind) |
+| `Prefix &` | [tmux.conf] | Kill window (rebind) |
+| `Prefix r` | [tmux.conf] | Reload tmux config |
+| `v` (copy-mode) | [tmux.conf] | Begin selection |
+| `y` (copy-mode) | [tmux.conf] | Yank selection |
+
+### Seamless Navigation (vim-tmux-navigator)
+
+These keys work the same in both Neovim and tmux panes — press once to navigate regardless of where you are.
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `Ctrl+h` | [tmux.conf] + [mappings.lua] | Navigate left (works across vim/tmux) |
+| `Ctrl+j` | [tmux.conf] + [mappings.lua] | Navigate down (works across vim/tmux) |
+| `Ctrl+k` | [tmux.conf] + [mappings.lua] | Navigate up (works across vim/tmux) |
+| `Ctrl+l` | [tmux.conf] + [mappings.lua] | Navigate right (works across vim/tmux) |
+
+**How it works:** When you press `Ctrl+h`, tmux checks if the current pane is running Neovim. If yes, it sends the key to Neovim. If no, it handles the navigation itself. This creates seamless movement across your entire terminal environment.
 
 ### Tmux — All Default Bindings
 
@@ -124,11 +149,11 @@ Your terminal auto-starts tmux when you open WezTerm (configured in .bashrc).
 | `Prefix -` | [TMUX] | Delete most recent buffer |
 | `Prefix PgUp` | [TMUX] | Enter copy mode and scroll up |
 
-#### Copy Mode Navigation (vi-style, enabled in .tmux.conf)
+#### Copy Mode Navigation (vi-style, enabled in tmux.conf)
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `h/j/k/l` | [.tmux.conf] | Move cursor |
+| `h/j/k/l` | [tmux.conf] | Move cursor |
 | `w/b/e` | [TMUX] | Word motions |
 | `0/$` | [TMUX] | Line start/end |
 | `g/G` | [TMUX] | Top/bottom of buffer |
@@ -137,8 +162,8 @@ Your terminal auto-starts tmux when you open WezTerm (configured in .bashrc).
 | `/` | [TMUX] | Search forward |
 | `?` | [TMUX] | Search backward |
 | `n/N` | [TMUX] | Next/previous search result |
-| `v` | [.tmux.conf] | Begin selection |
-| `y` | [.tmux.conf] | Yank selection |
+| `v` | [tmux.conf] | Begin selection |
+| `y` | [tmux.conf] | Yank selection |
 | `q` | [TMUX] | Exit copy mode |
 
 #### Miscellaneous
@@ -251,14 +276,16 @@ Your terminal auto-starts tmux when you open WezTerm (configured in .bashrc).
 | `[e` | [NVIMTREE] | Previous diagnostic |
 | `]e` | [NVIMTREE] | Next diagnostic |
 
-### Focus Switching
+### Focus Switching (vim-tmux-navigator)
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Ctrl+h` | [NVCHAD] | Move focus left |
-| `Ctrl+l` | [NVCHAD] | Move focus right |
-| `Ctrl+j` | [NVCHAD] | Move focus down |
-| `Ctrl+k` | [NVCHAD] | Move focus up |
+| `Ctrl+h` | [mappings.lua] | Move focus left (seamless vim/tmux) |
+| `Ctrl+l` | [mappings.lua] | Move focus right (seamless vim/tmux) |
+| `Ctrl+j` | [mappings.lua] | Move focus down (seamless vim/tmux) |
+| `Ctrl+k` | [mappings.lua] | Move focus up (seamless vim/tmux) |
+
+**Note:** These override NvChad defaults to enable seamless navigation between Neovim windows and tmux panes.
 
 ---
 
@@ -556,12 +583,12 @@ These activate when an LSP server attaches to a buffer.
 
 ### Your Custom Mappings (mappings.lua)
 
-| Keys | Source | Action | Overrides |
-|------|--------|--------|-----------|
-| `;` | [mappings.lua] | Enter command mode | Overrides Neovim's `;` (repeat f/t) |
-| `jk` | [mappings.lua] | Exit insert mode | Alternative to Esc |
+| Keys | Source | Action |
+|------|--------|--------|
+| `jk` | [mappings.lua] | Exit insert mode (alternative to Esc) |
+| `Ctrl+h/j/k/l` | [mappings.lua] | Navigate windows (vim-tmux-navigator) |
 
-**Note:** You lose `;` for repeating f/t searches. Use `,` for backward, or press `f{char}` again.
+**Note:** `;` retains its default Neovim behavior (repeat f/t forward). Use `,` for repeating backward.
 
 ### Mode Switching
 
@@ -604,6 +631,7 @@ These activate when an LSP server attaches to a buffer.
 | `F{char}` | [NEOVIM] | Find char backward |
 | `t{char}` | [NEOVIM] | Till char forward |
 | `T{char}` | [NEOVIM] | Till char backward |
+| `;` | [NEOVIM] | Repeat f/t forward |
 | `,` | [NEOVIM] | Repeat f/t backward |
 
 ### Up-Down Motion
@@ -1083,6 +1111,144 @@ Press `Leader` (Space) and wait 500ms — popup shows available keybindings [NVC
 
 ---
 
+## STAGE 10: Additional Plugins — Complete
+
+### Flash.nvim — Enhanced Navigation
+
+Better than hop/easymotion for jumping to any visible location.
+
+| Keys | Mode | Source | Action |
+|------|------|--------|--------|
+| `s` | n,x,o | [flash.lua] | Flash jump (type chars, jump to label) |
+| `S` | n,x,o | [flash.lua] | Flash Treesitter (select syntax nodes) |
+| `r` | o | [flash.lua] | Remote Flash (operator pending) |
+| `R` | o,x | [flash.lua] | Treesitter Search |
+| `Ctrl+s` | c | [flash.lua] | Toggle Flash Search (in command-line) |
+
+**Usage:** Press `s`, type a few chars, then press the label to jump. `S` lets you select treesitter nodes visually.
+
+### Harpoon — Fast File Navigation (ThePrimeagen)
+
+Mark frequently used files and jump to them instantly with numbered shortcuts.
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `Leader hm` | [harpoon.lua] | Mark current file (add to harpoon list) |
+| `Leader hh` | [harpoon.lua] | Toggle harpoon quick menu |
+| `Leader h1` | [harpoon.lua] | Jump to harpoon file 1 |
+| `Leader h2` | [harpoon.lua] | Jump to harpoon file 2 |
+| `Leader h3` | [harpoon.lua] | Jump to harpoon file 3 |
+| `Leader h4` | [harpoon.lua] | Jump to harpoon file 4 |
+| `Leader h5` | [harpoon.lua] | Jump to harpoon file 5 |
+| `Leader h6-h9` | [harpoon.lua] | Jump to harpoon files 6-9 |
+| `Leader hn` | [harpoon.lua] | Navigate to next harpoon file |
+| `Leader hp` | [harpoon.lua] | Navigate to previous harpoon file |
+
+**Usage:** Mark your most frequently accessed files with `Leader hm`, then use `Leader h1-h9` for instant access.
+
+### LazyGit — Full Git UI
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `Leader gg` | [lazygit.lua] | Open LazyGit (full git workflow UI) |
+
+**Commands:** `:LazyGit`, `:LazyGitConfig`, `:LazyGitCurrentFile`, `:LazyGitFilter`
+
+### Trouble.nvim — Better Diagnostics/Quickfix
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `Leader xx` | [trouble.lua] | Toggle diagnostics (all files) |
+| `Leader xX` | [trouble.lua] | Toggle diagnostics (current buffer only) |
+| `Leader cs` | [trouble.lua] | Toggle symbols outline |
+| `Leader cl` | [trouble.lua] | Toggle LSP definitions/references/etc |
+| `Leader xL` | [trouble.lua] | Toggle location list |
+| `Leader xQ` | [trouble.lua] | Toggle quickfix list |
+
+### TODO Comments — Navigate/Search TODOs
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `]t` | [todo-comments.lua] | Jump to next TODO comment |
+| `[t` | [todo-comments.lua] | Jump to previous TODO comment |
+| `Leader TA` | [todo-comments.lua] | Search all TODOs (Telescope) |
+| `Leader TT` | [todo-comments.lua] | Search TODO/FIX only (Telescope) |
+
+**Recognized keywords:** TODO, FIX, FIXME, HACK, WARN, PERF, NOTE, TEST
+
+### Refactoring.nvim — Code Refactoring (ThePrimeagen)
+
+| Keys | Mode | Source | Action |
+|------|------|--------|--------|
+| `Leader re` | n,v | [refactoring.lua] | Open refactor menu |
+
+**Available refactors:** Extract Function, Extract Variable, Inline Variable, Inline Function, Extract Block, and more.
+
+### Oil.nvim — File Explorer (Buffer-Style)
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `-` | [oil.lua] | Open parent directory in oil |
+
+**Note:** Oil opens directories as editable buffers. Use normal vim motions to navigate, rename by editing text, delete with `dd`, etc. Save with `:w` to apply changes.
+
+### Grug-Far.nvim — Search and Replace with Preview
+
+| Keys | Mode | Source | Action |
+|------|------|--------|--------|
+| `Leader sr` | n,v | [grug-far.lua] | Open search and replace UI |
+
+**Features:** Live preview of replacements, regex support, file type filtering.
+
+### Gitlinker.nvim — Generate Git Links
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `Leader gy` | [gitlinker.lua] | Copy GitHub/GitLab link to clipboard |
+
+### UFO.nvim — Better Folding (Treesitter)
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `zR` | [ufo.lua] | Open all folds |
+| `zM` | [ufo.lua] | Close all folds |
+| `K` | [ufo.lua] | Peek fold preview OR LSP hover |
+
+**Note:** `K` first tries to show folded content preview. If no fold under cursor, shows LSP hover docs instead.
+
+### dial.nvim — Enhanced Increment/Decrement
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `Ctrl+a` | [init.lua] | Increment (numbers, dates, booleans, semver) |
+| `Ctrl+x` | [init.lua] | Decrement (numbers, dates, booleans, semver) |
+
+**Supports:** Integers, hex, dates (YYYY/MM/DD), booleans (true/false), semver (1.2.3), let/const cycling.
+
+### git.nvim — Git Blame/Browse
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `Leader gb` | [init.lua] | Open git blame window |
+| `Leader go` | [init.lua] | Open file/folder in git repository (browser) |
+
+### close-buffers.nvim — Buffer Cleanup
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `Leader th` | [init.lua] | Close all hidden buffers |
+| `Leader tu` | [init.lua] | Close all nameless buffers |
+
+### mini.bracketed — Bracket Navigation
+
+| Keys | Source | Action |
+|------|--------|--------|
+| `]n` / `[n` | [init.lua] | Next/previous treesitter node |
+
+**Note:** Other bracket pairs (files, windows, quickfix, yank) are disabled in config.
+
+---
+
 ## Quick Reference: Most Important Keys
 
 ### "I need to..."
@@ -1095,10 +1261,10 @@ Press `Leader` (Space) and wait 500ms — popup shows available keybindings [NVC
 | Go to definition | `gd` | [NVCHAD lspconfig] |
 | Switch buffer | `Tab` / `Shift+Tab` | [NVCHAD] |
 | Close buffer | `Leader x` | [NVCHAD] |
-| Save file | `;w Enter` | [mappings.lua] + [NEOVIM] |
-| Quit | `;q Enter` | [mappings.lua] + [NEOVIM] |
+| Save file | `:w Enter` or `Ctrl+s` | [NEOVIM] / [NVCHAD] |
+| Quit | `:q Enter` | [NEOVIM] |
 | Split vertical | `Ctrl+w v` | [NEOVIM] |
-| Move between windows | `Ctrl+h/j/k/l` | [NVCHAD] |
+| Move between windows | `Ctrl+h/j/k/l` | [mappings.lua] (vim-tmux-navigator) |
 | Change theme | `Leader t h` | [NVCHAD] |
 | Open cheatsheet | `Leader c h` | [NVCHAD] |
 | Toggle comment | `Leader /` or `gcc` | [NVCHAD] |
@@ -1109,14 +1275,16 @@ Press `Leader` (Space) and wait 500ms — popup shows available keybindings [NVC
 
 | Task | Keys | Source |
 |------|------|--------|
-| New pane right | `Prefix \|` | [.tmux.conf] |
-| New pane below | `Prefix -` | [.tmux.conf] |
-| Move between panes | `Prefix h/j/k/l` | [.tmux.conf] |
-| New window | `Prefix c` | [.tmux.conf] |
+| New pane right | `Prefix \|` | [tmux.conf] |
+| New pane below | `Prefix -` | [tmux.conf] |
+| Move between panes | `Ctrl+h/j/k/l` | [tmux.conf] (seamless vim/tmux) |
+| Move between panes (backup) | `Prefix h/j/k/l` | [tmux.conf] |
+| New window | `Prefix c` | [tmux.conf] |
 | Switch window | `Prefix 1/2/3...` | [TMUX] |
-| Close pane | `Prefix x` | [.tmux.conf] |
+| Close pane | `Prefix x` | [tmux.conf] |
 | Zoom pane | `Prefix z` | [TMUX] |
 | Detach session | `Prefix d` | [TMUX] |
+| Reload config | `Prefix r` | [tmux.conf] |
 | List all bindings | `Prefix ?` | [TMUX] |
 | Reattach session | `tmux attach -t main` | shell |
 
@@ -1125,14 +1293,14 @@ Press `Leader` (Space) and wait 500ms — popup shows available keybindings [NVC
 ## Practice Drills
 
 ### Drill 1: Tmux Navigation
-1. `Prefix |` [.tmux.conf] — split right
-2. `Prefix -` [.tmux.conf] — split below
-3. `Prefix h` [.tmux.conf] — go left
-4. `Prefix l` [.tmux.conf] — go right
-5. `Prefix j` [.tmux.conf] — go down
+1. `Prefix |` [tmux.conf] — split right
+2. `Prefix -` [tmux.conf] — split below
+3. `Ctrl+h` [tmux.conf] — go left (seamless)
+4. `Ctrl+l` [tmux.conf] — go right (seamless)
+5. `Ctrl+j` [tmux.conf] — go down (seamless)
 6. `Prefix z` [TMUX] — zoom pane
 7. `Prefix z` [TMUX] — unzoom
-8. `Prefix x` [.tmux.conf] — kill pane
+8. `Prefix x` [tmux.conf] — kill pane
 
 ### Drill 2: File Operations
 1. `Ctrl+n` [NVCHAD] — open tree
@@ -1142,7 +1310,7 @@ Press `Leader` (Space) and wait 500ms — popup shows available keybindings [NVC
 5. `i` [NEOVIM] — insert mode
 6. Type something
 7. `jk` [mappings.lua] — normal mode
-8. `;w Enter` [mappings.lua]+[NEOVIM] — save
+8. `Ctrl+s` [NVCHAD] — save
 9. `Ctrl+n` [NVCHAD] — back to tree
 10. `d` [NVIMTREE] — delete
 11. `y` [NVIMTREE] — confirm
@@ -1194,15 +1362,49 @@ Press `Leader` (Space) and wait 500ms — popup shows available keybindings [NVC
 6. `@@` [NEOVIM] — repeat macro
 7. `10@a` [NEOVIM] — execute macro 10 times
 
-### Drill 8: Folding
+### Drill 8: Folding (UFO Enhanced)
 1. Open a file with functions
-2. `zM` [NEOVIM] — close all folds
+2. `zM` [ufo.lua] — close all folds
 3. `zo` [NEOVIM] — open fold under cursor
 4. `zc` [NEOVIM] — close fold
 5. `za` [NEOVIM] — toggle fold
-6. `zR` [NEOVIM] — open all folds
-7. `zj` [NEOVIM] — next fold
-8. `zk` [NEOVIM] — previous fold
+6. `zR` [ufo.lua] — open all folds
+7. `K` [ufo.lua] — peek fold content (or LSP hover)
+8. `zj` [NEOVIM] — next fold
+9. `zk` [NEOVIM] — previous fold
+
+### Drill 9: Flash Navigation
+1. `s` [flash.lua] — start flash
+2. Type 2-3 chars of target
+3. Press the label letter to jump
+4. `S` [flash.lua] — flash treesitter (select nodes)
+5. Use `o` to expand/contract selection
+6. `y` [NEOVIM] — yank selection
+
+### Drill 10: Harpoon Workflow
+1. Open a file you use often
+2. `Leader hm` [harpoon.lua] — mark it
+3. Open another frequently used file
+4. `Leader hm` [harpoon.lua] — mark it
+5. `Leader h1` [harpoon.lua] — jump to first marked
+6. `Leader h2` [harpoon.lua] — jump to second marked
+7. `Leader hh` [harpoon.lua] — view/edit harpoon list
+8. `Leader hn` / `Leader hp` — cycle through marked files
+
+### Drill 11: Diagnostics with Trouble
+1. Open a file with LSP errors
+2. `Leader xx` [trouble.lua] — open diagnostics panel
+3. `j/k` — navigate errors
+4. `Enter` — jump to error
+5. `Leader xX` [trouble.lua] — buffer diagnostics only
+6. `Leader cs` [trouble.lua] — toggle symbols outline
+
+### Drill 12: Search and Replace
+1. `Leader sr` [grug-far.lua] — open search/replace
+2. Type search pattern
+3. Type replacement
+4. Preview changes in real-time
+5. Confirm to apply
 
 ---
 

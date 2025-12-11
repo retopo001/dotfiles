@@ -5,10 +5,11 @@ return {
   default_domain = "WSL:archlinux",
 
   -- Font settings (Nerd Fonts for icons)
-  -- Primary font: CascadiaCode NF (installed by install.sh)
-  -- If you get font warnings, run: wezterm ls-fonts --list-system | grep -i cascadia
-  -- to find the exact font name, then update this config
-  font = wezterm.font("CascadiaCode NF"),
+  -- Point WezTerm directly to the font directory (Windows path)
+  -- This allows WezTerm to find fonts even if they're not registered with Windows
+  font_dirs = { wezterm.home_dir .. "\\AppData\\Local\\Microsoft\\Windows\\Fonts" },
+  -- Primary font: CaskaydiaCove NF (Nerd Fonts patched version of Cascadia Code)
+  font = wezterm.font("CaskaydiaCove NF"),
   font_size = 11.5,
 
   -- Terminal appearance

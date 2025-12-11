@@ -21,12 +21,18 @@ function Install-NerdFont {
         Invoke-WebRequest -Uri $FontUrl -OutFile $zipPath -UseBasicParsing
         Expand-Archive -Path $zipPath -DestinationPath "$tempDir\$FontName" -Force
         
-        # Install all TTF files
+        # Install all TTF files using Windows font installer
         $ttfFiles = Get-ChildItem -Path "$tempDir\$FontName" -Filter "*.ttf" -Recurse
         $count = 0
         foreach ($font in $ttfFiles) {
             $destPath = Join-Path $fontDir $font.Name
             Copy-Item $font.FullName -Destination $destPath -Force
+            
+            # Install font using Windows font installer (registers with system)
+            $shell = New-Object -ComObject Shell.Application
+            $fontsFolder = $shell.Namespace(0x14)  # 0x14 = Fonts folder
+            $fontsFolder.CopyHere($font.FullName, 0x10)  # 0x10 = Don't show dialog
+            
             $count++
         }
         

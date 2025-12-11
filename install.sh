@@ -66,6 +66,20 @@ else
   echo "✓ Go already installed: $(go version)"
 fi
 
+# Install tmuxifier (tmux session templates)
+echo ""
+echo "Installing tmuxifier..."
+if [ ! -d "$HOME/.tmuxifier" ]; then
+  if git clone https://github.com/jimeh/tmuxifier.git ~/.tmuxifier 2>/dev/null; then
+    echo "✓ tmuxifier installed"
+  else
+    echo "⚠ Failed to install tmuxifier. You can install it manually:"
+    echo "   git clone https://github.com/jimeh/tmuxifier.git ~/.tmuxifier"
+  fi
+else
+  echo "✓ tmuxifier already installed"
+fi
+
 # Backup existing configs
 echo ""
 echo "Backing up existing configs..."

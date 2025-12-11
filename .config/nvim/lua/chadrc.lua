@@ -14,11 +14,16 @@ M.base46 = {
 	-- },
 }
 
+-- Disable NvDash in favor of alpha-nvim
 -- M.nvdash = { load_on_startup = true }
 -- M.ui = {
 --       tabufline = {
 --          lazyload = false
 --      }
 -- }
+
+-- Enable undercurl for diagnostics (alternative to underline)
+vim.cmd([[let &t_Cs = "\e[4:3m"]])
+vim.cmd([[let &t_Ce = "\e[4:0m"]])
 
 return M

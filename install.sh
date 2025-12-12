@@ -80,6 +80,22 @@ else
   echo "✓ tmuxifier already installed"
 fi
 
+# Install TPM (Tmux Plugin Manager) for tmux-which-key
+echo ""
+echo "Installing TPM (Tmux Plugin Manager)..."
+if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+  mkdir -p ~/.tmux/plugins
+  if git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm 2>/dev/null; then
+    echo "✓ TPM installed"
+    echo "  After tmux starts, press 'Prefix + I' (Ctrl+Space + I) to install plugins"
+  else
+    echo "⚠ Failed to install TPM. You can install it manually:"
+    echo "   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm"
+  fi
+else
+  echo "✓ TPM already installed"
+fi
+
 # Backup existing configs
 echo ""
 echo "Backing up existing configs..."
@@ -186,5 +202,6 @@ echo "=== Next Steps ==="
 echo "1. Restart WezTerm completely (close all windows) to apply font changes"
 echo "2. Launch nvim and wait for plugins to install"
 echo "3. Run :MasonInstallAll in Neovim"
+echo "4. In tmux, press 'Prefix + I' (Ctrl+Space + I) to install tmux plugins"
 echo ""
 echo "Done!"

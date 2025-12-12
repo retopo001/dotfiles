@@ -27,6 +27,7 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias ll='ls -la'
 alias v='nvim'
+alias cld='claude --dangerously-skip-permissions'
 
 # --- Prompt ---
 PS1='[\u@\h \W]\$ '

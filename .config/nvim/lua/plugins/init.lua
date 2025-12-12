@@ -8,6 +8,9 @@ return {
   -- Alpha-nvim dashboard
   require "plugins.alpha",
 
+  -- which-key.nvim: Full panel mode for rehearsal and overview
+  require "plugins.which-key",
+
   -- vim-tmux-navigator for seamless navigation
   require "plugins.vim-tmux-navigator",
 

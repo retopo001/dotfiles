@@ -60,8 +60,10 @@ Your terminal auto-starts tmux when you open WezTerm (configured in .bashrc).
 | `Prefix x` | [tmux.conf] | Kill pane (rebind) |
 | `Prefix &` | [tmux.conf] | Kill window (rebind) |
 | `Prefix r` | [tmux.conf] | Reload tmux config |
+| `Prefix w` | [tmux.conf] | Open workflow guide in new pane |
 | `v` (copy-mode) | [tmux.conf] | Begin selection |
 | `y` (copy-mode) | [tmux.conf] | Yank selection |
+| `Prefix ?` | [tmux-which-key] | Show tmux keybindings menu (which-key) |
 
 ### Seamless Navigation (vim-tmux-navigator)
 
@@ -587,6 +589,9 @@ These activate when an LSP server attaches to a buffer.
 |------|--------|--------|
 | `jk` | [mappings.lua] | Exit insert mode (alternative to Esc) |
 | `Ctrl+h/j/k/l` | [mappings.lua] | Navigate windows (vim-tmux-navigator) |
+| `Leader ac` | [mappings.lua] | Launch Claude in terminal buffer |
+| `Leader gw` | [mappings.lua] | Open workflow guide (absolute path) |
+| `:Claude` | [mappings.lua] | User command to launch Claude |
 
 **Note:** `;` retains its default Neovim behavior (repeat f/t forward). Use `,` for repeating backward.
 
@@ -1076,18 +1081,24 @@ Use with operators: `d`, `c`, `y`, `v`, etc.
 |------|--------|--------|
 | `Leader h` | [NVCHAD] | Horizontal terminal |
 | `Leader v` | [NVCHAD] | Vertical terminal |
+| `Leader ac` | [mappings.lua] | Launch Claude in terminal buffer |
 | `Alt+h` | [NVCHAD] | Toggle horizontal terminal |
 | `Alt+v` | [NVCHAD] | Toggle vertical terminal |
 | `Alt+i` | [NVCHAD] | Toggle floating terminal |
 | `Ctrl+x` | [NVCHAD] | Exit terminal mode |
 | `:terminal` | [NEOVIM] | Open terminal in current window |
 | `:term {cmd}` | [NEOVIM] | Open terminal with command |
+| `:Claude` | [mappings.lua] | Launch Claude CLI in terminal |
+
+**Shell Alias:** `cld` — Claude CLI with required flags (configured in .bashrc)
 
 ### Cheatsheet & Help
 
 | Keys | Source | Action |
 |------|--------|--------|
 | `Leader c h` | [NVCHAD] | Open NvChad cheatsheet |
+| `Leader gw` | [mappings.lua] | Open workflow guide (this file) |
+| `Leader` (wait) | [which-key.lua] | Show all keybindings in large panel |
 | `:Telescope keymaps` | [TELESCOPE] | Searchable keybindings |
 | `:h {topic}` | [NEOVIM] | Neovim help |
 | `:h index` | [NEOVIM] | Index of all commands |
@@ -1107,7 +1118,17 @@ Use with operators: `d`, `c`, `y`, `v`, etc.
 
 ### WhichKey
 
-Press `Leader` (Space) and wait 500ms — popup shows available keybindings [NVCHAD].
+Press `Leader` (Space) and wait 300ms — large panel shows all available keybindings at once [which-key.lua].
+
+**Features:**
+- Large panel mode (50x25) — see all mappings without scrolling
+- Full visibility — no paging or collapsing
+- Rehearsal mode — perfect for learning keybindings
+- Shows all leader key combinations
+
+**Custom Mappings:**
+- `Leader ac` — Launch Claude in terminal buffer
+- `Leader gw` — Open workflow guide (absolute path)
 
 ---
 
@@ -1267,6 +1288,9 @@ Mark frequently used files and jump to them instantly with numbered shortcuts.
 | Move between windows | `Ctrl+h/j/k/l` | [mappings.lua] (vim-tmux-navigator) |
 | Change theme | `Leader t h` | [NVCHAD] |
 | Open cheatsheet | `Leader c h` | [NVCHAD] |
+| Open workflow guide | `Leader gw` | [mappings.lua] |
+| Show all keybindings | `Leader` (wait) | [which-key.lua] |
+| Launch Claude | `Leader ac` | [mappings.lua] |
 | Toggle comment | `Leader /` or `gcc` | [NVCHAD] |
 | System clipboard yank | `"+y` | [NEOVIM] |
 | System clipboard paste | `"+p` | [NEOVIM] |
@@ -1285,7 +1309,9 @@ Mark frequently used files and jump to them instantly with numbered shortcuts.
 | Zoom pane | `Prefix z` | [TMUX] |
 | Detach session | `Prefix d` | [TMUX] |
 | Reload config | `Prefix r` | [tmux.conf] |
+| Open workflow guide | `Prefix w` | [tmux.conf] |
 | List all bindings | `Prefix ?` | [TMUX] |
+| Show keybindings menu | `Prefix ?` | [tmux-which-key] |
 | Reattach session | `tmux attach -t main` | shell |
 
 ---

@@ -1,8 +1,16 @@
 {
 	"folders": [
 		{
-			"path": ".."
+			"uri": "vscode-remote://wsl+archlinux/home/bw"
 		}
 	],
-	"settings": {}
+	"remoteAuthority": "wsl+archlinux",
+	"settings": {
+		"terminal.integrated.cwd": "/home/bw",
+		"terminal.integrated.defaultProfile.linux": "bash",
+		"vscode-neovim.neovimExecutablePaths.linux": "/usr/bin/nvim",
+		"vscode-neovim.neovimInitVimPaths.linux": "/home/bw/.config/nvim/init.lua",
+		"vscode-neovim.useWSL": true,
+		"vscode-neovim.wslDistribution": "archlinux"
+	}
 }

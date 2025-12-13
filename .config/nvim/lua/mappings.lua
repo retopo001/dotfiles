@@ -19,7 +19,7 @@ vim.api.nvim_create_user_command("Claude", function()
 end, { desc = "Launch Claude in terminal buffer" })
 
 -- Workflow guide quick access (absolute path, no cwd dependence)
-map("n", "<leader>gw", "<cmd>edit /home/bw/dotfiles/WORKFLOW-GUIDE.md<cr>", { desc = "Open workflow guide" })
+map("n", "<leader>gw", "<cmd>edit /home/bw/dotfiles/docs/CURSOR-WORKFLOW-GUIDE.md<cr>", { desc = "Open workflow guide" })
 
 -- Claude launcher mapping
 map("n", "<leader>ac", "<cmd>Claude<cr>", { desc = "Launch Claude" })

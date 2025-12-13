@@ -37,15 +37,17 @@ Cursor is a full-featured IDE built on VS Code, with embedded Neovim via the vsc
 
 ### Cursor Window Management
 
-| Keys | Source | Action |
-|------|--------|--------|
-| `Cmd+W` / `Ctrl+W` | [CURSOR] | Close current editor tab |
-| `Cmd+K W` / `Ctrl+K W` | [CURSOR] | Close all editor tabs |
-| `Cmd+\` / `Ctrl+\` | [CURSOR] | Split editor (side by side) |
-| `Cmd+K Cmd+\` / `Ctrl+K Ctrl+\` | [CURSOR] | Split editor (three columns) |
-| `Cmd+1/2/3` / `Ctrl+1/2/3` | [CURSOR] | Focus editor group 1/2/3 |
-| `Cmd+K Cmd+Left/Right` | [CURSOR] | Move editor to next/previous group |
-| `Cmd+Option+Left/Right` | [CURSOR] | Navigate between editor groups |
+| Keys | Source | Action | Command ID |
+|------|--------|--------|------------|
+| `Cmd+W` / `Ctrl+W` | [CURSOR] | Close current editor tab | `workbench.action.closeActiveEditor` |
+| `Cmd+K W` / `Ctrl+K W` | [CURSOR] | Close all editor tabs | `workbench.action.closeAllEditors` |
+| `Cmd+\` / `Ctrl+\` | [CURSOR] | Split editor (side by side) | `workbench.action.splitEditor` |
+| `Cmd+K Cmd+\` / `Ctrl+K Ctrl+\` | [CURSOR] | Split editor (three columns) | `workbench.action.splitEditorInGroup` |
+| `Cmd+1/2/3` / `Ctrl+1/2/3` | [CURSOR] | Focus editor group 1/2/3 | `workbench.action.focusFirstEditorGroup` |
+| `Cmd+K Cmd+Left/Right` | [CURSOR] | Move editor to next/previous group | `workbench.action.moveEditorToNextGroup` |
+| `Cmd+Option+Left/Right` | [CURSOR] | Navigate between editor groups | `workbench.action.navigateEditorGroups` |
+
+**Note:** If a keybinding doesn't work, verify it in the Keyboard Shortcuts editor (`Ctrl+M Ctrl+S`) by searching for the Command ID.
 
 ### Cursor Panel Management
 
@@ -453,7 +455,7 @@ The vscode-neovim extension embeds Neovim as the editor backend. Your full Neovi
 | `jk` | [mappings.lua] | Exit insert mode (alternative to Esc) |
 | `Ctrl+h/j/k/l` | [mappings.lua] | Navigate windows (Neovim splits) |
 | `Leader ac` | [mappings.lua] | Launch Claude in terminal buffer |
-| `Leader gw` | [mappings.lua] | Open workflow guide (absolute path) |
+| `Leader gw` | [mappings.lua] | Open Cursor workflow guide (`/home/bw/dotfiles/docs/CURSOR-WORKFLOW-GUIDE.md`) |
 | `:Claude` | [mappings.lua] | User command to launch Claude |
 
 ### Mode Switching
@@ -584,7 +586,9 @@ The vscode-neovim extension embeds Neovim as the editor backend. Your full Neovi
 |------|--------|--------|
 | `Leader` (wait) | [which-key.lua] | Show all keybindings in large panel |
 
-**Features:**
+**Note:** Which-key is **disabled in vscode-neovim mode** (Cursor/VSCode) to prevent `vscode.internal` errors. In Cursor, use `Cmd+Shift+P` (Command Palette) or `Leader` (wait) to see available commands, though the full which-key panel won't appear. In standalone Neovim, which-key works normally.
+
+**Features (standalone Neovim only):**
 - Large panel mode — see all mappings without scrolling
 - Full visibility — no paging or collapsing
 - Rehearsal mode — perfect for learning keybindings
@@ -596,14 +600,19 @@ The vscode-neovim extension embeds Neovim as the editor backend. Your full Neovi
 |------|--------|--------|
 | `Cmd+Shift+P` / `Ctrl+Shift+P` | [CURSOR] | Command Palette |
 | `F1` | [CURSOR] | Show all commands |
-| `Cmd+K Cmd+S` / `Ctrl+K Ctrl+S` | [CURSOR] | Keyboard shortcuts editor |
+| `Cmd+M Cmd+S` / `Ctrl+M Ctrl+S` | [CURSOR] | Keyboard shortcuts editor |
+
+**Note:** Keybindings may vary by installation or custom configuration. To verify or customize any keybinding:
+1. Press `Ctrl+M Ctrl+S` (or `Cmd+M Cmd+S` on Mac) to open the Keyboard Shortcuts editor
+2. Search for the command name (e.g., "splitEditor", "workbench.action.splitEditor")
+3. View or modify the assigned keybinding
 
 ### Neovim Help
 
 | Keys | Source | Action |
 |------|--------|--------|
 | `Leader c h` | [NVCHAD] | Open NvChad cheatsheet |
-| `Leader gw` | [mappings.lua] | Open workflow guide |
+| `Leader gw` | [mappings.lua] | Open Cursor workflow guide |
 | `:h {topic}` | [NEOVIM] | Neovim help |
 | `:h index` | [NEOVIM] | Index of all commands |
 | `:h quickref` | [NEOVIM] | Quick reference |
@@ -688,7 +697,7 @@ Leader hp → Previous in harpoon list
 | Toggle terminal | `Cmd+\`` | [CURSOR] |
 | Open AI chat | `Cmd+L` | [CURSOR] |
 | Inline AI edit | `Cmd+K` | [CURSOR] |
-| Show all keybindings | `Leader` (wait) | [which-key.lua] |
+| Show all keybindings | `Leader` (wait) or `Cmd+Shift+P` | [which-key.lua] / [CURSOR] (which-key disabled in Cursor) |
 | Launch Claude | `Leader ac` | [mappings.lua] |
 | Jump to percentage | `{n}%` then `.` | [mappings.lua] |
 | Toggle comment | `Leader /` or `gcc` | [NVCHAD] |
@@ -769,6 +778,28 @@ Leader hp → Previous in harpoon list
 
 ## Configuration Requirements
 
+### Workspace Setup (WSL)
+
+**Important:** When working with dotfiles in WSL, always open Cursor with the `--remote` flag to connect to the correct WSL instance:
+
+```bash
+cursor --remote wsl+archlinux /home/bw/dotfiles/dotfiles.code-workspace
+```
+
+Or open the workspace file directly (Cursor will detect the remote authority):
+
+```bash
+cursor /home/bw/dotfiles/dotfiles.code-workspace
+```
+
+The workspace file (`dotfiles.code-workspace`) is configured with:
+- `remoteAuthority: "wsl+archlinux"` - Ensures Cursor connects to the correct WSL distribution
+- `uri: "vscode-remote://wsl+archlinux/home/bw"` - Points to the WSL home directory
+- `terminal.integrated.cwd: "/home/bw"` - Sets terminal working directory to WSL path (prevents Windows UNC path errors)
+- `terminal.integrated.defaultProfile.linux: "bash"` - Sets bash as default terminal
+
+**Why this matters:** Without `--remote wsl+archlinux`, Cursor may connect to the wrong instance or try to use Windows paths (like `\\wsl.localhost\archlinux\home\bw`), causing terminal launch failures and Neovim disconnection errors.
+
 ### Cursor keybindings.json
 
 To enable your custom `gd` handler, add this to Cursor's `keybindings.json`:
@@ -792,14 +823,88 @@ To enable your custom `gd` handler, add this to Cursor's `keybindings.json`:
 
 ### vscode-neovim Settings
 
-In Cursor's `settings.json`:
+**Option 1: Workspace Settings (Recommended)**
+
+The `dotfiles.code-workspace` file already includes these settings:
 
 ```json
 {
   "vscode-neovim.neovimExecutablePaths.linux": "/usr/bin/nvim",
-  "vscode-neovim.neovimInitVimPaths.linux": "/home/bw/.config/nvim/init.lua"
+  "vscode-neovim.neovimInitVimPaths.linux": "/home/bw/.config/nvim/init.lua",
+  "vscode-neovim.useWSL": true,
+  "vscode-neovim.wslDistribution": "archlinux"
 }
 ```
+
+**Option 2: User Settings**
+
+Alternatively, add to Cursor's user `settings.json`:
+
+```json
+{
+  "vscode-neovim.neovimExecutablePaths.linux": "/usr/bin/nvim",
+  "vscode-neovim.neovimInitVimPaths.linux": "/home/bw/.config/nvim/init.lua",
+  "vscode-neovim.useWSL": true,
+  "vscode-neovim.wslDistribution": "archlinux"
+}
+```
+
+**How to access user settings:** `Cmd+Shift+P` → "Preferences: Open User Settings (JSON)"
+
+**Note:** Workspace settings take precedence over user settings. The workspace file is already configured correctly.
+
+### Troubleshooting
+
+#### Terminal Launch Errors
+
+**Error:** `The terminal process failed to launch: Starting directory (cwd) "\\wsl.localhost\archlinux\home\bw" does not exist.`
+
+**Solution:** This happens when Cursor tries to use Windows UNC paths instead of WSL paths. Ensure:
+1. Workspace file has `terminal.integrated.cwd: "/home/bw"` in settings
+2. Cursor is launched with `--remote wsl+archlinux` flag
+3. Workspace file has `remoteAuthority: "wsl+archlinux"` set
+
+#### Neovim Disconnection / Vim Motions Not Working
+
+**Error:** `Neovim was disconnected` or hjkl/vim motions don't work
+
+**Solution:** This usually occurs when:
+1. vscode-neovim extension is not enabled or not installed
+2. vscode-neovim settings are missing from workspace or user settings
+3. Terminal cwd is set incorrectly (see above)
+4. vscode-neovim can't find Neovim executable
+5. Neovim init path is incorrect
+
+**Fix (in order):**
+1. **Verify extension is installed and enabled:**
+   - `Cmd+Shift+X` → Search "vscode-neovim"
+   - Ensure it's installed and enabled (not disabled)
+
+2. **Check workspace settings:**
+   - Open `dotfiles.code-workspace`
+   - Verify it contains vscode-neovim settings (see Configuration Requirements section)
+
+3. **Verify Neovim is accessible:**
+   - Open terminal in Cursor: `Cmd+\``
+   - Run: `which nvim` (should return `/usr/bin/nvim`)
+   - Run: `nvim --version` (should show version)
+
+4. **Check Neovim config loads:**
+   - In terminal: `nvim --headless -c "lua print('Config OK')" -c "qa"`
+   - Should print "Config OK" without errors
+
+5. **Reload Cursor window:**
+   - `Cmd+Shift+P` → "Developer: Reload Window"
+   - Or restart Cursor completely
+
+6. **Check vscode-neovim output:**
+   - `Cmd+Shift+P` → "Output: Show Output"
+   - Select "vscode-neovim" from dropdown
+   - Look for connection errors or path issues
+
+7. **Verify workspace is opened with remote:**
+   - Ensure workspace file has `remoteAuthority: "wsl+archlinux"`
+   - Launch with: `cursor --remote wsl+archlinux /home/bw/dotfiles/dotfiles.code-workspace`
 
 ---
 

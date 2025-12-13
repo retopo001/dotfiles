@@ -59,7 +59,7 @@ return {
     -- Register our custom mappings
     wk.register({
       ["<leader>ac"] = { "<cmd>Claude<cr>", "Launch Claude" },
-      ["<leader>gw"] = { "<cmd>edit /home/bw/dotfiles/WORKFLOW-GUIDE.md<cr>", "Open workflow guide" },
+      ["<leader>gw"] = { "<cmd>edit /home/bw/dotfiles/docs/CURSOR-WORKFLOW-GUIDE.md<cr>", "Open workflow guide" },
     })
   end,
 }

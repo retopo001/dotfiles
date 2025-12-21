@@ -141,6 +141,13 @@ config.keys = {
   { key = "PageDown", mods = "SHIFT", action = act.ScrollByPage(1) },
   { key = "UpArrow", mods = "SHIFT", action = act.ScrollByLine(-1) },
   { key = "DownArrow", mods = "SHIFT", action = act.ScrollByLine(1) },
+
+  -- Window controls
+  { key = "F11", action = act.ToggleFullScreen },              -- Fullscreen toggle
+  { key = "z", mods = "ALT", action = act.TogglePaneZoomState }, -- Zoom current pane (like tmux prefix+z)
+
+  -- Command palette (shows all available actions - closest to which-key)
+  { key = "P", mods = "CTRL|SHIFT", action = act.ActivateCommandPalette },
 }
 
 -- Set initial window position and size on startup (in pixels)

@@ -25,12 +25,15 @@ local servers = {
   "tailwindcss",    -- Tailwind CSS
   "ts_ls",          -- TypeScript & JavaScript (handles React, Next.js, etc.)
   "eslint",         -- ESLint for JS/TS
-  
+
   -- Systems & compiled languages
   "rust_analyzer",  -- Rust
   "clangd",         -- C/C++
   "gopls",          -- Go
   "taplo",          -- TOML (Cargo.toml, etc.)
+
+  -- Scripting & config
+  "lua_ls",         -- Lua (Neovim config, WezTerm, etc.)
 }
 
 -- Enable the LSP servers
@@ -99,4 +102,20 @@ vim.lsp.config("ts_ls", {
 --   },
 -- })
 
--- read :h vim.lsp.config for changing options of lsp servers 
+-- Lua: Configure for Neovim and WezTerm development
+vim.lsp.config("lua_ls", {
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { "vim", "wezterm" },
+      },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file("", true),
+        checkThirdParty = false,
+      },
+      telemetry = { enable = false },
+    },
+  },
+})
+
+-- read :h vim.lsp.config for changing options of lsp servers

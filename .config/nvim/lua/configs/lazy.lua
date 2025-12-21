@@ -1,5 +1,5 @@
 return {
-  defaults = { lazy = true },
+  defaults = { lazy = false },  -- Load all plugins immediately
   install = { 
     colorscheme = { "nvchad" },
     -- Allow auto-installation even in vscode-neovim

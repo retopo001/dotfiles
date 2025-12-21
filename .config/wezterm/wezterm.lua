@@ -1,104 +1,144 @@
 local wezterm = require "wezterm"
 local mux = wezterm.mux
+local act = wezterm.action
 
--- Window size (in character cells - columns and rows)
-local initial_cols = 251
-local initial_rows = 76
+-- Smart paste: if clipboard has image, save it and paste path; otherwise normal paste
+wezterm.on("smart-paste", function(window, pane)
+  local success, stdout, stderr = wezterm.run_child_process({
+    "powershell.exe", "-NoProfile", "-Command", [[
+      $img = Get-Clipboard -Format Image
+      if ($img) {
+        $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+        $path = "C:\Users\wijay\Dropbox\Downloads\clipboard_$timestamp.png"
+        $img.Save($path)
+        Write-Output $path
+      } else {
+        Write-Output "TEXT"
+      }
+    ]]
+  })
 
--- Window position (in pixels)
+  local output = stdout:gsub("[\r\n]+$", "")
+
+  if output == "TEXT" then
+    -- Normal text paste
+    window:perform_action(act.PasteFrom("Clipboard"), pane)
+  else
+    -- Image was saved, convert Windows path to WSL path and type it
+    local wsl_path = output:gsub("C:\\Users\\wijay\\", "/mnt/c/Users/wijay/"):gsub("\\", "/")
+    window:perform_action(act.SendString(wsl_path), pane)
+  end
+end)
+
+-- Window position and size in pixels
 local window_x = 1146
-local window_y = 0
+local window_y = 31  -- Account for title bar height
+local window_width = 2301
+local window_height = 1416  -- Reduced to fit with title bar offset
 
-local config = {
-  -- Default to WSL archlinux
-  default_domain = "WSL:archlinux",
+local config = wezterm.config_builder and wezterm.config_builder() or {}
 
-  -- Font settings (Nerd Fonts for icons)
-  -- Point WezTerm directly to the font directory (Windows path)
-  -- This allows WezTerm to find fonts even if they're not registered with Windows
-  font_dirs = { wezterm.home_dir .. "\\AppData\\Local\\Microsoft\\Windows\\Fonts" },
-  -- Primary font: CaskaydiaCove NF (Nerd Fonts patched version of Cascadia Code)
-  font = wezterm.font("CaskaydiaCove NF"),
-  font_size = 11.5,
+-- Default to WSL archlinux
+config.default_domain = "WSL:archlinux"
 
-  -- Terminal appearance
-  enable_tab_bar = true,
-  hide_tab_bar_if_only_one_tab = false,
-  use_fancy_tab_bar = true,
-  window_decorations = "RESIZE",
-  color_scheme = "Catppuccin Mocha",
+-- Font settings
+config.font_dirs = { wezterm.home_dir .. "\\AppData\\Local\\Microsoft\\Windows\\Fonts" }
+config.font = wezterm.font_with_fallback({
+  "JetBrains Mono",
+  "JetBrainsMono Nerd Font",
+  "Consolas",
+})
+config.font_size = 10
 
-  -- Keybindings
-  keys = {
-    -- Ctrl+Shift+T → new independent bash tab (no tmux)
-    {
-      key = "t",
-      mods = "CTRL|SHIFT",
-      action = wezterm.action.SpawnCommandInNewTab {
-        domain = { DomainName = "WSL:archlinux" },
-        cwd = "/home/bw/signal-assembly-platform",
-        args = { "bash", "-c", "export WEZTERM_NOTMUX=1; cd ~/signal-assembly-platform; exec bash -l" },
-      },
-    },
+-- Terminal appearance
+config.enable_tab_bar = false
+config.hide_tab_bar_if_only_one_tab = true
+config.use_fancy_tab_bar = false
+config.window_decorations = "TITLE | RESIZE"
+config.color_scheme = "Vs Code Dark+ (Gogh)"
+config.window_close_confirmation = "NeverPrompt"
 
-    -- Ctrl+Shift+N → nvim in new tab
-    {
-      key = "n",
-      mods = "CTRL|SHIFT",
-      action = wezterm.action.SpawnCommandInNewTab {
-        domain = { DomainName = "WSL:archlinux" },
-        cwd = "/home/bw/signal-assembly-platform",
-        args = { "bash", "-c", "export WEZTERM_NOTMUX=1; cd ~/signal-assembly-platform; exec nvim" },
-      },
+-- Keybindings
+config.keys = {
+  -- Ctrl+Shift+T → new independent zsh tab (no tmux)
+  {
+    key = "t",
+    mods = "CTRL|SHIFT",
+    action = wezterm.action.SpawnCommandInNewTab {
+      domain = { DomainName = "WSL:archlinux" },
+      cwd = "/home/bw",
+      args = { "zsh", "-c", "export WEZTERM_NOTMUX=1; exec zsh -l" },
     },
   },
+
+  -- Ctrl+Shift+N → nvim in new tab
+  {
+    key = "n",
+    mods = "CTRL|SHIFT",
+    action = wezterm.action.SpawnCommandInNewTab {
+      domain = { DomainName = "WSL:archlinux" },
+      cwd = "/home/bw",
+      args = { "zsh", "-c", "export WEZTERM_NOTMUX=1; exec nvim" },
+    },
+  },
+
+  -- Alt+Shift+V → side by side (vertical divider |) - opens in current directory
+  {
+    key = "V",
+    mods = "ALT|SHIFT",
+    action = wezterm.action_callback(function(window, pane)
+      local cwd = pane:get_current_working_dir()
+      local cwd_path = cwd and cwd.file_path or "/home/bw"
+      window:perform_action(wezterm.action.SplitHorizontal {
+        domain = { DomainName = "WSL:archlinux" },
+        cwd = cwd_path,
+        args = { "zsh", "-c", "export WEZTERM_NOTMUX=1; exec zsh -l" },
+      }, pane)
+    end),
+  },
+
+  -- Alt+Shift+H → stacked (horizontal divider ─) - opens in current directory
+  {
+    key = "H",
+    mods = "ALT|SHIFT",
+    action = wezterm.action_callback(function(window, pane)
+      local cwd = pane:get_current_working_dir()
+      local cwd_path = cwd and cwd.file_path or "/home/bw"
+      window:perform_action(wezterm.action.SplitVertical {
+        domain = { DomainName = "WSL:archlinux" },
+        cwd = cwd_path,
+        args = { "zsh", "-c", "export WEZTERM_NOTMUX=1; exec zsh -l" },
+      }, pane)
+    end),
+  },
+
+  -- Alt+F5 → restart WezTerm (launch new instance, close current)
+  {
+    key = "F5",
+    mods = "ALT",
+    action = wezterm.action_callback(function(window, pane)
+      wezterm.run_child_process({ "cmd.exe", "/c", "start", "", "wezterm-gui.exe" })
+      window:perform_action(wezterm.action.QuitApplication, pane)
+    end),
+  },
+
+  -- Smart paste: image → save & paste path, text → normal paste
+  -- Ctrl+V passes through to vim/tmux, only Ctrl+Shift+V is smart paste
+  { key = "V", mods = "CTRL|SHIFT", action = act.EmitEvent("smart-paste") },
+
+  -- Alt+hjkl → WezTerm panes | Ctrl+hjkl → tmux panes (passes through)
+  { key = "h", mods = "ALT", action = act.ActivatePaneDirection "Left" },
+  { key = "j", mods = "ALT", action = act.ActivatePaneDirection "Down" },
+  { key = "k", mods = "ALT", action = act.ActivatePaneDirection "Up" },
+  { key = "l", mods = "ALT", action = act.ActivatePaneDirection "Right" },
 }
 
--- Set initial window position and size on startup
+-- Set initial window position and size on startup (in pixels)
 wezterm.on("gui-startup", function(cmd)
-  wezterm.log_info("gui-startup event fired!")
-  local tab, pane, window = mux.spawn_window({
-    args = cmd and cmd.args or nil,
-    position = {
-      x = window_x,
-      y = window_y,
-      origin = "MainScreen"
-    },
-    width = initial_cols,
-    height = initial_rows,
-  })
-  wezterm.log_info(string.format("Spawned window at %d,%d with size %dx%d", window_x, window_y, initial_cols, initial_rows))
-  
-  -- Also try setting position after window is created (in case spawn_window params don't work)
-  local gui_window = window:gui_window()
-  if gui_window then
-    wezterm.log_info("Attempting to set position via gui_window()")
-    gui_window:set_position(window_x, window_y)
-  end
-end)
-
--- Handle gui-attached to set position/size for windows that already exist
-wezterm.on("gui-attached", function(domain)
-  wezterm.log_info("gui-attached event fired!")
-  for _, window in ipairs(mux.all_windows()) do
-    local gui_window = window:gui_window()
-    if gui_window then
-      gui_window:set_position(window_x, window_y)
-      wezterm.log_info(string.format("Setting window position to %d,%d", window_x, window_y))
-    end
-  end
-end)
-
--- Try setting position when window gains focus (alternative approach)
-wezterm.on("window-focus-changed", function(window, pane)
-  if window and window:is_focused() then
-    local gui_window = window:gui_window()
-    if gui_window then
-      wezterm.log_info("Window focused, setting position")
-      gui_window:set_position(window_x, window_y)
-    end
-  end
+  local tab, pane, window = mux.spawn_window(cmd or {})
+  local gui = window:gui_window()
+  gui:set_inner_size(window_width, window_height)
+  gui:set_position(window_x, window_y)
 end)
 
 return config
-

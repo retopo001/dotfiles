@@ -35,35 +35,42 @@ Every keybinding you should know, organized by tool and source.
 
 ## STAGE 1: Terminal & Tmux
 
-Your terminal auto-starts tmux when you open WezTerm (configured in .bashrc).
+Your terminal auto-starts tmux when you open WezTerm (configured in .zshrc).
 
-### WezTerm Tab Management
+### WezTerm Window & Pane Management
 
 | Keys | Source | Action |
 |------|--------|--------|
-| `Ctrl+Shift+T` | [.wezterm.lua] | New bash tab (bypasses tmux) |
+| `Ctrl+Shift+T` | [.wezterm.lua] | New zsh tab (bypasses tmux) |
 | `Ctrl+Shift+N` | [.wezterm.lua] | New Neovim tab (bypasses tmux) |
+| `Alt+Shift+V` | [.wezterm.lua] | Split vertical (side by side \|) - current dir |
+| `Alt+Shift+H` | [.wezterm.lua] | Split horizontal (stacked ─) - current dir |
+| `Alt+h` | [.wezterm.lua] | Navigate left (WezTerm pane) |
+| `Alt+j` | [.wezterm.lua] | Navigate down (WezTerm pane) |
+| `Alt+k` | [.wezterm.lua] | Navigate up (WezTerm pane) |
+| `Alt+l` | [.wezterm.lua] | Navigate right (WezTerm pane) |
+| `Alt+F5` | [.wezterm.lua] | Restart WezTerm (launch new, close current) |
+| `Ctrl+Shift+V` | [.wezterm.lua] | Smart paste (image → save & paste path) |
 
 ### Tmux — Your Custom Bindings (tmux.conf)
 
 | Keys | Source | Action |
 |------|--------|--------|
 | `Ctrl+Space` | [tmux.conf] | Tmux prefix (replaces default `Ctrl+b`) |
-| `Prefix \|` | [tmux.conf] | Split pane vertically (replaces `%`) |
-| `Prefix -` | [tmux.conf] | Split pane horizontally (replaces `"`) |
-| `Prefix h` | [tmux.conf] | Select pane left (vim-style backup) |
-| `Prefix j` | [tmux.conf] | Select pane down (vim-style backup) |
-| `Prefix k` | [tmux.conf] | Select pane up (vim-style backup) |
-| `Prefix l` | [tmux.conf] | Select pane right (vim-style backup) |
+| `Prefix \|` | [tmux.conf] | Split pane vertically - current dir |
+| `Prefix -` | [tmux.conf] | Split pane horizontally - current dir |
+| `Middle-click` | [tmux.conf] | Smart paste (image → save & paste path) |
 | `Prefix <` | [tmux.conf] | Resize pane left 5 units (repeatable) |
 | `Prefix >` | [tmux.conf] | Resize pane right 5 units (repeatable) |
 | `Prefix +` | [tmux.conf] | Resize pane up 2 units (repeatable) |
 | `Prefix =` | [tmux.conf] | Resize pane down 2 units (repeatable) |
-| `Prefix c` | [tmux.conf] | New window (rebind) |
-| `Prefix x` | [tmux.conf] | Kill pane (rebind) |
-| `Prefix &` | [tmux.conf] | Kill window (rebind) |
+| `Prefix c` | [tmux.conf] | New window |
+| `Prefix x` | [tmux.conf] | Kill pane |
+| `Prefix &` | [tmux.conf] | Kill window |
 | `Prefix r` | [tmux.conf] | Reload tmux config |
 | `Prefix w` | [tmux.conf] | Open workflow guide in new pane |
+| `Shift+Left/Right` | [tmux.conf] | Switch windows |
+| `Alt+Shift+H/L` | [tmux.conf] | Switch windows (vim style) |
 | `v` (copy-mode) | [tmux.conf] | Begin selection |
 | `y` (copy-mode) | [tmux.conf] | Yank selection |
 | `Prefix ?` | [tmux-which-key] | Show tmux keybindings menu (which-key) |
@@ -1564,6 +1571,18 @@ cif          → Change function body
 | System clipboard yank | `"+y` | [NEOVIM] |
 | System clipboard paste | `"+p` | [NEOVIM] |
 
+### "In WezTerm I need to..."
+
+| Task | Keys | Source |
+|------|------|--------|
+| New zsh tab | `Ctrl+Shift+T` | [.wezterm.lua] |
+| New Neovim tab | `Ctrl+Shift+N` | [.wezterm.lua] |
+| Split side by side | `Alt+Shift+V` | [.wezterm.lua] |
+| Split stacked | `Alt+Shift+H` | [.wezterm.lua] |
+| Move between WezTerm panes | `Alt+h/j/k/l` | [.wezterm.lua] |
+| Smart paste (handles images) | `Ctrl+Shift+V` | [.wezterm.lua] |
+| Restart WezTerm | `Alt+F5` | [.wezterm.lua] |
+
 ### "In tmux I need to..."
 
 | Task | Keys | Source |
@@ -1571,33 +1590,40 @@ cif          → Change function body
 | New pane right | `Prefix \|` | [tmux.conf] |
 | New pane below | `Prefix -` | [tmux.conf] |
 | Move between panes | `Ctrl+h/j/k/l` | [tmux.conf] (seamless vim/tmux) |
-| Move between panes (backup) | `Prefix h/j/k/l` | [tmux.conf] |
+| Smart paste (handles images) | `Middle-click` | [tmux.conf] |
 | New window | `Prefix c` | [tmux.conf] |
-| Switch window | `Prefix 1/2/3...` | [TMUX] |
+| Switch window | `Prefix 1/2/3...` or `Shift+Left/Right` | [TMUX] / [tmux.conf] |
 | Close pane | `Prefix x` | [tmux.conf] |
 | Zoom pane | `Prefix z` | [TMUX] |
 | Detach session | `Prefix d` | [TMUX] |
 | Reload config | `Prefix r` | [tmux.conf] |
 | Open workflow guide | `Prefix w` | [tmux.conf] |
-| List all bindings | `Prefix ?` | [TMUX] |
-| Show keybindings menu | `Prefix ?` | [tmux-which-key] |
+| List all bindings | `Prefix ?` | [tmux-which-key] |
 | Reattach session | `tmux attach -t main` | shell |
 
 ---
 
 ## Practice Drills
 
-### Drill 1: Tmux Navigation
+### Drill 1: WezTerm Panes
+1. `Alt+Shift+V` [.wezterm.lua] — split side by side
+2. `Alt+Shift+H` [.wezterm.lua] — split stacked
+3. `Alt+h` [.wezterm.lua] — go left (WezTerm pane)
+4. `Alt+l` [.wezterm.lua] — go right (WezTerm pane)
+5. `Alt+j` [.wezterm.lua] — go down (WezTerm pane)
+6. `Ctrl+Shift+V` [.wezterm.lua] — smart paste
+
+### Drill 2: Tmux Navigation
 1. `Prefix |` [tmux.conf] — split right
 2. `Prefix -` [tmux.conf] — split below
-3. `Ctrl+h` [tmux.conf] — go left (seamless)
-4. `Ctrl+l` [tmux.conf] — go right (seamless)
-5. `Ctrl+j` [tmux.conf] — go down (seamless)
+3. `Ctrl+h` [tmux.conf] — go left (seamless vim/tmux)
+4. `Ctrl+l` [tmux.conf] — go right (seamless vim/tmux)
+5. `Ctrl+j` [tmux.conf] — go down (seamless vim/tmux)
 6. `Prefix z` [TMUX] — zoom pane
 7. `Prefix z` [TMUX] — unzoom
 8. `Prefix x` [tmux.conf] — kill pane
 
-### Drill 2: File Operations
+### Drill 3: File Operations
 1. `Ctrl+n` [NVCHAD] — open tree
 2. `j j j` [NVIMTREE] — move down
 3. `a` [NVIMTREE] — create `test.txt`
@@ -1610,7 +1636,7 @@ cif          → Change function body
 10. `d` [NVIMTREE] — delete
 11. `y` [NVIMTREE] — confirm
 
-### Drill 3: Telescope Workflow
+### Drill 4: Telescope Workflow
 1. `Leader f f` [NVCHAD] — find files
 2. Type partial filename
 3. `Ctrl+n` / `Ctrl+p` [TELESCOPE] — navigate
@@ -1619,7 +1645,7 @@ cif          → Change function body
 6. Type search term
 7. `Enter` [TELESCOPE] — jump to match
 
-### Drill 4: Buffer Workflow
+### Drill 5: Buffer Workflow
 1. `Leader f f` [NVCHAD] — open file 1
 2. `Leader f f` [NVCHAD] — open file 2
 3. `Leader f f` [NVCHAD] — open file 3
@@ -1627,7 +1653,7 @@ cif          → Change function body
 5. `Shift+Tab` [NVCHAD] — cycle back
 6. `Leader x` [NVCHAD] — close current
 
-### Drill 5: Modal Editing
+### Drill 6: Modal Editing
 1. `gg` [NEOVIM] — go to top
 2. `G` [NEOVIM] — go to bottom
 3. `Ctrl+u` [NEOVIM] — half page up
@@ -1638,7 +1664,7 @@ cif          → Change function body
 8. `jk` [mappings.lua] — normal mode
 9. `.` [NEOVIM] — repeat change
 
-### Drill 6: Registers & Clipboard
+### Drill 7: Registers & Clipboard
 1. `"ayy` [NEOVIM] — yank line to register a
 2. Move to another location
 3. `"ap` [NEOVIM] — paste from register a
@@ -1648,7 +1674,7 @@ cif          → Change function body
 7. `"+p` [NEOVIM] — paste from clipboard
 8. `:reg` [NEOVIM] — view all registers
 
-### Drill 7: Macros
+### Drill 8: Macros
 1. `qa` [NEOVIM] — start recording to register a
 2. Make some edits
 3. `q` [NEOVIM] — stop recording
@@ -1657,7 +1683,7 @@ cif          → Change function body
 6. `@@` [NEOVIM] — repeat macro
 7. `10@a` [NEOVIM] — execute macro 10 times
 
-### Drill 8: Folding (UFO Enhanced)
+### Drill 9: Folding (UFO Enhanced)
 1. Open a file with functions
 2. `zM` [ufo.lua] — close all folds
 3. `zo` [NEOVIM] — open fold under cursor
@@ -1668,7 +1694,7 @@ cif          → Change function body
 8. `zj` [NEOVIM] — next fold
 9. `zk` [NEOVIM] — previous fold
 
-### Drill 9: Flash Navigation
+### Drill 10: Flash Navigation
 1. `s` [flash.lua] — start flash
 2. Type 2-3 chars of target
 3. Press the label letter to jump
@@ -1676,7 +1702,7 @@ cif          → Change function body
 5. Use `o` to expand/contract selection
 6. `y` [NEOVIM] — yank selection
 
-### Drill 10: Harpoon Workflow
+### Drill 11: Harpoon Workflow
 1. Open a file you use often
 2. `Leader hm` [harpoon.lua] — mark it
 3. Open another frequently used file
@@ -1686,7 +1712,7 @@ cif          → Change function body
 7. `Leader hh` [harpoon.lua] — view/edit harpoon list
 8. `Leader hn` / `Leader hp` — cycle through marked files
 
-### Drill 11: Diagnostics with Trouble
+### Drill 12: Diagnostics with Trouble
 1. Open a file with LSP errors
 2. `Leader xx` [trouble.lua] — open diagnostics panel
 3. `j/k` — navigate errors
@@ -1694,7 +1720,7 @@ cif          → Change function body
 5. `Leader xX` [trouble.lua] — buffer diagnostics only
 6. `Leader cs` [trouble.lua] — toggle symbols outline
 
-### Drill 12: Search and Replace
+### Drill 13: Search and Replace
 1. `Leader sr` [grug-far.lua] — open search/replace
 2. Type search pattern
 3. Type replacement

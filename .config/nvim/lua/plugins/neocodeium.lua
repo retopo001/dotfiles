@@ -3,7 +3,7 @@
 -- Disable in vscode-neovim (Cursor has built-in AI completion)
 return {
   "monkoose/neocodeium",
-  event = "InsertEnter",
+  event = "VeryLazy",  -- Load early, not just on InsertEnter
   cond = function() return not (vim.g.vscode == 1) end,
   config = function()
     require("neocodeium").setup({

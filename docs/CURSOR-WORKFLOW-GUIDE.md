@@ -440,7 +440,7 @@ The vscode-neovim extension embeds Neovim as the editor backend. Your full Neovi
 | `Ctrl+x` | [NVCHAD] | Exit terminal mode |
 | `:Claude` | [mappings.lua] | Launch Claude CLI in terminal |
 
-**Shell Alias:** `cld` — Claude CLI with required flags (configured in .bashrc)
+**Shell Alias:** `cld` — Claude CLI with required flags (configured in .zshrc)
 
 **Note:** In Cursor, you can use either Cursor's integrated terminal or Neovim's terminal buffers. Cursor's terminal is better for long-running processes, while Neovim's terminal integrates with your vim workflow.
 
@@ -711,7 +711,7 @@ Leader hp → Previous in harpoon list
 - **Terminal-first:** Everything runs in terminal panes
 - **tmux management:** Session persistence, pane splitting, window management
 - **Seamless navigation:** vim-tmux-navigator works across all panes
-- **Terminal tabs:** Independent bash/Neovim tabs via WezTerm
+- **Terminal tabs:** Independent zsh/Neovim tabs via WezTerm
 - **Best for:** Terminal-heavy workflows, server management, CLI tools
 
 ### Cursor + Neovim Workflow

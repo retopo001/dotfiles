@@ -53,6 +53,26 @@ return {
     local wk = require("which-key")
     wk.setup(opts)
 
+    -- Register group names for descriptive labels
+    wk.add({
+      { "<leader>a", group = "AI" },
+      { "<leader>b", group = "Buffer" },
+      { "<leader>c", group = "Code" },
+      { "<leader>d", group = "Debug" },
+      { "<leader>f", group = "Find" },
+      { "<leader>g", group = "Git" },
+      { "<leader>h", group = "Harpoon" },
+      { "<leader>m", group = "Marks" },
+      { "<leader>p", group = "Project" },
+      { "<leader>r", group = "Refactor" },
+      { "<leader>s", group = "Search" },
+      { "<leader>t", group = "Toggle" },
+      { "<leader>T", group = "Treesitter" },
+      { "<leader>w", group = "Window" },
+      { "<leader>x", group = "Trouble" },
+      { "<leader>y", group = "Yank" },
+    })
+
     -- Register custom mappings (v3 spec)
     wk.add({
       { "<leader>ac", "<cmd>Claude<cr>", desc = "Launch Claude", mode = "n" },

@@ -3,11 +3,35 @@ local mux = wezterm.mux
 local act = wezterm.action
 
 
--- Window position and size in pixels
-local window_x = 1146
-local window_y = 31  -- Account for title bar height
-local window_width = 2301
-local window_height = 1416  -- Reduced to fit with title bar offset
+-- Window layouts
+local layouts = {
+  main = { x = 1146, y = 31, width = 2301, height = 1416 },
+  full = { x = 0, y = 0, width = 3440, height = 1440 },
+  blank = { x = 1146, y = 31, width = 2301, height = 1416 },
+}
+
+-- Default window position and size (main layout)
+local window_x = layouts.main.x
+local window_y = layouts.main.y
+local window_width = layouts.main.width
+local window_height = layouts.main.height
+
+-- Helper: spawn new window with layout and tmuxifier session
+local function spawn_layout(layout_name)
+  local layout = layouts[layout_name]
+  return wezterm.action_callback(function(window, pane)
+    -- Spawn new window running tmuxifier
+    local tab, new_pane, new_window = mux.spawn_window({
+      domain = { DomainName = "WSL:archlinux" },
+      cwd = "/home/bw",
+      args = { "zsh", "-c", "tmuxifier load-session " .. layout_name },
+    })
+    -- Resize and position the new window
+    local gui = new_window:gui_window()
+    gui:set_inner_size(layout.width, layout.height)
+    gui:set_position(layout.x, layout.y)
+  end)
+end
 
 local config = wezterm.config_builder and wezterm.config_builder() or {}
 
@@ -106,6 +130,11 @@ config.keys = {
 
   -- Command palette (shows all available actions)
   { key = "P", mods = "CTRL|SHIFT", action = act.ActivateCommandPalette },
+
+  -- Layout launchers (new window + tmuxifier session)
+  { key = "1", mods = "ALT|SHIFT", action = spawn_layout("main") },
+  { key = "2", mods = "ALT|SHIFT", action = spawn_layout("full") },
+  { key = "3", mods = "ALT|SHIFT", action = spawn_layout("blank") },
 }
 
 -- Set initial window position and size on startup (in pixels)

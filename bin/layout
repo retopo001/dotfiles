@@ -50,5 +50,11 @@ case "$layout" in
     ;;
 esac
 
-# Attach to the new session
-exec tmux attach-session -t "$session_name"
+# Attach or switch to the new session
+if [[ -z "$TMUX" ]]; then
+  # Not in tmux - attach
+  exec tmux attach-session -t "$session_name"
+else
+  # Already in tmux - switch client
+  tmux switch-client -t "$session_name"
+fi

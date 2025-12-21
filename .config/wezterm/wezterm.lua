@@ -117,7 +117,12 @@ config.keys = {
     key = "F5",
     mods = "ALT",
     action = wezterm.action_callback(function(window, pane)
-      wezterm.run_child_process({ "cmd.exe", "/c", "start", "", "wezterm-gui.exe" })
+      -- Spawn detached so it doesn't block
+      wezterm.run_child_process({
+        "powershell.exe", "-NoProfile", "-Command",
+        "Start-Process wezterm-gui.exe -WindowStyle Normal"
+      })
+      wezterm.sleep_ms(200)  -- Brief delay to let new instance start
       window:perform_action(wezterm.action.QuitApplication, pane)
     end),
   },
@@ -143,8 +148,8 @@ config.keys = {
   { key = "DownArrow", mods = "SHIFT", action = act.ScrollByLine(1) },
 
   -- Window controls
-  { key = "F11", action = act.ToggleFullScreen },              -- Fullscreen toggle
-  { key = "z", mods = "ALT", action = act.TogglePaneZoomState }, -- Zoom current pane (like tmux prefix+z)
+  { key = "F11", mods = "NONE", action = act.ToggleFullScreen },  -- Fullscreen toggle
+  { key = "m", mods = "ALT", action = act.TogglePaneZoomState },  -- Zoom pane (only works with multiple panes)
 
   -- Command palette (shows all available actions - closest to which-key)
   { key = "P", mods = "CTRL|SHIFT", action = act.ActivateCommandPalette },

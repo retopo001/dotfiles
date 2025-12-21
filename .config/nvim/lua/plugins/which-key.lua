@@ -18,14 +18,13 @@ return {
   end,
 
   opts = {
-    -- Large panel configuration
+    -- Window configuration (v3 format)
     win = {
       border = "rounded",
-      position = "bottom",
-      margin = { 1, 0, 1, 0 },
-      padding = { 2, 2, 2, 2 },
-      winblend = 0,
-      zindex = 1000,
+      padding = { 1, 2 },  -- { top/bottom, left/right }
+      wo = {
+        winblend = 0,
+      },
     },
 
     -- Don't use custom triggers - let which-key auto-detect

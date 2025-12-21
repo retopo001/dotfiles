@@ -2,33 +2,6 @@ local wezterm = require "wezterm"
 local mux = wezterm.mux
 local act = wezterm.action
 
--- Smart paste: if clipboard has image, save it and paste path; otherwise normal paste
-wezterm.on("smart-paste", function(window, pane)
-  local success, stdout, stderr = wezterm.run_child_process({
-    "powershell.exe", "-NoProfile", "-Command", [[
-      $img = Get-Clipboard -Format Image
-      if ($img) {
-        $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
-        $path = "C:\Users\wijay\Dropbox\Downloads\clipboard_$timestamp.png"
-        $img.Save($path)
-        Write-Output $path
-      } else {
-        Write-Output "TEXT"
-      }
-    ]]
-  })
-
-  local output = stdout:gsub("[\r\n]+$", "")
-
-  if output == "TEXT" then
-    -- Normal text paste
-    window:perform_action(act.PasteFrom("Clipboard"), pane)
-  else
-    -- Image was saved, convert Windows path to WSL path and type it
-    local wsl_path = output:gsub("C:\\Users\\wijay\\", "/mnt/c/Users/wijay/"):gsub("\\", "/")
-    window:perform_action(act.SendString(wsl_path), pane)
-  end
-end)
 
 -- Window position and size in pixels
 local window_x = 1146
@@ -112,9 +85,8 @@ config.keys = {
     end),
   },
 
-  -- Smart paste: image → save & paste path, text → normal paste
-  -- Ctrl+V passes through to vim/tmux, only Ctrl+Shift+V is smart paste
-  { key = "V", mods = "CTRL|SHIFT", action = act.EmitEvent("smart-paste") },
+  -- Paste from clipboard
+  { key = "V", mods = "CTRL|SHIFT", action = act.PasteFrom("Clipboard") },
 
   -- Alt+hjkl → WezTerm panes | Ctrl+hjkl → tmux panes (passes through)
   { key = "h", mods = "ALT", action = act.ActivatePaneDirection "Left" },

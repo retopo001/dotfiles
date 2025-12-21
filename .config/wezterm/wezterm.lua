@@ -49,7 +49,6 @@ config.font = wezterm.font_with_fallback({
   "Consolas",
 })
 config.font_size = 10
-config.warn_about_missing_glyphs = false  -- Suppress font warning popups
 
 -- Terminal appearance
 config.enable_tab_bar = false

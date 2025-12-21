@@ -44,11 +44,12 @@ config.default_domain = "WSL:archlinux"
 -- Font settings
 config.font_dirs = { wezterm.home_dir .. "\\AppData\\Local\\Microsoft\\Windows\\Fonts" }
 config.font = wezterm.font_with_fallback({
+  "JetBrainsMono Nerd Font",  -- Nerd Font first (has icons + all regular chars)
   "JetBrains Mono",
-  "JetBrainsMono Nerd Font",
   "Consolas",
 })
 config.font_size = 10
+config.warn_about_missing_glyphs = false  -- Suppress font warning popups
 
 -- Terminal appearance
 config.enable_tab_bar = false

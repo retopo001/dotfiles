@@ -131,6 +131,16 @@ config.keys = {
   { key = "j", mods = "ALT", action = act.ActivatePaneDirection "Down" },
   { key = "k", mods = "ALT", action = act.ActivatePaneDirection "Up" },
   { key = "l", mods = "ALT", action = act.ActivatePaneDirection "Right" },
+
+  -- Copy mode (vim-like scrollback navigation)
+  -- Ctrl+Shift+X → enter copy mode, then use hjkl, v, V, y, /, ?, n, N
+  { key = "X", mods = "CTRL|SHIFT", action = act.ActivateCopyMode },
+
+  -- Quick scroll without entering copy mode
+  { key = "PageUp", mods = "SHIFT", action = act.ScrollByPage(-1) },
+  { key = "PageDown", mods = "SHIFT", action = act.ScrollByPage(1) },
+  { key = "UpArrow", mods = "SHIFT", action = act.ScrollByLine(-1) },
+  { key = "DownArrow", mods = "SHIFT", action = act.ScrollByLine(1) },
 }
 
 -- Set initial window position and size on startup (in pixels)

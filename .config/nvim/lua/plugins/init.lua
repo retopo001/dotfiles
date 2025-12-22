@@ -407,7 +407,7 @@ return {
           -- Systems & compiled languages
           "rust", "cpp", "c", "go",
           -- Markup & config
-          "markdown", "yaml", "toml", "sql",
+          "markdown", "markdown_inline", "yaml", "toml", "sql",
         },
         -- Auto-install missing parsers
         auto_install = true,

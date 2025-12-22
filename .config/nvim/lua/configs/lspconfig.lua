@@ -1,7 +1,28 @@
-require("nvchad.configs.lspconfig").defaults()
-
--- Override rename to use inc-rename.nvim (better UX with live preview)
+-- LSP Configuration (no NvChad dependency)
 local map = vim.keymap.set
+
+-- Diagnostic configuration
+vim.diagnostic.config({
+  virtual_text = { prefix = "●" },
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+  severity_sort = true,
+  float = {
+    border = "rounded",
+    source = "always",
+  },
+})
+
+-- Diagnostic signs
+local signs = { Error = " ", Warn = " ", Hint = "󰌵 ", Info = " " }
+for type, icon in pairs(signs) do
+  local hl = "DiagnosticSign" .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+end
+
+-- LSP keybindings on attach
+-- Note: gd, gr, gi are set in mappings.lua with custom navigation wrappers
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local bufnr = args.buf
@@ -9,59 +30,80 @@ vim.api.nvim_create_autocmd("LspAttach", {
       return { buffer = bufnr, desc = "LSP " .. desc }
     end
 
-    -- Replace default rename with inc-rename
+    -- Hover and type info
+    map("n", "K", function() vim.lsp.buf.hover() end, opts("Hover documentation"))
+    map("n", "<leader>D", function() vim.lsp.buf.type_definition() end, opts("Go to type definition"))
+
+    -- Actions
+    map("n", "<leader>ca", function() vim.lsp.buf.code_action() end, opts("Code action"))
+
+    -- Rename (inc-rename for better UX)
     map("n", "<leader>ra", function()
-      local inc_rename = require("inc_rename")
-      return ":" .. inc_rename.config.cmd_name .. " " .. vim.fn.expand("<cword>")
-    end, vim.tbl_extend("force", opts("Rename (inc-rename)"), { expr = true }))
+      local ok, inc_rename = pcall(require, "inc_rename")
+      if ok then
+        return ":" .. inc_rename.config.cmd_name .. " " .. vim.fn.expand("<cword>")
+      else
+        vim.lsp.buf.rename()
+      end
+    end, vim.tbl_extend("force", opts("Rename"), { expr = true }))
+
+    -- Diagnostics
+    map("n", "[e", function() vim.diagnostic.goto_prev() end, opts("Previous diagnostic"))
+    map("n", "]e", function() vim.diagnostic.goto_next() end, opts("Next diagnostic"))
+    map("n", "<leader>e", function() vim.diagnostic.open_float() end, opts("Line diagnostics"))
   end,
 })
 
--- LSP servers to enable (mason-lspconfig handles installation in plugins/init.lua)
+-- LSP capabilities (for nvim-cmp integration)
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local ok, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+if ok then
+  capabilities = vim.tbl_deep_extend("force", capabilities, cmp_lsp.default_capabilities())
+end
+
+-- Default config for all LSP servers
+vim.lsp.config("*", {
+  capabilities = capabilities,
+})
+
+-- LSP servers to enable
 local servers = {
   -- Web development
-  "html",           -- HTML
-  "cssls",          -- CSS
-  "tailwindcss",    -- Tailwind CSS
-  "ts_ls",          -- TypeScript & JavaScript (handles React, Next.js, etc.)
-  "eslint",         -- ESLint for JS/TS
+  "html",
+  "cssls",
+  "tailwindcss",
+  "ts_ls",
+  "eslint",
 
   -- Systems & compiled languages
-  "rust_analyzer",  -- Rust
-  "clangd",         -- C/C++
-  "gopls",          -- Go
-  "taplo",          -- TOML (Cargo.toml, etc.)
+  "rust_analyzer",
+  "clangd",
+  "gopls",
+  "taplo",
 
   -- Scripting & config
-  "lua_ls",         -- Lua (Neovim config, WezTerm, etc.)
+  "lua_ls",
 }
 
--- Enable the LSP servers
--- Note: mason-lspconfig is configured in plugins/init.lua to auto-install these servers
+-- Enable LSP servers
 vim.lsp.enable(servers)
 
--- Enhanced ESLint configuration (better config detection, especially for monorepos)
+-- Server-specific configurations
 vim.lsp.config("eslint", {
   settings = {
-    -- Auto-detect eslintrc in subfolders (great for monorepos)
     workingDirectories = { mode = "auto" },
-    -- Enable ESLint formatting
     format = true,
-    -- Run linting as you type
     run = "onType",
-    -- Validate on save
     validate = "on",
   },
 })
 
--- Tailwind CSS: Better monorepo support (find .git root instead of package.json)
 vim.lsp.config("tailwindcss", {
   root_dir = function(...)
     return require("lspconfig.util").root_pattern(".git")(...)
   end,
 })
 
--- TypeScript: Enhanced inlay hints configuration
 vim.lsp.config("ts_ls", {
   settings = {
     typescript = {
@@ -89,20 +131,6 @@ vim.lsp.config("ts_ls", {
   },
 })
 
--- Optional: Configure specific LSP servers with custom options
--- Example for TypeScript/React:
--- require("lspconfig").tsserver.setup({
---   settings = {
---     typescript = {
---       inlayHints = {
---         includeInlayParameterNameHints = "all",
---         includeInlayVariableTypeHints = true,
---       },
---     },
---   },
--- })
-
--- Lua: Configure for Neovim and WezTerm development
 vim.lsp.config("lua_ls", {
   settings = {
     Lua = {
@@ -117,5 +145,3 @@ vim.lsp.config("lua_ls", {
     },
   },
 })
-
--- read :h vim.lsp.config for changing options of lsp servers

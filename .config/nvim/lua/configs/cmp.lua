@@ -1,42 +1,128 @@
--- Custom cmp config: auto-trigger completions, VS Code-style Tab to accept
+-- nvim-cmp configuration (no NvChad dependency)
 local cmp = require "cmp"
-local default_opts = require "nvchad.configs.cmp"
+local luasnip = require "luasnip"
 
--- Auto-trigger completion as you type (no manual trigger needed)
-default_opts.completion = {
-  completeopt = "menu,menuone,noinsert",
-  autocomplete = { cmp.TriggerEvent.TextChanged, cmp.TriggerEvent.InsertEnter },
-}
-
--- Show completion menu immediately after 1 character
-default_opts.performance = {
-  debounce = 0,
-  throttle = 0,
-}
-
--- Override Tab to confirm selection (VS Code style)
-default_opts.mapping["<Tab>"] = cmp.mapping(function(fallback)
-  if cmp.visible() then
-    cmp.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true })
-  elseif require("luasnip").expand_or_jumpable() then
-    require("luasnip").expand_or_jump()
-  else
-    fallback()
-  end
-end, { "i", "s" })
-
--- Formatting override for Tailwind colorizer
-local original_format = default_opts.formatting and default_opts.formatting.format
-default_opts.formatting = default_opts.formatting or {}
-default_opts.formatting.format = function(entry, item)
-  if original_format then
-    item = original_format(entry, item)
-  end
-  local ok, colorizer = pcall(require, "tailwindcss-colorizer-cmp")
-  if ok then
-    item = colorizer.formatter(entry, item)
-  end
-  return item
+local function border(hl_name)
+  return {
+    { "╭", hl_name },
+    { "─", hl_name },
+    { "╮", hl_name },
+    { "│", hl_name },
+    { "╯", hl_name },
+    { "─", hl_name },
+    { "╰", hl_name },
+    { "│", hl_name },
+  }
 end
 
-return default_opts
+return {
+  completion = {
+    completeopt = "menu,menuone",
+  },
+
+  performance = {
+    debounce = 0,
+    throttle = 0,
+  },
+
+  snippet = {
+    expand = function(args)
+      luasnip.lsp_expand(args.body)
+    end,
+  },
+
+  window = {
+    completion = {
+      border = border "CmpBorder",
+      winhighlight = "Normal:CmpPmenu,CursorLine:PmenuSel,Search:None",
+      scrollbar = false,
+    },
+    documentation = {
+      border = border "CmpDocBorder",
+      winhighlight = "Normal:CmpDoc",
+    },
+  },
+
+  mapping = cmp.mapping.preset.insert({
+    ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+    ["<C-f>"] = cmp.mapping.scroll_docs(4),
+    ["<C-Space>"] = cmp.mapping.complete(),
+    ["<C-e>"] = cmp.mapping.abort(),
+    ["<CR>"] = cmp.mapping.confirm({ select = false }),
+
+    -- Tab to confirm selection (VS Code style)
+    ["<Tab>"] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true })
+      elseif luasnip.expand_or_jumpable() then
+        luasnip.expand_or_jump()
+      else
+        fallback()
+      end
+    end, { "i", "s" }),
+
+    ["<S-Tab>"] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_prev_item()
+      elseif luasnip.jumpable(-1) then
+        luasnip.jump(-1)
+      else
+        fallback()
+      end
+    end, { "i", "s" }),
+
+    -- Navigate completion menu
+    ["<C-n>"] = cmp.mapping.select_next_item(),
+    ["<C-p>"] = cmp.mapping.select_prev_item(),
+  }),
+
+  sources = cmp.config.sources({
+    { name = "nvim_lsp" },
+    { name = "luasnip" },
+    { name = "path" },
+  }, {
+    { name = "buffer" },
+  }),
+
+  formatting = {
+    fields = { "abbr", "kind", "menu" },
+    format = function(entry, item)
+      local icons = {
+        Text = "󰉿",
+        Method = "󰆧",
+        Function = "󰊕",
+        Constructor = "",
+        Field = "󰜢",
+        Variable = "󰀫",
+        Class = "󰠱",
+        Interface = "",
+        Module = "",
+        Property = "󰜢",
+        Unit = "󰑭",
+        Value = "󰎠",
+        Enum = "",
+        Keyword = "󰌋",
+        Snippet = "",
+        Color = "󰏘",
+        File = "󰈙",
+        Reference = "󰈇",
+        Folder = "󰉋",
+        EnumMember = "",
+        Constant = "󰏿",
+        Struct = "󰙅",
+        Event = "",
+        Operator = "󰆕",
+        TypeParameter = "",
+      }
+      item.kind = string.format("%s %s", icons[item.kind] or "", item.kind)
+
+      -- Tailwind colorizer integration
+      local ok, colorizer = pcall(require, "tailwindcss-colorizer-cmp")
+      if ok then
+        item = colorizer.formatter(entry, item)
+      end
+
+      return item
+    end,
+  },
+}

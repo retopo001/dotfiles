@@ -33,8 +33,8 @@ config.default_domain = "WSL:archlinux"
 -- Font settings
 config.font_dirs = { wezterm.home_dir .. "\\AppData\\Local\\Microsoft\\Windows\\Fonts" }
 config.font = wezterm.font_with_fallback({
-  "JetBrainsMono Nerd Font",  -- Nerd Font first (has icons + all regular chars)
-  "JetBrains Mono",
+  { family = "JetBrainsMono Nerd Font", weight = "Regular" },
+  { family = "JetBrains Mono", weight = "Regular" },
   "Consolas",
 })
 config.font_size = 10
@@ -101,8 +101,36 @@ config.keys = {
     end),
   },
 
-  -- Paste from clipboard
-  { key = "V", mods = "CTRL|SHIFT", action = act.PasteFrom("Clipboard") },
+  -- Smart paste: if clipboard has image, save to Dropbox and paste path; otherwise normal paste
+  {
+    key = "V",
+    mods = "CTRL|SHIFT",
+    action = wezterm.action_callback(function(window, pane)
+      -- PowerShell: check for image, save it, output WSL path
+      local success, stdout, stderr = wezterm.run_child_process({
+        "powershell.exe", "-NoProfile", "-Command", [[
+          $img = Get-Clipboard -Format Image
+          if ($img) {
+            $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+            $winpath = "$env:USERPROFILE\Dropbox\Downloads\clipboard_$timestamp.png"
+            $img.Save($winpath)
+            # Convert to WSL path
+            $drive = $winpath.Substring(0,1).ToLower()
+            $rest = $winpath.Substring(2).Replace('\','/')
+            Write-Output "/mnt/$drive$rest"
+          }
+        ]]
+      })
+      local path = stdout and stdout:gsub("%s+$", "") or ""
+      if success and path:match("^/mnt/") then
+        -- Got a valid path, paste it
+        pane:send_text(path)
+      else
+        -- No image or error, do normal paste
+        window:perform_action(act.PasteFrom("Clipboard"), pane)
+      end
+    end),
+  },
 
   -- Alt+hjkl → WezTerm panes | Ctrl+hjkl → tmux panes (passes through)
   { key = "h", mods = "ALT", action = act.ActivatePaneDirection "Left" },

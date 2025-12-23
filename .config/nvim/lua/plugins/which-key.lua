@@ -43,6 +43,16 @@ return {
         suggestions = 20,
       },
     },
+
+    -- Key handling in popup
+    keys = {
+      scroll_down = "<C-d>",
+      scroll_up = "<C-u>",
+    },
+
+    -- Show hints at bottom of popup
+    show_help = true,
+    show_keys = true,
   },
 
   config = function(_, opts)
@@ -54,22 +64,29 @@ return {
     wk.setup(opts)
 
     -- ============================================
-    -- GROUP LABELS - Show contents in name so you see everything at once
+    -- GROUP LABELS
     -- ============================================
     wk.add({
-      { "<leader>a", group = "AI (ac=Claude)" },
-      { "<leader>b", group = "Buffer (bb bd bn bp)" },
-      { "<leader>c", group = "Code (ca cf cr)" },
-      { "<leader>d", group = "Diag (dd dn dp dl)" },
-      { "<leader>f", group = "Find (ff fg fb fh fo fk ft)" },
-      { "<leader>g", group = "Git (gb gl gd gw go)" },
-      { "<leader>h", group = "Harpoon (ha hh h1-4)" },
-      { "<leader>l", group = "LSP (li lr)" },
-      { "<leader>q", group = "Quit (qq qw)" },
-      { "<leader>t", group = "Toggle (tn tr tw ts th)" },
-      { "<leader>w", group = "Window (wv ws wc wo w= ww)" },
-      { "<leader>x", group = "Trouble (xx xd xl xq xt)" },
-      { "<leader>y", group = "Yank (yf yr)" },
+      { "<leader>a", group = "AI" },
+      { "<leader>b", group = "Buffer" },
+      { "<leader>c", group = "Code" },
+      { "<leader>d", group = "Diagnostics" },
+      { "<leader>f", group = "Find" },
+      { "<leader>g", group = "Git" },
+      { "<leader>h", group = "Harpoon" },
+      { "<leader>l", group = "LSP" },
+      { "<leader>q", group = "Quit" },
+      { "<leader>t", group = "Toggle" },
+      { "<leader>w", group = "Window" },
+      { "<leader>x", group = "Trouble" },
+      { "<leader>y", group = "Yank" },
+      -- Groups from other plugins that show "+N mappings"
+      { "<leader>r", group = "Refactor" },
+      { "<leader>s", group = "Search" },
+      { "<leader>m", group = "Marks" },
+      { "<leader>p", group = "Project" },
+      { "<leader>T", group = "Treesitter" },
+      { "gr", group = "LSP refs/rename" },
     })
 
     -- ============================================

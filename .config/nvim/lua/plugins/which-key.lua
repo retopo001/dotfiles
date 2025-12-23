@@ -1,13 +1,11 @@
--- which-key.nvim: Full panel mode for rehearsal and overview
--- Configured for large, non-scroll panel showing all mappings at once
--- IMPORTANT: Disabled in vscode-neovim because it tries to sync layout with vscode API
--- which causes "vscode.internal" errors. Use Cursor's built-in command palette instead.
+-- which-key.nvim: Shows available keybindings
+-- NOTE: <leader>g/d/w/b/f are handled by Hydra.nvim for sticky submodes
+-- This file handles everything else
 
 return {
   "folke/which-key.nvim",
-  lazy = false,  -- Load immediately, not lazy
+  lazy = false,
 
-  -- Aggressively disable in vscode-neovim to avoid layout sync errors
   cond = function()
     return not (vim.g.vscode == 1)
   end,
@@ -18,39 +16,23 @@ return {
   end,
 
   opts = {
-    -- Window configuration (v3 format)
     win = {
       border = "rounded",
-      padding = { 1, 2 },  -- { top/bottom, left/right }
-      wo = {
-        winblend = 0,
-      },
+      padding = { 1, 2 },
+      wo = { winblend = 0 },
     },
-
-    -- Don't use custom triggers - let which-key auto-detect
-    -- triggers = "auto" is the default in v3
-
-    -- Only show mappings that actually have descriptions
     filter = function(mapping)
       return mapping.desc and mapping.desc ~= ""
     end,
-
     plugins = {
       marks = true,
       registers = true,
-      spelling = {
-        enabled = true,
-        suggestions = 20,
-      },
+      spelling = { enabled = true, suggestions = 20 },
     },
-
-    -- Key handling in popup
     keys = {
       scroll_down = "<C-d>",
       scroll_up = "<C-u>",
     },
-
-    -- Show hints at bottom of popup
     show_help = true,
     show_keys = true,
   },
@@ -64,23 +46,17 @@ return {
     wk.setup(opts)
 
     -- ============================================
-    -- GROUP LABELS
+    -- GROUP LABELS (non-Hydra groups only)
     -- ============================================
     wk.add({
       { "<leader>a", group = "AI" },
-      { "<leader>b", group = "Buffer" },
       { "<leader>c", group = "Code" },
-      { "<leader>d", group = "Diagnostics" },
-      { "<leader>f", group = "Find" },
-      { "<leader>g", group = "Git" },
       { "<leader>h", group = "Harpoon" },
       { "<leader>l", group = "LSP" },
       { "<leader>q", group = "Quit" },
       { "<leader>t", group = "Toggle" },
-      { "<leader>w", group = "Window" },
       { "<leader>x", group = "Trouble" },
       { "<leader>y", group = "Yank" },
-      -- Groups from other plugins that show "+N mappings"
       { "<leader>r", group = "Refactor" },
       { "<leader>s", group = "Search" },
       { "<leader>m", group = "Marks" },
@@ -97,49 +73,21 @@ return {
       { "<leader>e", "<cmd>Oil<cr>", desc = "File explorer" },
       { "<leader>u", "<cmd>UndotreeToggle<cr>", desc = "Undo tree" },
       { "<leader>?", "<cmd>Telescope keymaps<cr>", desc = "ALL keymaps (search)" },
-      -- Quick nav to other prefixes
       { "<leader>[", function() wk.show({ keys = "[", mode = "n" }) end, desc = "[ Prev motions" },
       { "<leader>]", function() wk.show({ keys = "]", mode = "n" }) end, desc = "] Next motions" },
     })
 
     -- ============================================
-    -- ACTUAL MAPPINGS
+    -- MAPPINGS (non-Hydra groups)
     -- ============================================
     wk.add({
       -- AI
       { "<leader>ac", "<cmd>Claude<cr>", desc = "Claude" },
 
-      -- Buffer
-      { "<leader>bb", "<cmd>Telescope buffers<cr>", desc = "Buffer list" },
-      { "<leader>bd", "<cmd>bdelete<cr>", desc = "Delete" },
-      { "<leader>bn", "<cmd>bnext<cr>", desc = "Next" },
-      { "<leader>bp", "<cmd>bprev<cr>", desc = "Prev" },
-
       -- Code
       { "<leader>ca", vim.lsp.buf.code_action, desc = "Action" },
       { "<leader>cf", function() require("conform").format() end, desc = "Format" },
       { "<leader>cr", vim.lsp.buf.rename, desc = "Rename" },
-
-      -- Diagnostics
-      { "<leader>dd", vim.diagnostic.open_float, desc = "Line diag" },
-      { "<leader>dn", vim.diagnostic.goto_next, desc = "Next" },
-      { "<leader>dp", vim.diagnostic.goto_prev, desc = "Prev" },
-      { "<leader>dl", "<cmd>Telescope diagnostics<cr>", desc = "List" },
-
-      -- Find
-      { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Files" },
-      { "<leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Grep" },
-      { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
-      { "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help" },
-      { "<leader>fo", "<cmd>Telescope oldfiles<cr>", desc = "Recent" },
-      { "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
-      { "<leader>ft", "<cmd>TodoTelescope<cr>", desc = "TODOs" },
-
-      -- Git
-      { "<leader>gb", "<cmd>Git blame<cr>", desc = "Blame" },
-      { "<leader>gl", "<cmd>LazyGit<cr>", desc = "LazyGit" },
-      { "<leader>gd", "<cmd>Gitsigns diffthis<cr>", desc = "Diff" },
-      { "<leader>gw", "<cmd>edit /home/bw/dotfiles/docs/CURSOR-WORKFLOW-GUIDE.md<cr>", desc = "Workflow" },
 
       -- Harpoon
       { "<leader>ha", function() require("harpoon"):list():add() end, desc = "Add" },
@@ -164,14 +112,6 @@ return {
       { "<leader>ts", "<cmd>set spell!<cr>", desc = "Spell" },
       { "<leader>th", function() require("close_buffers").delete({ type = "hidden" }) end, desc = "Close hidden" },
 
-      -- Window
-      { "<leader>wv", "<cmd>vsplit<cr>", desc = "Vsplit" },
-      { "<leader>ws", "<cmd>split<cr>", desc = "Hsplit" },
-      { "<leader>wc", "<cmd>close<cr>", desc = "Close" },
-      { "<leader>wo", "<cmd>only<cr>", desc = "Only" },
-      { "<leader>w=", "<C-w>=", desc = "Equal" },
-      { "<leader>ww", "<cmd>w<cr>", desc = "Save" },
-
       -- Trouble
       { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", desc = "Diagnostics" },
       { "<leader>xd", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer" },
@@ -193,7 +133,7 @@ return {
     })
 
     -- ============================================
-    -- NON-LEADER PREFIXES (for reference)
+    -- NON-LEADER PREFIXES (vim motions)
     -- ============================================
     wk.add({
       { "[", group = "Previous" },

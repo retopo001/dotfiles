@@ -8,13 +8,9 @@ return {
     },
   },
   keys = {
-    {
-      "-",
-      function()
-        require("oil").open()
-      end,
-      desc = "Open parent directory with oil",
-    },
+    { "-", function() require("oil").open() end, desc = "Open parent directory" },
+    { "<leader>e", "<cmd>Oil<cr>", desc = "File explorer" },
+    { "<C-n>", "<cmd>Oil<cr>", desc = "File explorer" },
   },
 }
 

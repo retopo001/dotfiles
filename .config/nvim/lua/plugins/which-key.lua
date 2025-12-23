@@ -186,23 +186,18 @@ return {
     })
 
     -- ============================================
-    -- KEYMAP DISCOVERY from leader
-    -- <leader>? shows all prefix groups
+    -- NON-LEADER PREFIX ACCESS from leader menu
+    -- These show up directly when pressing spacebar
     -- ============================================
     wk.add({
-      { "<leader>?", group = "Keymaps (ALL)" },
-      { "<leader>?[", function() wk.show({ keys = "[" }) end, desc = "[ Previous navigation" },
-      { "<leader>?]", function() wk.show({ keys = "]" }) end, desc = "] Next navigation" },
-      { "<leader>?g", function() wk.show({ keys = "g" }) end, desc = "g Go/LSP commands" },
-      { "<leader>?z", function() wk.show({ keys = "z" }) end, desc = "z Folds/View" },
-      { "<leader>?s", desc = "s Flash (jump to char)" },
-      { "<leader>?S", desc = "S Flash Treesitter (jump to node)" },
-      { "<leader>?c", desc = "c Change (operator)" },
-      { "<leader>?d", desc = "d Delete (operator)" },
-      { "<leader>?y", desc = "y Yank (operator)" },
-      { "<leader>?v", desc = "v Visual mode" },
-      { "<leader>?V", desc = "V Visual line mode" },
-      { "<leader>??", "<cmd>Telescope keymaps<cr>", desc = "Search ALL keymaps" },
+      { "<leader>[", function() wk.show({ keys = "[", mode = "n" }) end, desc = "Previous ([d]iag [b]uf [q]fix [t]odo)" },
+      { "<leader>]", function() wk.show({ keys = "]", mode = "n" }) end, desc = "Next (]d]iag ]b]uf ]q]fix ]t]odo)" },
+      { "<leader>k", group = "Keys/Reference" },
+      { "<leader>kg", function() wk.show({ keys = "g", mode = "n" }) end, desc = "g Go/LSP (gd gr gi gc)" },
+      { "<leader>kz", function() wk.show({ keys = "z", mode = "n" }) end, desc = "z Folds (zR zM za)" },
+      { "<leader>ks", desc = "s = Flash jump to char" },
+      { "<leader>kS", desc = "S = Flash Treesitter jump" },
+      { "<leader>kk", "<cmd>Telescope keymaps<cr>", desc = "Search ALL keymaps" },
     })
   end,
 }

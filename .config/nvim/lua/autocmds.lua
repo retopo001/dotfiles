@@ -68,3 +68,21 @@ autocmd("FileType", {
     vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
   end,
 })
+
+-- Enable word wrap in Telescope preview window
+autocmd("User", {
+  pattern = "TelescopePreviewerLoaded",
+  callback = function(args)
+    -- Use a deferred function to ensure window exists
+    vim.defer_fn(function()
+      if args.buf and vim.api.nvim_buf_is_valid(args.buf) then
+        local win = vim.fn.bufwinid(args.buf)
+        if win ~= -1 and vim.api.nvim_win_is_valid(win) then
+          pcall(function()
+            vim.wo[win].wrap = true
+          end)
+        end
+      end
+    end, 10)
+  end,
+})

@@ -52,7 +52,67 @@ return {
     dependencies = { "nvim-lua/plenary.nvim" },
     cmd = "Telescope",
     keys = {
-      { "<leader>ff", "<cmd>Telescope find_files<CR>", desc = "Find files" },
+      {
+        "<leader>ff",
+        (function()
+          -- Persistent hidden state across invocations
+          local hidden_state = true
+          
+          return function()
+            local git_root = vim.fn.systemlist("git rev-parse --show-toplevel 2>/dev/null")[1]
+            local cwd = git_root and vim.fn.isdirectory(git_root) == 1 and git_root or vim.fn.getcwd()
+            local builtin = require("telescope.builtin")
+            local actions = require("telescope.actions")
+            
+            -- Helper to create find_files with toggle
+            local function find_files_with_toggle(default_text)
+              local find_cmd = { "fd", "--type", "f", "--strip-cwd-prefix" }
+              if hidden_state then
+                table.insert(find_cmd, "--hidden")
+              end
+              -- Exclude .git directory
+              table.insert(find_cmd, "--exclude")
+              table.insert(find_cmd, ".git")
+              
+              builtin.find_files({
+                cwd = cwd,
+                find_command = find_cmd,
+                default_text = default_text or "",
+                attach_mappings = function(prompt_bufnr, map)
+                  -- Toggle hidden files with <C-h> (preserves query)
+                  map("i", "<C-h>", function()
+                    local state = require("telescope.actions.state")
+                    local picker = state.get_current_picker(prompt_bufnr)
+                    -- Get the current prompt text - try multiple methods
+                    local current_query = ""
+                    if picker._get_prompt then
+                      current_query = picker:_get_prompt() or ""
+                    elseif picker.get_prompt then
+                      current_query = picker:get_prompt() or ""
+                    else
+                      -- Fallback: get from prompt buffer
+                      local prompt_lines = vim.api.nvim_buf_get_lines(prompt_bufnr, 0, 1, false)
+                      if prompt_lines and prompt_lines[1] then
+                        current_query = prompt_lines[1]:gsub("^   ", "") -- Remove prompt prefix
+                      end
+                    end
+                    hidden_state = not hidden_state
+                    actions.close(prompt_bufnr)
+                    -- Small delay to ensure close completes
+                    vim.defer_fn(function()
+                      find_files_with_toggle(current_query)
+                    end, 50)
+                  end)
+                  return true
+                end,
+              })
+            end
+            
+            find_files_with_toggle() -- Start with current hidden state
+          end
+        end)(),
+        desc = "Find files (toggle hidden with <C-h>)",
+      },
       { "<leader>fw", "<cmd>Telescope live_grep<CR>", desc = "Live grep" },
       { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Buffers" },
       { "<leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Help tags" },
@@ -63,11 +123,38 @@ return {
         prompt_prefix = "   ",
         selection_caret = " ",
         sorting_strategy = "ascending",
+        file_ignore_patterns = { "%.git/" },
+        layout_strategy = "horizontal",
         layout_config = {
           horizontal = {
             prompt_position = "top",
-            preview_width = 0.55,
+            preview_width = 0.5,  -- Smaller preview to make room for full paths
+            preview_cutoff = 80,
+            width = 0.95,  -- Wider to accommodate full paths
+            height = 0.9,
           },
+          vertical = {
+            preview_height = 0.5,
+            preview_cutoff = 40,
+          },
+        },
+        -- Enable word wrap for results list (so long paths wrap)
+        wrap_results = true,
+        -- Preview config (wrap handled by autocmd)
+        preview = {
+          treesitter = true,
+        },
+        -- Show full absolute paths (no truncation)
+        path_display = { "absolute" },
+      },
+      pickers = {
+        find_files = {
+          find_command = { "fd", "--type", "f", "--hidden", "--strip-cwd-prefix", "--exclude", ".git" },
+          path_display = { "absolute" },
+        },
+        live_grep = {
+          path_display = { "absolute" },
+          only_sort_text = true,
         },
       },
     },
@@ -352,7 +439,15 @@ return {
     "nvim-telescope/telescope-file-browser.nvim",
     dependencies = { "nvim-telescope/telescope.nvim" },
     keys = {
-      { "<leader>fe", "<cmd>Telescope file_browser<CR>", desc = "File browser" },
+      {
+        "<leader>fe",
+        function()
+          local git_root = vim.fn.systemlist("git rev-parse --show-toplevel 2>/dev/null")[1]
+          local path = git_root and vim.fn.isdirectory(git_root) == 1 and git_root or vim.fn.getcwd()
+          require("telescope").extensions.file_browser.file_browser({ path = path })
+        end,
+        desc = "File browser",
+      },
     },
     config = function()
       require("telescope").load_extension("file_browser")

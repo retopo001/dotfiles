@@ -99,6 +99,7 @@ mkdir -p "$BACKUP_DIR"
 [ -f ~/.zshrc ] && cp ~/.zshrc "$BACKUP_DIR/"
 [ -f ~/.tmux.conf ] && cp ~/.tmux.conf "$BACKUP_DIR/"
 [ -f ~/.wezterm.lua ] && cp ~/.wezterm.lua "$BACKUP_DIR/"
+[ -f ~/.editorconfig ] && cp ~/.editorconfig "$BACKUP_DIR/"
 [ -d ~/.config/nvim ] && cp -r ~/.config/nvim "$BACKUP_DIR/"
 [ -d ~/.config/tmux ] && cp -r ~/.config/tmux "$BACKUP_DIR/"
 [ -d ~/.config/wezterm ] && cp -r ~/.config/wezterm "$BACKUP_DIR/"
@@ -146,6 +147,9 @@ fi
 [ -f "$DOTFILES_DIR/.zshenv" ] && cp "$DOTFILES_DIR/.zshenv" ~/.zshenv && echo "✓ Copied .zshenv"
 [ -f "$DOTFILES_DIR/.zprofile" ] && cp "$DOTFILES_DIR/.zprofile" ~/.zprofile && echo "✓ Copied .zprofile"
 [ -f "$DOTFILES_DIR/.zshrc" ] && cp "$DOTFILES_DIR/.zshrc" ~/.zshrc && echo "✓ Copied .zshrc"
+
+# Editor config
+[ -f "$DOTFILES_DIR/.editorconfig" ] && cp "$DOTFILES_DIR/.editorconfig" ~/.editorconfig && echo "✓ Copied .editorconfig"
 
 # Copy WezTerm config to Windows
 echo ""

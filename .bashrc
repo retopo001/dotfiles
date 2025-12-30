@@ -8,9 +8,11 @@ export BROWSER="cmd.exe /C start"
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-# --- IMMEDIATELY prevent tmux in Cursor IDE (run FIRST, before anything else) ---
-# Cursor terminals should not use tmux (they have their own terminal management)
-if [ -n "$CURSOR_AGENT" ] || [ -n "$VSCODE_CWD" ] || [ -n "$VSCODE_INJECTION" ] || [ -n "$CURSOR_NO_TMUX" ]; then
+# --- IMMEDIATELY prevent tmux in IDE terminals (run FIRST, before anything else) ---
+# IDE terminals should not use tmux (they have their own terminal management)
+# Covers: Cursor, VSCode, IntelliJ, PyCharm, Junie, etc.
+# JetBrains detection: TERMINAL_EMULATOR (old), JETBRAINS_* or INTELLIJ_TERMINAL_* (new reworked terminal)
+if [ -n "$CURSOR_AGENT" ] || [ -n "$VSCODE_CWD" ] || [ -n "$VSCODE_INJECTION" ] || [ -n "$CURSOR_NO_TMUX" ] || [[ "$TERMINAL_EMULATOR" == *"JetBrains"* ]] || [ -n "$INTELLIJ_ENVIRONMENT_READER" ] || [ -n "$JETBRAINS_INTELLIJ_ZSH_DIR" ] || [ -n "$INTELLIJ_TERMINAL_COMMAND_BLOCKS_REWORKED" ]; then
     export CURSOR_NO_TMUX=1
     # Aggressively kill any tmux attach processes immediately
     pkill -9 -f "tmux attach.*main" 2>/dev/null || true
@@ -63,14 +65,15 @@ eval "$(zoxide init bash)"
 # --- Auto-start tmux if not already inside tmux ---
 # Skip if:
 #   - WEZTERM_NOTMUX is set (for independent WezTerm tabs)
-#   - CURSOR_AGENT is set (running in Cursor IDE - don't share tmux session with WezTerm)
-#   - VSCODE_INJECTION is set (running in VSCode/Cursor integrated terminal)
-#   - VSCODE_CWD is set (VSCode/Cursor working directory indicator)
+#   - CURSOR_AGENT is set (running in Cursor IDE)
+#   - VSCODE_INJECTION/VSCODE_CWD is set (VSCode/Cursor terminal)
 #   - CURSOR_NO_TMUX is set (explicit flag to prevent tmux)
+#   - TERMINAL_EMULATOR contains JetBrains (IntelliJ, PyCharm, Junie, etc.)
+#   - INTELLIJ_ENVIRONMENT_READER is set (IDE loading shell environment)
 # Note: We check these BEFORE tmux starts, since TERM_PROGRAM becomes "tmux" after attaching
 
-# In Cursor - prevent tmux entirely and kill any attach processes
-if [ -n "$CURSOR_AGENT" ] || [ -n "$VSCODE_CWD" ] || [ -n "$VSCODE_INJECTION" ] || [ -n "$CURSOR_NO_TMUX" ]; then
+# In IDE terminals - prevent tmux entirely
+if [ -n "$CURSOR_AGENT" ] || [ -n "$VSCODE_CWD" ] || [ -n "$VSCODE_INJECTION" ] || [ -n "$CURSOR_NO_TMUX" ] || [[ "$TERMINAL_EMULATOR" == *"JetBrains"* ]] || [ -n "$INTELLIJ_ENVIRONMENT_READER" ] || [ -n "$JETBRAINS_INTELLIJ_ZSH_DIR" ] || [ -n "$INTELLIJ_TERMINAL_COMMAND_BLOCKS_REWORKED" ]; then
     export CURSOR_NO_TMUX=1
     # Aggressively kill any tmux attach processes (including ones started after this script)
     pkill -9 -f "tmux attach.*main" 2>/dev/null || true
@@ -84,7 +87,9 @@ if [ -n "$CURSOR_AGENT" ] || [ -n "$VSCODE_CWD" ] || [ -n "$VSCODE_INJECTION" ] 
     return 0 2>/dev/null || true
 fi
 
-# Only start tmux if we're NOT in Cursor and NOT already in tmux
-if [ -z "$TMUX" ] && [ -z "$WEZTERM_NOTMUX" ] && [ -z "$CURSOR_AGENT" ] && [ -z "$VSCODE_INJECTION" ] && [ -z "$VSCODE_CWD" ] && [ -z "$CURSOR_NO_TMUX" ]; then
+# Only start tmux if we're NOT in an IDE terminal and NOT already in tmux
+if [ -z "$TMUX" ] && [ -z "$WEZTERM_NOTMUX" ] && [ -z "$CURSOR_AGENT" ] && [ -z "$VSCODE_INJECTION" ] && [ -z "$VSCODE_CWD" ] && [ -z "$CURSOR_NO_TMUX" ] && [ -z "$INTELLIJ_ENVIRONMENT_READER" ] && [ -z "$JETBRAINS_INTELLIJ_ZSH_DIR" ] && [ -z "$INTELLIJ_TERMINAL_COMMAND_BLOCKS_REWORKED" ] && [[ "$TERMINAL_EMULATOR" != *"JetBrains"* ]]; then
     tmux attach -t main 2>/dev/null || tmux new -s main -c ~/signal-assembly-platform
 fi
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin

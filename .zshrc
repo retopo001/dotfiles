@@ -3,9 +3,10 @@
 # If not running interactively, don't do anything
 [[ -o interactive ]] || return
 
-# --- IMMEDIATELY prevent tmux in Cursor IDE (run FIRST, before anything else) ---
-# Cursor terminals should not use tmux (they have their own terminal management)
-if [[ -n "$CURSOR_AGENT" ]] || [[ -n "$VSCODE_CWD" ]] || [[ -n "$VSCODE_INJECTION" ]] || [[ -n "$CURSOR_NO_TMUX" ]]; then
+# --- IMMEDIATELY prevent tmux in IDE terminals (run FIRST, before anything else) ---
+# IDE terminals should not use tmux (they have their own terminal management)
+# Covers: Cursor, VSCode, IntelliJ, PyCharm, Junie, etc.
+if [[ -n "$CURSOR_AGENT" ]] || [[ -n "$VSCODE_CWD" ]] || [[ -n "$VSCODE_INJECTION" ]] || [[ -n "$CURSOR_NO_TMUX" ]] || [[ "$TERMINAL_EMULATOR" == *"JetBrains"* ]] || [[ -n "$JETBRAINS_INTELLIJ_ZSH_DIR" ]] || [[ -n "$INTELLIJ_TERMINAL_COMMAND_BLOCKS_REWORKED" ]]; then
     export CURSOR_NO_TMUX=1
     # Aggressively kill any tmux attach processes immediately
     pkill -9 -f "tmux attach.*main" 2>/dev/null || true
@@ -73,6 +74,16 @@ pbimg() {
 # --- Disable bell ---
 unsetopt BEEP
 
+# --- Fix backspace and delete keys ---
+# Ensure backspace works correctly (sends ^? or ^H)
+bindkey '^?' backward-delete-char
+bindkey '^H' backward-delete-char
+# Ensure delete key works correctly (sends ^[[3~)
+bindkey '^[[3~' delete-char
+# Fix home/end keys
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+
 # --- History ---
 HISTFILE="$XDG_STATE_HOME/zsh/history"
 HISTSIZE=10000
@@ -81,8 +92,24 @@ setopt SHARE_HISTORY
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
 
+# --- tmux: Update pane current path on directory change ---
+# Send OSC 7 escape sequence so tmux can track the working directory
+# This is what makes pane_current_path work for split-window -c
+if [[ -n "$TMUX" ]]; then
+  function _update_tmux_pwd() {
+    # OSC 7: file://hostname/path - standard way to notify terminal of directory change
+    printf '\033]7;file://%s%s\033\\' "${HOST:-localhost}" "$PWD"
+  }
+  autoload -Uz add-zsh-hook
+  add-zsh-hook chpwd _update_tmux_pwd
+  add-zsh-hook precmd _update_tmux_pwd
+  _update_tmux_pwd  # Initialize on shell start
+fi
+
 # --- Default working directory ---
-cd ~ 2>/dev/null
+if [[ -o login ]]; then
+    cd ~ 2>/dev/null
+fi
 
 # --- zoxide (smart cd) ---
 eval "$(zoxide init zsh)"
@@ -95,16 +122,11 @@ eval "$(atuin init zsh)"
 [ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
 
 # --- Auto-start tmux if not already inside tmux ---
-# Skip if:
-#   - WEZTERM_NOTMUX is set (for independent WezTerm tabs)
-#   - CURSOR_AGENT is set (running in Cursor IDE - don't share tmux session with WezTerm)
-#   - VSCODE_INJECTION is set (running in VSCode/Cursor integrated terminal)
-#   - VSCODE_CWD is set (VSCode/Cursor working directory indicator)
-#   - CURSOR_NO_TMUX is set (explicit flag to prevent tmux)
-# Note: We check these BEFORE tmux starts, since TERM_PROGRAM becomes "tmux" after attaching
+# Skip if in any IDE terminal (Cursor, VSCode, IntelliJ, PyCharm, Junie, etc.)
+# or if WEZTERM_NOTMUX is set (for independent WezTerm tabs)
 
-# In Cursor - prevent tmux entirely and kill any attach processes
-if [[ -n "$CURSOR_AGENT" ]] || [[ -n "$VSCODE_CWD" ]] || [[ -n "$VSCODE_INJECTION" ]] || [[ -n "$CURSOR_NO_TMUX" ]]; then
+# In IDE terminals - prevent tmux entirely
+if [[ -n "$CURSOR_AGENT" ]] || [[ -n "$VSCODE_CWD" ]] || [[ -n "$VSCODE_INJECTION" ]] || [[ -n "$CURSOR_NO_TMUX" ]] || [[ "$TERMINAL_EMULATOR" == *"JetBrains"* ]] || [[ -n "$JETBRAINS_INTELLIJ_ZSH_DIR" ]] || [[ -n "$INTELLIJ_TERMINAL_COMMAND_BLOCKS_REWORKED" ]]; then
     export CURSOR_NO_TMUX=1
     # Aggressively kill any tmux attach processes (including ones started after this script)
     pkill -9 -f "tmux attach.*main" 2>/dev/null || true
@@ -118,8 +140,10 @@ if [[ -n "$CURSOR_AGENT" ]] || [[ -n "$VSCODE_CWD" ]] || [[ -n "$VSCODE_INJECTIO
     return 0 2>/dev/null || true
 fi
 
-# Only start tmux if we're NOT in Cursor and NOT already in tmux
-if [[ -z "$TMUX" ]] && [[ -z "$WEZTERM_NOTMUX" ]] && [[ -z "$CURSOR_AGENT" ]] && [[ -z "$VSCODE_INJECTION" ]] && [[ -z "$VSCODE_CWD" ]] && [[ -z "$CURSOR_NO_TMUX" ]]; then
+# Only start tmux if we're NOT in an IDE terminal and NOT already in tmux
+if [[ -z "$TMUX" ]] && [[ -z "$WEZTERM_NOTMUX" ]] && [[ -z "$CURSOR_AGENT" ]] && [[ -z "$VSCODE_INJECTION" ]] && [[ -z "$VSCODE_CWD" ]] && [[ -z "$CURSOR_NO_TMUX" ]] && [[ -z "$JETBRAINS_INTELLIJ_ZSH_DIR" ]] && [[ -z "$INTELLIJ_TERMINAL_COMMAND_BLOCKS_REWORKED" ]] && [[ "$TERMINAL_EMULATOR" != *"JetBrains"* ]]; then
     tmux attach -t main 2>/dev/null || tmux new -s main -c ~
 fi
 export PATH="$HOME/bin:$PATH"
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin

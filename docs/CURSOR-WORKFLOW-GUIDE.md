@@ -31,6 +31,139 @@ A comprehensive guide to using Neovim within Cursor IDE, optimized for modern de
 
 ---
 
+## Quick Reference: All :Commands
+
+### Essential Neovim Commands
+
+| Command | Source | Action |
+|---------|--------|--------|
+| `:w` | [NEOVIM] | Save file |
+| `:q` | [NEOVIM] | Quit window |
+| `:wq` | [NEOVIM] | Save and quit |
+| `:qa` | [NEOVIM] | Quit all windows |
+| `:wqa` | [NEOVIM] | Save all and quit |
+| `:e {file}` | [NEOVIM] | Edit/open file |
+| `:terminal` | [NEOVIM] | Open terminal buffer |
+| `:noh` | [NEOVIM] | Clear search highlight |
+| `:set {option}` | [NEOVIM] | Toggle options (number, wrap, spell, etc.) |
+
+### Help Commands
+
+| Command | Source | Action |
+|---------|--------|--------|
+| `:h {topic}` | [NEOVIM] | Neovim help |
+| `:h index` | [NEOVIM] | Index of all commands |
+| `:h quickref` | [NEOVIM] | Quick reference |
+
+### Buffer & Window Commands
+
+| Command | Source | Action |
+|---------|--------|--------|
+| `:ls` | [NEOVIM] | List all buffers |
+| `:b <num>` | [NEOVIM] | Go to buffer number |
+| `:b <name>` | [NEOVIM] | Go to buffer by partial name |
+| `:bd` | [NEOVIM] | Delete (close) buffer |
+| `:bnext` / `:bn` | [NEOVIM] | Next buffer |
+| `:bprev` / `:bp` | [NEOVIM] | Previous buffer |
+| `:split` / `:sp` | [NEOVIM] | Horizontal split |
+| `:vsplit` / `:vs` | [NEOVIM] | Vertical split |
+| `:only` | [NEOVIM] | Close all other windows |
+| `:close` | [NEOVIM] | Close current window |
+
+### Plugin Manager (lazy.nvim)
+
+| Command | Source | Action |
+|---------|--------|--------|
+| `:Lazy` | [lazy.nvim] | Open Lazy plugin manager UI |
+| `:Lazy sync` | [lazy.nvim] | Install, clean, and update plugins |
+| `:Lazy update` | [lazy.nvim] | Update plugins |
+| `:Lazy clean` | [lazy.nvim] | Remove unused plugins |
+| `:Lazy health` | [lazy.nvim] | Check plugin health |
+
+### LSP & Mason
+
+| Command | Source | Action |
+|---------|--------|--------|
+| `:Mason` | [mason.nvim] | Open Mason package manager UI |
+| `:MasonInstall {pkg}` | [mason.nvim] | Install LSP server/formatter/linter |
+| `:MasonUpdate` | [mason.nvim] | Update Mason packages |
+| `:LspInfo` | [lspconfig] | Show attached LSP clients |
+| `:LspStart` | [lspconfig] | Start LSP for current buffer |
+| `:LspStop` | [lspconfig] | Stop LSP client |
+| `:LspRestart` | [lspconfig] | Restart LSP client |
+| `:ConformInfo` | [conform.nvim] | Show formatter information |
+
+### Treesitter
+
+| Command | Source | Action |
+|---------|--------|--------|
+| `:TSInstall {lang}` | [treesitter] | Install language parser |
+| `:TSUpdate` | [treesitter] | Update all parsers |
+| `:TSBufEnable highlight` | [treesitter] | Enable highlighting in buffer |
+| `:TSBufDisable highlight` | [treesitter] | Disable highlighting in buffer |
+| `:TSModuleInfo` | [treesitter] | Show loaded modules info |
+
+### Telescope (Fuzzy Finder)
+
+| Command | Source | Action |
+|---------|--------|--------|
+| `:Telescope` | [telescope] | Open Telescope picker list |
+| `:Telescope find_files` | [telescope] | Find files |
+| `:Telescope live_grep` | [telescope] | Search text in project |
+| `:Telescope buffers` | [telescope] | List open buffers |
+| `:Telescope oldfiles` | [telescope] | Recent files |
+| `:Telescope help_tags` | [telescope] | Search help |
+| `:Telescope keymaps` | [telescope] | Search keymaps |
+| `:Telescope git_commits` | [telescope] | Git commits |
+| `:Telescope git_status` | [telescope] | Git status |
+| `:Telescope diagnostics` | [telescope] | Search diagnostics |
+
+### Git Integration
+
+| Command | Source | Action |
+|---------|--------|--------|
+| `:LazyGit` | [lazygit.lua] | Open LazyGit UI |
+| `:LazyGitConfig` | [lazygit.lua] | Open LazyGit config |
+| `:LazyGitCurrentFile` | [lazygit.lua] | LazyGit for current file |
+| `:LazyGitFilter` | [lazygit.lua] | LazyGit with filter |
+| `:LazyGitFilterCurrentFile` | [lazygit.lua] | Filter for current file |
+| `:Git blame` | [fugitive/init.lua] | Show git blame |
+| `:GitLink` | [gitlinker.lua] | Copy GitHub/GitLab link |
+
+### Diagnostics & Trouble
+
+| Command | Source | Action |
+|---------|--------|--------|
+| `:Trouble diagnostics toggle` | [trouble.lua] | Toggle diagnostics window |
+| `:Trouble symbols toggle` | [trouble.lua] | Toggle symbols outline |
+| `:Trouble lsp toggle` | [trouble.lua] | Toggle LSP references |
+| `:Trouble loclist toggle` | [trouble.lua] | Toggle location list |
+| `:Trouble qflist toggle` | [trouble.lua] | Toggle quickfix list |
+| `:Trouble todo toggle` | [trouble.lua] | Toggle TODO list |
+| `:TodoTelescope` | [todo-comments.lua] | Search TODOs with Telescope |
+
+### File Management
+
+| Command | Source | Action |
+|---------|--------|--------|
+| `:Oil` | [oil.lua] | Open file explorer (editable buffer) |
+| `:w` (in Oil) | [oil.lua] | Save file operations (rename/delete) |
+| `:GrugFar` | [grug-far.lua] | Open find & replace UI |
+
+### AI & Utilities
+
+| Command | Source | Action |
+|---------|--------|--------|
+| `:Alpha` | [alpha.lua] | Return to dashboard/start screen |
+| `:Claude` | [mappings.lua] | Launch Claude CLI in terminal |
+| `:IncRename` | [inc-rename.nvim] | Rename with live preview |
+| `:NeoCodeium auth` | [neocodeium.lua] | Authenticate NeoCodeium |
+| `:NeoCodeium toggle` | [neocodeium.lua] | Toggle NeoCodeium on/off |
+| `:NeoCodeium chat` | [neocodeium.lua] | Open NeoCodeium chat |
+| `:SmartJumpHistory` | [smartjump.lua] | Debug cursor position history |
+
+---
+
 ## STAGE 1: Cursor IDE Fundamentals
 
 Cursor is a full-featured IDE built on VS Code, with embedded Neovim via the vscode-neovim extension. Unlike the WezTerm + tmux workflow, Cursor provides integrated panels, terminals, and AI features.

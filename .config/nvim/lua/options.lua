@@ -35,6 +35,10 @@ o.timeoutlen = 400
 -- Completion
 o.completeopt = "menu,menuone,noselect"
 
+-- Command line completion (fallback when cmp-cmdline not loaded)
+o.wildmode = "longest:full,full"
+o.wildmenu = true
+
 -- Clipboard (use system clipboard)
 o.clipboard = "unnamedplus"
 

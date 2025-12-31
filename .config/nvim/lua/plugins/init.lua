@@ -177,7 +177,7 @@ return {
   -- nvim-cmp: Completion engine
   {
     "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
+    event = { "InsertEnter", "CmdlineEnter" },
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
@@ -185,10 +185,48 @@ return {
       "saadparwaiz1/cmp_luasnip",
       "L3MON4D3/LuaSnip",
       "roobert/tailwindcss-colorizer-cmp.nvim",
+      "hrsh7th/cmp-cmdline",
     },
     config = function()
       local cmp = require("cmp")
+      -- Insert mode completion
       cmp.setup(require("configs.cmp"))
+
+      -- Cmdline mappings: Tab confirms, C-n/C-p navigate
+      local cmdline_mapping = cmp.mapping.preset.cmdline({
+        ["<Tab>"] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.confirm({ select = true })
+          else
+            fallback()
+          end
+        end, { "c" }),
+        ["<S-Tab>"] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_prev_item()
+          else
+            fallback()
+          end
+        end, { "c" }),
+      })
+
+      -- Command line `:` completion
+      cmp.setup.cmdline(":", {
+        mapping = cmdline_mapping,
+        sources = cmp.config.sources({
+          { name = "path" },
+        }, {
+          { name = "cmdline" },
+        }),
+      })
+
+      -- Search `/` and `?` completion
+      cmp.setup.cmdline({ "/", "?" }, {
+        mapping = cmdline_mapping,
+        sources = {
+          { name = "buffer" },
+        },
+      })
     end,
   },
 

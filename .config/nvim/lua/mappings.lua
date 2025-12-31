@@ -12,6 +12,10 @@ map("n", "<C-j>", "<cmd>TmuxNavigateDown<cr>", { desc = "Navigate down (vim/tmux
 map("n", "<C-k>", "<cmd>TmuxNavigateUp<cr>", { desc = "Navigate up (vim/tmux)" })
 map("n", "<C-l>", "<cmd>TmuxNavigateRight<cr>", { desc = "Navigate right (vim/tmux)" })
 
+-- Terminal mode: exit to normal mode
+map("t", "<C-\\><C-n>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+map("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode (alternative)" })
+
 -- Buffer navigation
 map("n", "<Tab>", "<cmd>bnext<CR>", { desc = "Next buffer" })
 map("n", "<S-Tab>", "<cmd>bprev<CR>", { desc = "Previous buffer" })

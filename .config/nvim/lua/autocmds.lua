@@ -1,5 +1,45 @@
 local autocmd = vim.api.nvim_create_autocmd
 
+-- Ensure syntax highlighting is enabled when files are loaded
+autocmd({ "BufReadPost", "BufNewFile", "BufEnter" }, {
+  callback = function()
+    local ft = vim.bo.filetype
+    local buftype = vim.bo.buftype
+    
+    -- Skip for special buffer types
+    if buftype ~= "" and buftype ~= "acwrite" then
+      return
+    end
+    
+    -- Force filetype detection if empty and we have a filename
+    if ft == "" and vim.api.nvim_buf_get_name(0) ~= "" then
+      vim.cmd("filetype detect")
+      ft = vim.bo.filetype
+    end
+    
+    -- Enable syntax highlighting
+    if vim.bo.syntax == "" then
+      vim.cmd("syntax enable")
+    end
+    
+    -- Ensure Treesitter attaches (if available)
+    if ft ~= "" then
+      pcall(function()
+        vim.cmd("TSBufEnable highlight")
+      end)
+    end
+  end,
+})
+
+-- Ensure colorscheme is applied on startup
+autocmd("VimEnter", {
+  callback = function()
+    if vim.g.colors_name ~= "vscode" then
+      vim.cmd.colorscheme("vscode")
+    end
+  end,
+})
+
 -- Auto-convert Windows line endings (CRLF) to Unix (LF)
 autocmd("BufReadPost", {
   callback = function()

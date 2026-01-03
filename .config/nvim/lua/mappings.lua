@@ -53,7 +53,7 @@ vim.api.nvim_create_user_command("Claude", function()
 end, { desc = "Launch Claude in terminal buffer" })
 
 map("n", "<leader>ac", "<cmd>Claude<cr>", { desc = "Launch Claude" })
-map("n", "<leader>gw", "<cmd>edit /home/bw/dotfiles/docs/CURSOR-WORKFLOW-GUIDE.md<cr>", { desc = "Open workflow guide" })
+map("n", "<leader>gw", "<cmd>edit /home/bw/dotfiles/docs/WORKFLOW-GUIDE.md<cr>", { desc = "Open workflow guide" })
 
 -- Repeatable percentage jumps
 local repeatable = require("utils.repeatable")

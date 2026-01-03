@@ -139,7 +139,7 @@ return {
       { "<leader>gb", "<cmd>Git blame<cr>", desc = "Blame" },
       { "<leader>gl", "<cmd>LazyGit<cr>", desc = "LazyGit" },
       { "<leader>gd", "<cmd>Gitsigns diffthis<cr>", desc = "Diff" },
-      { "<leader>gw", "<cmd>edit /home/bw/dotfiles/docs/CURSOR-WORKFLOW-GUIDE.md<cr>", desc = "Workflow" },
+      { "<leader>gw", "<cmd>edit /home/bw/dotfiles/docs/WORKFLOW-GUIDE.md<cr>", desc = "Workflow" },
 
       -- Harpoon
       { "<leader>ha", function() require("harpoon"):list():add() end, desc = "Add" },

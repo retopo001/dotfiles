@@ -588,7 +588,7 @@ The vscode-neovim extension embeds Neovim as the editor backend. Your full Neovi
 | `jk` | [mappings.lua] | Exit insert mode (alternative to Esc) |
 | `Ctrl+h/j/k/l` | [mappings.lua] | Navigate windows (Neovim splits) |
 | `Leader ac` | [mappings.lua] | Launch Claude in terminal buffer |
-| `Leader gw` | [mappings.lua] | Open Cursor workflow guide (`/home/bw/dotfiles/docs/CURSOR-WORKFLOW-GUIDE.md`) |
+| `Leader gw` | [mappings.lua] | Open workflow guide (`/home/bw/dotfiles/docs/WORKFLOW-GUIDE.md`) |
 | `:Claude` | [mappings.lua] | User command to launch Claude |
 
 ### Mode Switching

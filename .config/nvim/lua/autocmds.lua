@@ -31,15 +31,6 @@ autocmd({ "BufReadPost", "BufNewFile", "BufEnter" }, {
   end,
 })
 
--- Ensure colorscheme is applied on startup
-autocmd("VimEnter", {
-  callback = function()
-    if vim.g.colors_name ~= "vscode" then
-      vim.cmd.colorscheme("vscode")
-    end
-  end,
-})
-
 -- Auto-convert Windows line endings (CRLF) to Unix (LF)
 autocmd("BufReadPost", {
   callback = function()

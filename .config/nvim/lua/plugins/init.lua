@@ -312,7 +312,7 @@ return {
       highlight = { enable = true },
       indent = { enable = true },
     },
-    main = "nvim-treesitter.configs",
+    main = "nvim-treesitter.config",
   },
 
   -- conform.nvim: Formatting

@@ -1,10 +1,12 @@
 -- nvim-treesitter-textobjects: Smart text objects based on AST
 -- Enables selecting/navigating code structures (functions, classes, blocks, etc.)
+-- DISABLED: Waiting for compatibility with nvim-treesitter v1.0+ API
 return {
   "nvim-treesitter/nvim-treesitter-textobjects",
+  enabled = false,
   dependencies = { "nvim-treesitter/nvim-treesitter" },
   event = "VeryLazy",
-  main = "nvim-treesitter.configs",
+  main = "nvim-treesitter.config",
   opts = {
     textobjects = {
       select = {

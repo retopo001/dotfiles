@@ -1,0 +1,55 @@
+#!/bin/bash
+# Package installer with fzf search and multi-select (Tab to select)
+# Matches Omarchy omarchy-pkg-search functionality
+
+MODE="${1:-pacman}"  # pacman or aur
+
+case "$MODE" in
+    pacman)
+        PROMPT="pacman"
+        # Search pacman repos, multi-select with Tab, install selected
+        PACKAGES=$(pacman -Slq | fzf --multi \
+            --preview 'pacman -Si {}' \
+            --preview-window=right:60%:wrap \
+            --bind 'tab:toggle+down' \
+            --bind 'shift-tab:toggle+up' \
+            --header 'Tab: select multiple, Enter: install' \
+            --prompt="$PROMPT > ")
+
+        if [[ -n "$PACKAGES" ]]; then
+            echo "Installing: $PACKAGES"
+            sudo pacman -S $PACKAGES
+        fi
+        ;;
+    aur)
+        PROMPT="aur"
+        # Search AUR with yay, multi-select with Tab
+        PACKAGES=$(yay -Slqa | fzf --multi \
+            --preview 'yay -Si {}' \
+            --preview-window=right:60%:wrap \
+            --bind 'tab:toggle+down' \
+            --bind 'shift-tab:toggle+up' \
+            --header 'Tab: select multiple, Enter: install' \
+            --prompt="$PROMPT > ")
+
+        if [[ -n "$PACKAGES" ]]; then
+            echo "Installing from AUR: $PACKAGES"
+            yay -S $PACKAGES
+        fi
+        ;;
+    search)
+        # Search both pacman and AUR
+        PACKAGES=$( (pacman -Slq; yay -Slqa 2>/dev/null) | sort -u | fzf --multi \
+            --preview 'pacman -Si {} 2>/dev/null || yay -Si {}' \
+            --preview-window=right:60%:wrap \
+            --bind 'tab:toggle+down' \
+            --bind 'shift-tab:toggle+up' \
+            --header 'Tab: select, Enter: install (auto-detects pacman/AUR)' \
+            --prompt="pkg > ")
+
+        if [[ -n "$PACKAGES" ]]; then
+            echo "Installing: $PACKAGES"
+            yay -S $PACKAGES
+        fi
+        ;;
+esac

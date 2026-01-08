@@ -1,0 +1,13 @@
+#!/bin/bash
+# Toggle xidlehook idle manager (X11)
+
+if pgrep -x xidlehook >/dev/null; then
+    pkill xidlehook
+    notify-send "Idle lock disabled"
+else
+    xidlehook --not-when-fullscreen --not-when-audio \
+        --timer 1800 "$HOME/bin/screensaver" '' \
+        --timer 2100 "$HOME/bin/lock-screen" '' \
+        --timer 2130 'xset dpms force off' 'xset dpms force on' &
+    notify-send "Idle lock enabled"
+fi

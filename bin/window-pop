@@ -1,0 +1,15 @@
+#!/bin/bash
+# Toggle window pop (floating + sticky + centered)
+
+width=${1:-1300}
+height=${2:-900}
+
+is_floating=$(i3-msg -t get_tree | jq '.. | select(.focused? == true) | .floating' 2>/dev/null)
+
+if [[ "$is_floating" == '"user_on"' ]]; then
+    i3-msg "floating disable, sticky disable"
+    notify-send "Window unpinned" "Returned to tiling"
+else
+    i3-msg "floating enable, resize set $width $height, move position center, sticky enable"
+    notify-send "Window pinned" "Floating + sticky"
+fi

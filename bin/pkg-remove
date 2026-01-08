@@ -1,0 +1,15 @@
+#!/bin/bash
+# Package remover with fzf search of installed packages
+
+PACKAGES=$(pacman -Qeq | fzf --multi \
+    --preview 'pacman -Qi {}' \
+    --preview-window=right:60%:wrap \
+    --bind 'tab:toggle+down' \
+    --bind 'shift-tab:toggle+up' \
+    --header 'Tab: select multiple, Enter: remove' \
+    --prompt="remove > ")
+
+if [[ -n "$PACKAGES" ]]; then
+    echo "Removing: $PACKAGES"
+    sudo pacman -Rns $PACKAGES
+fi

@@ -1,0 +1,26 @@
+/* Rofi config - rofi 2.0 compatible */
+
+configuration {
+    modes: "drun,run,window";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    terminal: "alacritty";
+    drun-display-format: "{name}";
+    location: 0;
+    disable-history: false;
+    display-drun: " Apps";
+    display-run: " Run";
+    display-window: " Windows";
+    sidebar-mode: false;
+    run-command: "~/bin/rofi-launcher {cmd}";
+    drun-run-in-terminal: false;
+
+    /* Fix drun mode execution */
+    drun {
+        parse-user: true;
+        parse-system: true;
+        DBusActivatable: false;
+    }
+}
+
+@theme "~/.config/rofi/themes/tokyo-night.rasi"

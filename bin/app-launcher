@@ -1,0 +1,36 @@
+#!/bin/bash
+# Fast app launcher using rofi dmenu mode
+# Works around rofi 2.0 drun execution issues
+
+# Build app list from desktop files
+get_apps() {
+    for dir in /usr/share/applications ~/.local/share/applications; do
+        [[ -d "$dir" ]] || continue
+        for f in "$dir"/*.desktop; do
+            [[ -f "$f" ]] || continue
+            name="" exec="" nodisplay=""
+            while IFS='=' read -r key value; do
+                case "$key" in
+                    Name) [[ -z "$name" ]] && name="$value" ;;
+                    Exec) [[ -z "$exec" ]] && exec="$value" ;;
+                    NoDisplay) nodisplay="$value" ;;
+                esac
+            done < "$f"
+            [[ "$nodisplay" == "true" ]] && continue
+            [[ -n "$name" && -n "$exec" ]] && echo "$name	$exec"
+        done
+    done | sort -t$'\t' -k1,1 -u
+}
+
+# Get selection from rofi
+selected=$(get_apps | cut -f1 | rofi -dmenu -p " Apps" -i -matching fuzzy)
+[[ -z "$selected" ]] && exit 0
+
+# Find and execute the command
+exec_cmd=$(get_apps | grep -F "$selected	" | head -1 | cut -f2 | sed 's/ %[fFuUdDnNickvm]//g')
+if [[ -n "$exec_cmd" ]]; then
+    # Ensure DISPLAY is set and launch detached
+    export DISPLAY="${DISPLAY:-:0}"
+    nohup $exec_cmd </dev/null >/dev/null 2>&1 &
+    disown
+fi

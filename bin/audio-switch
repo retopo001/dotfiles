@@ -1,0 +1,38 @@
+#!/bin/bash
+# Cycle through audio output devices (X11)
+
+sinks=$(pactl list short sinks | awk '{print $2}')
+sink_array=($sinks)
+num_sinks=${#sink_array[@]}
+
+if [[ $num_sinks -eq 0 ]]; then
+    notify-send "Audio" "No output devices found"
+    exit 1
+fi
+
+if [[ $num_sinks -eq 1 ]]; then
+    notify-send "Audio" "Only one output device"
+    exit 0
+fi
+
+current=$(pactl get-default-sink)
+
+for i in "${!sink_array[@]}"; do
+    if [[ "${sink_array[$i]}" == "$current" ]]; then
+        next_index=$(( (i + 1) % num_sinks ))
+        next_sink="${sink_array[$next_index]}"
+
+        pactl set-default-sink "$next_sink"
+
+        pactl list short sink-inputs | while read stream; do
+            stream_id=$(echo "$stream" | awk '{print $1}')
+            pactl move-sink-input "$stream_id" "$next_sink"
+        done
+
+        sink_name=$(pactl list sinks | grep -A1 "Name: $next_sink" | grep "Description" | cut -d: -f2 | xargs)
+        notify-send "Audio Output" "$sink_name"
+        exit 0
+    fi
+done
+
+pactl set-default-sink "${sink_array[0]}"

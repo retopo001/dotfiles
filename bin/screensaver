@@ -1,0 +1,20 @@
+#!/bin/bash
+# Launch screensaver (X11)
+
+if ! command -v tte &>/dev/null; then
+    exit 1
+fi
+
+# Don't launch if already running
+pgrep -f org.bw.screensaver && exit 0
+
+# Check if screensaver is disabled
+if [[ -f ~/.local/state/omarchy/toggles/screensaver-off ]] && [[ $1 != "force" ]]; then
+    exit 1
+fi
+
+alacritty --class=org.bw.screensaver \
+    -o 'colors.primary.background="#000000"' \
+    -o 'font.size=18' \
+    -o 'window.opacity=1.0' \
+    -e ~/bin/screensaver-cmd &

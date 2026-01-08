@@ -1,0 +1,5 @@
+#!/bin/bash
+# Wrapper to properly launch apps from rofi
+# Detaches process so rofi doesn't wait for it
+
+exec setsid -f "$@" &>/dev/null

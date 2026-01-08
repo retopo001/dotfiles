@@ -1,0 +1,10 @@
+#!/bin/bash
+# Toggle polybar (X11)
+
+if pgrep -x polybar >/dev/null; then
+    pkill polybar
+    notify-send "Top bar hidden"
+else
+    ~/.config/polybar/launch.sh &
+    notify-send "Top bar visible"
+fi

@@ -1,0 +1,29 @@
+#!/bin/bash
+# Screen recording with ffmpeg (X11)
+
+[[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
+OUTPUT_DIR="${XDG_VIDEOS_DIR:-$HOME/Videos}"
+mkdir -p "$OUTPUT_DIR"
+FILENAME="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
+
+if pgrep -f "ffmpeg.*x11grab" >/dev/null; then
+    pkill -SIGINT -f "ffmpeg.*x11grab"
+    notify-send "Screen recording saved" "$OUTPUT_DIR"
+    exit 0
+fi
+
+REGION=$(slop -f "%x,%y %wx%h" 2>/dev/null)
+[ -z "$REGION" ] && exit 0
+
+POS="${REGION%% *}"
+SIZE="${REGION#* }"
+
+notify-send "Recording started" "Press Alt+Print to stop"
+ffmpeg -f x11grab -framerate 60 -video_size "$SIZE" \
+    -i ":0.0+$POS" \
+    -f pulse -i default \
+    -c:v libx264 -preset ultrafast -crf 18 \
+    -c:a aac -b:a 128k \
+    "$FILENAME" >/dev/null 2>&1 &
+
+disown

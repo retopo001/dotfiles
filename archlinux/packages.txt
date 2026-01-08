@@ -1,0 +1,84 @@
+# Arch Linux Packages
+# Install with: sudo pacman -S --needed - < packages.txt
+
+# Xorg
+xorg-server
+xorg-xinit
+xorg-xrandr
+xorg-xsetroot
+xorg-xset
+
+# Window Manager & Desktop
+i3-wm
+picom
+polybar
+rofi
+dunst
+feh
+unclutter
+xclip
+maim
+slop
+xdotool
+redshift
+
+# Terminal
+alacritty
+
+# Shell
+fish
+starship
+zoxide
+fd
+bat
+eza
+fzf
+
+# Apps
+chromium
+nautilus
+neovim
+btop
+lazygit
+
+# Audio/Media
+pamixer
+playerctl
+brightnessctl
+pipewire
+pipewire-pulse
+wireplumber
+
+# Utils
+jq
+ffmpeg
+zenity
+gpick
+libnotify
+
+# Fonts/Themes
+ttf-jetbrains-mono-nerd
+papirus-icon-theme
+
+# Display Manager
+sddm
+qt5-graphicaleffects
+qt5-quickcontrols2
+
+# Dev Tools
+github-cli
+nodejs
+npm
+
+# ============================================
+# AUR Packages (install with yay)
+# ============================================
+# xidlehook
+# i3lock-color
+# clipmenu
+# satty
+# google-chrome
+# impala
+# bluetui
+# pulsemixer
+# sddm-theme-tokyo-night-git

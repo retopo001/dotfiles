@@ -1,0 +1,11 @@
+#!/bin/bash
+# Display i3 keybindings in rofi (X11)
+
+grep -E "^bindsym" ~/.config/i3/config | \
+    sed 's/bindsym //' | \
+    sed 's/exec /→ /' | \
+    sed 's/\$mod/Super/g' | \
+    sed 's/Mod1/Alt/g' | \
+    sed 's/Ctrl/Ctrl/g' | \
+    sed 's/+/ + /g' | \
+    rofi -dmenu -p "Keybindings" -i -width 800

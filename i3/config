@@ -1,0 +1,367 @@
+# i3 config - X11 migration from Omarchy/Hyprland
+# Full implementation per x11-menu-spec.md
+
+set $mod Mod4
+set $term alacritty
+
+# Font
+font pango:JetBrainsMono Nerd Font 9
+
+# Tokyo Night colors
+set $bg #1a1b26
+set $fg #c0caf5
+set $border #33ccff
+set $inactive #565f89
+set $urgent #f7768e
+
+# Window colors
+#                       border    bg   text indicator child_border
+client.focused          $border   $bg  $fg  $border   $border
+client.focused_inactive $inactive $bg  $fg  $inactive $inactive
+client.unfocused        $inactive $bg  $fg  $inactive $inactive
+client.urgent           $urgent   $bg  $fg  $urgent   $urgent
+
+# Gaps (inner matches outer)
+gaps inner 10
+gaps outer 10
+
+# Borders
+default_border pixel 2
+default_floating_border pixel 2
+hide_edge_borders none
+for_window [class=".*"] border pixel 2
+
+# Mouse
+floating_modifier $mod
+focus_follows_mouse no
+
+# ============================================
+# APPLICATION LAUNCHERS
+# ============================================
+
+# App launcher (custom launcher for rofi 2.0 compatibility)
+bindsym $mod+space exec ~/bin/app-launcher
+
+# Menu
+bindsym $mod+Mod1+space exec ~/bin/menu
+
+# Terminal
+bindsym $mod+Return exec $term
+
+# Terminal in same directory
+bindsym $mod+Shift+Return exec $term --working-directory "$(~/bin/terminal-cwd)"
+
+# File manager
+bindsym $mod+Shift+f exec nautilus --new-window
+
+# Browser
+bindsym $mod+Shift+b exec chromium
+bindsym $mod+Shift+Mod1+b exec chromium --incognito
+
+# Music (Spotify)
+bindsym $mod+Shift+m exec chromium --app=https://open.spotify.com
+
+# Editor (Neovim)
+bindsym $mod+Shift+n exec $term -e nvim
+
+# Activity (btop)
+bindsym $mod+Shift+t exec $term -e btop
+
+# Docker (lazydocker)
+bindsym $mod+Shift+d exec $term -e lazydocker
+
+# Signal
+bindsym $mod+Shift+g exec signal-desktop
+
+# Obsidian
+bindsym $mod+Shift+o exec obsidian
+
+# Typora
+bindsym $mod+Shift+w exec typora
+
+# 1Password
+bindsym $mod+Shift+slash exec 1password
+
+# ChatGPT
+bindsym $mod+Shift+a exec chromium --app=https://chatgpt.com
+
+# Grok
+bindsym $mod+Shift+Mod1+a exec chromium --app=https://grok.com
+
+# Calendar (HEY)
+bindsym $mod+Shift+c exec chromium --app=https://app.hey.com/calendar/weeks/
+
+# Email (HEY)
+bindsym $mod+Shift+e exec chromium --app=https://app.hey.com
+
+# YouTube
+bindsym $mod+Shift+y exec chromium --app=https://youtube.com
+
+# WhatsApp
+bindsym $mod+Shift+Mod1+g exec chromium --app=https://web.whatsapp.com
+
+# Google Messages
+bindsym $mod+Ctrl+Shift+g exec chromium --app=https://messages.google.com/web/conversations
+
+# Google Photos
+bindsym $mod+Shift+p exec chromium --app=https://photos.google.com
+
+# X (Twitter)
+bindsym $mod+Shift+x exec chromium --app=https://x.com
+bindsym $mod+Shift+Mod1+x exec chromium --app=https://x.com/compose/post
+
+# ============================================
+# WINDOW MANAGEMENT
+# ============================================
+
+# Close window
+bindsym $mod+w kill
+
+# Close all windows on workspace
+bindsym Ctrl+Mod1+Delete [workspace=__focused__] kill
+
+# Fullscreen
+bindsym $mod+f fullscreen toggle
+
+# Toggle floating
+bindsym $mod+t floating toggle
+
+# Toggle sticky floating (window pop)
+bindsym $mod+o exec ~/bin/window-pop
+
+# Toggle split direction
+bindsym $mod+j split toggle
+
+# Focus direction
+bindsym $mod+Left focus left
+bindsym $mod+Right focus right
+bindsym $mod+Up focus up
+bindsym $mod+Down focus down
+
+# Move window
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Right move right
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Down move down
+
+# Resize window
+bindsym $mod+equal resize grow width 50 px
+bindsym $mod+minus resize shrink width 50 px
+bindsym $mod+Shift+equal resize grow height 50 px
+bindsym $mod+Shift+minus resize shrink height 50 px
+
+# Grouping (tabbed layout)
+bindsym $mod+g layout toggle tabbed split
+
+# ============================================
+# WORKSPACES
+# ============================================
+
+# Switch workspace
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+
+# Next/prev workspace
+bindsym $mod+Tab workspace next
+bindsym $mod+Shift+Tab workspace prev
+bindsym $mod+Ctrl+Tab workspace back_and_forth
+
+# Move window to workspace
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+
+# Move workspace to monitor
+bindsym $mod+Shift+Mod1+Left move workspace to output left
+bindsym $mod+Shift+Mod1+Right move workspace to output right
+
+# Scratchpad
+bindsym $mod+s scratchpad show
+bindsym $mod+Mod1+s move scratchpad
+
+# ============================================
+# SCREENSHOTS & CAPTURE
+# ============================================
+
+# Screenshot with editing
+bindsym Print exec ~/bin/screenshot
+
+# Screenshot straight to clipboard
+bindsym Shift+Print exec ~/bin/screenshot --clipboard
+
+# Screen recording toggle
+bindsym Mod1+Print exec ~/bin/screenrecord
+
+# Color picker
+bindsym $mod+Print exec gpick
+
+# ============================================
+# CLIPBOARD
+# ============================================
+
+bindsym $mod+Ctrl+v exec clipmenu
+
+# ============================================
+# NOTIFICATIONS (dunst)
+# ============================================
+
+bindsym $mod+comma exec dunstctl close
+bindsym $mod+Shift+comma exec dunstctl close-all
+bindsym $mod+Ctrl+comma exec dunstctl set-paused toggle
+bindsym $mod+Mod1+comma exec dunstctl history-pop
+
+# ============================================
+# SYSTEM
+# ============================================
+
+# Lock screen
+bindsym $mod+Ctrl+l exec ~/bin/lock-screen
+
+# System menu
+bindsym $mod+Escape exec ~/bin/menu --system
+
+# Logout
+bindsym $mod+m exec i3-msg exit
+
+# Show keybindings
+bindsym $mod+k exec ~/bin/keybindings-display
+
+# Reload/restart
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+q reload
+
+# ============================================
+# TOGGLES
+# ============================================
+
+# Toggle nightlight
+bindsym $mod+Ctrl+n exec ~/bin/toggle-nightlight
+
+# Toggle idle lock
+bindsym $mod+Ctrl+i exec ~/bin/toggle-idle
+
+# Toggle top bar (polybar)
+bindsym $mod+Shift+space exec ~/bin/toggle-topbar
+
+# Toggle transparency (picom)
+bindsym $mod+BackSpace exec pkill picom || picom -b
+
+# Next background
+bindsym $mod+Ctrl+space exec ~/bin/bg-next
+
+# Theme picker
+bindsym $mod+Ctrl+Shift+space exec ~/bin/menu --theme
+
+# ============================================
+# MEDIA KEYS
+# ============================================
+
+bindsym XF86AudioRaiseVolume exec pamixer -i 5
+bindsym XF86AudioLowerVolume exec pamixer -d 5
+bindsym XF86AudioMute exec pamixer -t
+bindsym XF86AudioMicMute exec pamixer --default-source -t
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
+bindsym XF86MonBrightnessUp exec brightnessctl s +5%
+bindsym XF86MonBrightnessDown exec brightnessctl s 5%-
+
+# Audio output switch
+bindsym $mod+XF86AudioMute exec ~/bin/audio-switch
+
+# ============================================
+# VOICE DICTATION (Sotto)
+# ============================================
+
+bindsym XF86Launch7 exec pkill -USR1 sotto
+bindsym --release XF86Launch7 exec ~/bin/sotto-stop
+bindsym Shift+XF86Launch7 exec pkill -USR1 sotto
+bindsym --release Shift+XF86Launch7 exec ~/bin/sotto-stop
+
+# ============================================
+# TUI LAUNCHERS
+# ============================================
+
+bindsym $mod+Ctrl+t exec $term -e btop
+bindsym $mod+Ctrl+a exec $term -e pulsemixer
+bindsym $mod+Ctrl+b exec $term -e bluetui
+bindsym $mod+Ctrl+w exec $term -e impala
+bindsym $mod+Ctrl+s exec ~/bin/share-menu
+
+# ============================================
+# WINDOW RULES
+# ============================================
+
+# Steam
+for_window [class="^Steam$"] floating enable
+for_window [class="^Steam$" title="^Steam$"] resize set 1100 700, move position center
+for_window [class="^Steam$" title="Friends List"] resize set 460 800
+
+# 1Password
+for_window [class="^1[Pp]assword$"] floating enable
+
+# Picture-in-Picture
+for_window [title="(?i)picture.?in.?picture"] floating enable, sticky enable, resize set 600 338
+
+# Screensaver
+for_window [class="org.bw.screensaver"] fullscreen enable, border none
+
+# LocalSend
+for_window [class="^localsend_app$"] floating enable
+
+# File dialogs
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="dialog"] floating enable
+for_window [window_type="dialog"] floating enable
+
+# Pavucontrol
+for_window [class="Pavucontrol"] floating enable
+
+# Signal
+for_window [class="Signal"] floating enable
+
+# ============================================
+# BAR (disabled - using polybar)
+# ============================================
+
+bar {
+    mode invisible
+}
+
+# ============================================
+# AUTOSTART
+# ============================================
+
+# Blank root window (fixes SDDM background persistence)
+exec_always --no-startup-id xsetroot -solid "#1a1b26"
+
+# Compositor
+exec_always --no-startup-id pkill picom; sleep 0.5; picom -b
+
+# Wallpaper
+exec_always --no-startup-id feh --bg-fill ~/.config/wallpaper/current.jpg 2>/dev/null || feh --bg-fill /usr/share/backgrounds/*.jpg 2>/dev/null
+
+# Polybar
+exec_always --no-startup-id ~/.config/polybar/launch.sh
+
+# Notifications
+exec --no-startup-id dunst
+
+# Clipboard manager
+exec --no-startup-id clipmenud
+
+# Polkit agent
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1

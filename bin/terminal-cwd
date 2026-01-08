@@ -1,0 +1,20 @@
+#!/bin/bash
+# Get CWD of focused terminal (X11)
+
+terminal_pid=$(xdotool getactivewindow getwindowpid 2>/dev/null)
+
+if [[ -n "$terminal_pid" ]]; then
+    shell_pid=$(pgrep -P "$terminal_pid" | tail -n1)
+
+    if [[ -n "$shell_pid" ]]; then
+        cwd=$(readlink -f "/proc/$shell_pid/cwd" 2>/dev/null)
+        shell=$(readlink -f "/proc/$shell_pid/exe" 2>/dev/null)
+
+        if grep -qs "$shell" /etc/shells && [[ -d "$cwd" ]]; then
+            echo "$cwd"
+            exit 0
+        fi
+    fi
+fi
+
+echo "$HOME"

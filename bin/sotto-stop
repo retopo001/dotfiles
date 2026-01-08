@@ -1,0 +1,4 @@
+#!/bin/bash
+# Type a space before sotto outputs transcription (X11)
+xdotool type --clearmodifiers ' '
+pkill -USR1 sotto

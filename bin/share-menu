@@ -1,0 +1,24 @@
+#!/bin/bash
+# Share menu using LocalSend (X11)
+
+choice=$(echo -e "Clipboard\nFile\nFolder" | rofi -dmenu -p "Share" -i)
+
+case "$choice" in
+    Clipboard)
+        content=$(xclip -selection clipboard -o 2>/dev/null)
+        if [[ -n "$content" ]]; then
+            echo "$content" | localsend send --
+            notify-send "Shared clipboard"
+        else
+            notify-send "Clipboard empty"
+        fi
+        ;;
+    File)
+        file=$(zenity --file-selection 2>/dev/null)
+        [[ -n "$file" ]] && localsend send "$file"
+        ;;
+    Folder)
+        folder=$(zenity --file-selection --directory 2>/dev/null)
+        [[ -n "$folder" ]] && localsend send "$folder"
+        ;;
+esac

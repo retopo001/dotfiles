@@ -1,0 +1,42 @@
+# Dunst notification config - X11 migration
+
+[global]
+    width = 300
+    height = 100
+    offset = 10x40
+    origin = top-right
+    transparency = 0
+    frame_width = 2
+    corner_radius = 0
+    font = JetBrainsMono Nerd Font 10
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    show_age_threshold = 60
+    word_wrap = yes
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+    icon_position = left
+    max_icon_size = 32
+    dmenu = /usr/bin/rofi -dmenu -p dunst
+    browser = /usr/bin/chromium
+
+[urgency_low]
+    background = "#1a1b26"
+    foreground = "#c0caf5"
+    frame_color = "#33ccff"
+    timeout = 5
+
+[urgency_normal]
+    background = "#1a1b26"
+    foreground = "#c0caf5"
+    frame_color = "#33ccff"
+    timeout = 10
+
+[urgency_critical]
+    background = "#1a1b26"
+    foreground = "#c0caf5"
+    frame_color = "#f7768e"
+    timeout = 0

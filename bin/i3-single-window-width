@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+"""
+Auto-narrow single windows on ultrawide monitors (X11/i3).
+"""
+
+import i3ipc
+
+MAX_WIDTH = 1600
+
+def get_workspace_windows(conn, workspace_name):
+    tree = conn.get_tree()
+    for workspace in tree.workspaces():
+        if workspace.name == workspace_name:
+            return [w for w in workspace.leaves() if w.window]
+    return []
+
+def get_focused_workspace(conn):
+    for workspace in conn.get_workspaces():
+        if workspace.focused:
+            return workspace
+    return None
+
+def get_monitor_width(conn, workspace_name):
+    for output in conn.get_outputs():
+        if output.current_workspace == workspace_name:
+            return output.rect.width
+    return None
+
+def handle_window_event(conn, event):
+    workspace = get_focused_workspace(conn)
+    if not workspace:
+        return
+
+    windows = get_workspace_windows(conn, workspace.name)
+
+    if len(windows) == 1:
+        window = windows[0]
+        monitor_width = get_monitor_width(conn, workspace.name)
+
+        if monitor_width and monitor_width > MAX_WIDTH:
+            if window.rect.width > MAX_WIDTH:
+                conn.command(f'[con_id={window.id}] resize set width {MAX_WIDTH} px')
+
+def main():
+    conn = i3ipc.Connection()
+    conn.on('window::new', handle_window_event)
+    conn.on('window::close', handle_window_event)
+    conn.on('window::move', handle_window_event)
+    conn.on('workspace::focus', handle_window_event)
+    handle_window_event(conn, None)
+    conn.main()
+
+if __name__ == '__main__':
+    main()

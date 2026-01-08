@@ -1,0 +1,112 @@
+#!/bin/bash
+# Main menu (X11) - replaces Omarchy menu
+
+case "$1" in
+    --system)
+        choice=$(echo -e "Lock\nLogout\nRestart\nShutdown" | rofi -dmenu -p "System" -i)
+        case "$choice" in
+            Lock) ~/bin/lock-screen ;;
+            Logout) i3-msg exit ;;
+            Restart) systemctl reboot ;;
+            Shutdown) systemctl poweroff ;;
+        esac
+        ;;
+    --theme)
+        THEMES_DIR="$HOME/.config/omarchy/themes"
+        if [[ -d "$THEMES_DIR" ]]; then
+            theme=$(ls "$THEMES_DIR" | rofi -dmenu -p "Theme" -i)
+            [[ -n "$theme" ]] && ~/bin/theme-set "$theme"
+        else
+            notify-send "No themes found" "$THEMES_DIR"
+        fi
+        ;;
+    *)
+        choice=$(cat <<EOF | rofi -dmenu -p "Menu" -i
+Apps
+Learn
+Capture
+Toggle
+Style
+Setup
+Install
+Remove
+Update
+About
+System
+EOF
+        )
+        case "$choice" in
+            Apps) ~/bin/app-launcher ;;
+            Learn)
+                sub=$(echo -e "Keybindings\nWorkflow Guide\ni3 Docs\nArch Wiki\nNeovim\nBash" | rofi -dmenu -p "Learn" -i)
+                case "$sub" in
+                    Keybindings) ~/bin/keybindings-display ;;
+                    "Workflow Guide") alacritty -e nvim ~/dotfiles/docs/WORKFLOW-GUIDE.md ;;
+                    "i3 Docs") xdg-open "https://i3wm.org/docs/" ;;
+                    "Arch Wiki") xdg-open "https://wiki.archlinux.org/" ;;
+                    Neovim) xdg-open "https://lazyvim.org/keymaps" ;;
+                    Bash) xdg-open "https://devhints.io/bash" ;;
+                esac
+                ;;
+            Capture)
+                sub=$(echo -e "Screenshot\nScreenshot (clipboard)\nScreen Record\nColor Picker" | rofi -dmenu -p "Capture" -i)
+                case "$sub" in
+                    Screenshot) ~/bin/screenshot ;;
+                    "Screenshot (clipboard)") ~/bin/screenshot --clipboard ;;
+                    "Screen Record") ~/bin/screenrecord ;;
+                    "Color Picker") gpick ;;
+                esac
+                ;;
+            Toggle)
+                sub=$(echo -e "Screensaver\nNightlight\nIdle Lock\nTop Bar" | rofi -dmenu -p "Toggle" -i)
+                case "$sub" in
+                    Screensaver) ~/bin/toggle-screensaver ;;
+                    Nightlight) ~/bin/toggle-nightlight ;;
+                    "Idle Lock") ~/bin/toggle-idle ;;
+                    "Top Bar") ~/bin/toggle-topbar ;;
+                esac
+                ;;
+            Style)
+                sub=$(echo -e "Theme\nBackground\ni3 Config\nScreensaver Text" | rofi -dmenu -p "Style" -i)
+                case "$sub" in
+                    Theme) ~/bin/menu --theme ;;
+                    Background) ~/bin/bg-next ;;
+                    "i3 Config") alacritty -e nvim ~/.config/i3/config ;;
+                    "Screensaver Text") alacritty -e nvim ~/.config/branding/screensaver.txt ;;
+                esac
+                ;;
+            Setup)
+                sub=$(echo -e "Audio\nWifi\nBluetooth\nMonitors\nKeybindings\nDefaults" | rofi -dmenu -p "Setup" -i)
+                case "$sub" in
+                    Audio) alacritty -e pulsemixer ;;
+                    Wifi) alacritty -e impala ;;
+                    Bluetooth) alacritty -e bluetui ;;
+                    Monitors) alacritty -e nvim ~/.config/x11/monitors.conf ;;
+                    Keybindings) alacritty -e nvim ~/.config/i3/config ;;
+                    Defaults) alacritty -e nvim ~/.config/mimeapps.list ;;
+                esac
+                ;;
+            Install)
+                sub=$(echo -e "Search All\nPackage (pacman)\nAUR Package" | rofi -dmenu -p "Install" -i)
+                case "$sub" in
+                    "Search All") alacritty -e ~/bin/pkg-install search ;;
+                    "Package (pacman)") alacritty -e ~/bin/pkg-install pacman ;;
+                    "AUR Package") alacritty -e ~/bin/pkg-install aur ;;
+                esac
+                ;;
+            Remove)
+                alacritty -e ~/bin/pkg-remove
+                ;;
+            Update)
+                sub=$(echo -e "System\nTimezone\nTime" | rofi -dmenu -p "Update" -i)
+                case "$sub" in
+                    System) alacritty -e bash -c 'sudo pacman -Syu && read -p "Press enter to close..."' ;;
+                    Timezone) alacritty -e bash -c 'sudo timedatectl set-timezone "$(tzselect)"' ;;
+                    Time) sudo timedatectl set-ntp true && notify-send "Time" "NTP sync enabled" ;;
+                esac
+                ;;
+            About) alacritty -e fastfetch ;;
+            System) ~/bin/menu --system ;;
+        esac
+        ;;
+esac

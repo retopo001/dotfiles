@@ -1,0 +1,38 @@
+#!/bin/bash
+# Cycle to next background (X11)
+
+BACKGROUNDS_DIR="$HOME/.config/omarchy/current/theme/backgrounds/"
+CURRENT_BACKGROUND_LINK="$HOME/.config/omarchy/current/background"
+
+mapfile -d '' -t BACKGROUNDS < <(find -L "$BACKGROUNDS_DIR" -type f -print0 2>/dev/null | sort -z)
+TOTAL=${#BACKGROUNDS[@]}
+
+if [[ $TOTAL -eq 0 ]]; then
+    notify-send "No backgrounds found" "$BACKGROUNDS_DIR"
+    exit 1
+fi
+
+if [[ -L "$CURRENT_BACKGROUND_LINK" ]]; then
+    CURRENT_BACKGROUND=$(readlink "$CURRENT_BACKGROUND_LINK")
+else
+    CURRENT_BACKGROUND=""
+fi
+
+INDEX=-1
+for i in "${!BACKGROUNDS[@]}"; do
+    if [[ "${BACKGROUNDS[$i]}" == "$CURRENT_BACKGROUND" ]]; then
+        INDEX=$i
+        break
+    fi
+done
+
+if [[ $INDEX -eq -1 ]]; then
+    NEW_BACKGROUND="${BACKGROUNDS[0]}"
+else
+    NEXT_INDEX=$(((INDEX + 1) % TOTAL))
+    NEW_BACKGROUND="${BACKGROUNDS[$NEXT_INDEX]}"
+fi
+
+ln -nsf "$NEW_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
+feh --bg-fill "$CURRENT_BACKGROUND_LINK"
+notify-send "Background changed" "$(basename "$NEW_BACKGROUND")"

@@ -1,0 +1,13 @@
+#!/bin/bash
+# Toggle screensaver enabled/disabled
+
+STATE_FILE="$HOME/.local/state/omarchy/toggles/screensaver-off"
+mkdir -p "$(dirname "$STATE_FILE")"
+
+if [[ -f "$STATE_FILE" ]]; then
+    rm "$STATE_FILE"
+    notify-send "Screensaver enabled"
+else
+    touch "$STATE_FILE"
+    notify-send "Screensaver disabled"
+fi

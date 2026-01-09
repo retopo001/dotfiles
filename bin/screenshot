@@ -1,26 +1,44 @@
 #!/bin/bash
 # Screenshot with satty editing (X11)
+# Usage: screenshot [--clipboard|--window|--fullscreen]
 
 [[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
 OUTPUT_DIR="${XDG_PICTURES_DIR:-$HOME/Pictures}"
 mkdir -p "$OUTPUT_DIR"
+FILENAME="$OUTPUT_DIR/screenshot-$(date +'%Y-%m-%d_%H-%M-%S').png"
 
 # Cancel if slop is already running
 pkill slop 2>/dev/null && exit 0
 
-if [[ "$1" == "--clipboard" ]]; then
-    SELECTION=$(slop -f "%g" 2>/dev/null)
-    [ -z "$SELECTION" ] && exit 0
-    maim -g "$SELECTION" | xclip -selection clipboard -t image/png
-    notify-send "Screenshot copied to clipboard"
-else
-    SELECTION=$(slop -f "%g" 2>/dev/null)
-    [ -z "$SELECTION" ] && exit 0
-
-    maim -g "$SELECTION" - | satty --filename - \
-        --output-filename "$OUTPUT_DIR/screenshot-$(date +'%Y-%m-%d_%H-%M-%S').png" \
+satty_edit() {
+    satty --filename - \
+        --output-filename "$FILENAME" \
         --early-exit \
         --actions-on-enter save-to-clipboard \
         --save-after-copy \
         --copy-command 'xclip -selection clipboard -t image/png'
-fi
+}
+
+case "$1" in
+    --clipboard)
+        # Region selection, straight to clipboard
+        SELECTION=$(slop -f "%g" 2>/dev/null)
+        [ -z "$SELECTION" ] && exit 0
+        maim -g "$SELECTION" | xclip -selection clipboard -t image/png
+        notify-send "Screenshot" "Copied to clipboard"
+        ;;
+    --window)
+        # Active window with satty
+        maim -i $(xdotool getactivewindow) | satty_edit
+        ;;
+    --fullscreen)
+        # Full screen with satty
+        maim | satty_edit
+        ;;
+    *)
+        # Region selection with satty (default)
+        SELECTION=$(slop -f "%g" 2>/dev/null)
+        [ -z "$SELECTION" ] && exit 0
+        maim -g "$SELECTION" - | satty_edit
+        ;;
+esac

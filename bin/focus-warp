@@ -1,0 +1,24 @@
+#!/bin/bash
+# Warp mouse cursor to center of focused window after focus change
+# Usage: focus-warp <direction>
+# Called from i3 bindings: bindsym $mod+Left exec ~/bin/focus-warp left
+
+direction="$1"
+
+# Change focus
+i3-msg "focus $direction" >/dev/null
+
+# Small delay to let focus change complete
+sleep 0.02
+
+# Get focused window geometry
+eval $(xdotool getactivewindow getwindowgeometry --shell 2>/dev/null)
+
+if [[ -n "$X" && -n "$Y" && -n "$WIDTH" && -n "$HEIGHT" ]]; then
+    # Calculate center of window
+    center_x=$((X + WIDTH / 2))
+    center_y=$((Y + HEIGHT / 2))
+
+    # Move mouse to center
+    xdotool mousemove "$center_x" "$center_y"
+fi

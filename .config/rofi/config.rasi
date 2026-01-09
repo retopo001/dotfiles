@@ -14,6 +14,12 @@ configuration {
     sidebar-mode: false;
     run-command: "~/bin/rofi-launcher {cmd}";
     drun-run-in-terminal: false;
+    drun-run-command: "setsid -f {exec}";
+
+    /* Scroll behavior - continuous scroll, no pagination */
+    scroll-method: 1;
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
 
     /* Fix drun mode execution */
     drun {

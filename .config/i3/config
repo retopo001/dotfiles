@@ -34,6 +34,7 @@ for_window [class=".*"] border pixel 2
 # Mouse
 floating_modifier $mod
 focus_follows_mouse no
+mouse_warping output
 
 # ============================================
 # APPLICATION LAUNCHERS
@@ -135,11 +136,11 @@ bindsym $mod+o exec ~/bin/window-pop
 # Toggle split direction
 bindsym $mod+j split toggle
 
-# Focus direction
-bindsym $mod+Left focus left
-bindsym $mod+Right focus right
-bindsym $mod+Up focus up
-bindsym $mod+Down focus down
+# Focus direction (with cursor warp to center)
+bindsym $mod+Left exec ~/bin/focus-warp left
+bindsym $mod+Right exec ~/bin/focus-warp right
+bindsym $mod+Up exec ~/bin/focus-warp up
+bindsym $mod+Down exec ~/bin/focus-warp down
 
 # Move window
 bindsym $mod+Shift+Left move left
@@ -147,11 +148,23 @@ bindsym $mod+Shift+Right move right
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Down move down
 
-# Resize window
+# Resize window (incremental)
 bindsym $mod+equal resize grow width 50 px
 bindsym $mod+minus resize shrink width 50 px
 bindsym $mod+Shift+equal resize grow height 50 px
 bindsym $mod+Shift+minus resize shrink height 50 px
+
+# Resize window (proportional)
+bindsym $mod+Ctrl+1 resize set width 10 ppt
+bindsym $mod+Ctrl+2 resize set width 20 ppt
+bindsym $mod+Ctrl+3 resize set width 33 ppt
+bindsym $mod+Ctrl+4 resize set width 40 ppt
+bindsym $mod+Ctrl+5 resize set width 50 ppt
+bindsym $mod+Ctrl+6 resize set width 60 ppt
+bindsym $mod+Ctrl+7 resize set width 66 ppt
+bindsym $mod+Ctrl+8 resize set width 80 ppt
+bindsym $mod+Ctrl+9 resize set width 90 ppt
+bindsym $mod+Ctrl+0 resize set width 100 ppt
 
 # Grouping (tabbed layout)
 bindsym $mod+g layout toggle tabbed split
@@ -212,9 +225,12 @@ bindsym Mod1+Print exec ~/bin/screenrecord
 bindsym $mod+Print exec gpick
 
 # ============================================
-# CLIPBOARD
+# CLIPBOARD (Universal - Super+C/X/V)
 # ============================================
 
+bindsym $mod+c exec ~/bin/clipboard-copy
+bindsym $mod+x exec ~/bin/clipboard-cut
+bindsym $mod+v exec ~/bin/clipboard-paste
 bindsym $mod+Ctrl+v exec clipmenu
 
 # ============================================
@@ -281,6 +297,12 @@ bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
 bindsym XF86MonBrightnessUp exec brightnessctl s +5%
 bindsym XF86MonBrightnessDown exec brightnessctl s 5%-
+
+# Precision controls (Alt+key for 1% increments)
+bindsym Mod1+XF86AudioRaiseVolume exec pamixer -i 1
+bindsym Mod1+XF86AudioLowerVolume exec pamixer -d 1
+bindsym Mod1+XF86MonBrightnessUp exec brightnessctl s +1%
+bindsym Mod1+XF86MonBrightnessDown exec brightnessctl s 1%-
 
 # Audio output switch
 bindsym $mod+XF86AudioMute exec ~/bin/audio-switch
@@ -371,3 +393,9 @@ exec --no-startup-id emacs --daemon
 
 # Polkit agent
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+
+# Center single windows on wide screens (like Hyprland dwindle)
+exec --no-startup-id ~/bin/i3-center-single
+
+# Compose key for emoji/text shortcuts (CapsLock as Compose)
+exec_always --no-startup-id setxkbmap -option compose:caps

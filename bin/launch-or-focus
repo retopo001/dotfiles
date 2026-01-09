@@ -1,0 +1,32 @@
+#!/bin/bash
+# Launch-or-Focus: Focus existing window or launch new instance
+# Usage: launch-or-focus <class-pattern> [launch-command]
+# Example: launch-or-focus spotify
+# Example: launch-or-focus "Signal" signal-desktop
+
+CLASS_PATTERN="$1"
+LAUNCH_CMD="${2:-$1}"
+
+if [[ -z "$CLASS_PATTERN" ]]; then
+    echo "Usage: launch-or-focus <class-pattern> [launch-command]"
+    exit 1
+fi
+
+# Find window by class (case insensitive)
+WINDOW_ID=$(xdotool search --class "$CLASS_PATTERN" 2>/dev/null | head -1)
+
+if [[ -n "$WINDOW_ID" ]]; then
+    # Get the workspace of the window
+    WORKSPACE=$(xdotool get-desktop-for-window "$WINDOW_ID" 2>/dev/null)
+
+    # Switch to that workspace if needed
+    if [[ -n "$WORKSPACE" ]]; then
+        i3-msg "workspace number $((WORKSPACE + 1))" >/dev/null 2>&1
+    fi
+
+    # Focus the window
+    xdotool windowactivate "$WINDOW_ID" 2>/dev/null
+else
+    # Launch the application
+    setsid $LAUNCH_CMD >/dev/null 2>&1 &
+fi

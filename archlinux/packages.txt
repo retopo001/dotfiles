@@ -20,6 +20,7 @@ xclip
 maim
 slop
 xdotool
+xbanish
 redshift
 
 # Terminal
@@ -44,6 +45,8 @@ nautilus
 neovim
 btop
 lazygit
+yazi
+tldr
 
 # Audio/Media
 pamixer
@@ -59,6 +62,21 @@ ffmpeg
 zenity
 gpick
 libnotify
+unzip
+zip
+wget
+curl
+ripgrep
+tree
+htop
+less
+man-db
+lsof
+rsync
+openssh
+strace
+gzip
+p7zip
 
 # Fonts/Themes
 ttf-jetbrains-mono-nerd
@@ -75,6 +93,8 @@ nodejs
 npm
 gcc
 cmake
+clang
+python-i3ipc
 
 # ============================================
 # AUR Packages (install with yay)

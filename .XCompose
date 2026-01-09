@@ -1,0 +1,68 @@
+# XCompose - Quick emoji and text expansion
+# Set compose key: setxkbmap -option compose:caps
+# Or use keyd/xremap for CapsLock as Compose
+
+include "%L"
+
+# === Quick Emoji (Compose + m + letter) ===
+<Multi_key> <m> <s> : "😄"   # smile
+<Multi_key> <m> <c> : "😂"   # cry laugh
+<Multi_key> <m> <l> : "😍"   # love eyes
+<Multi_key> <m> <v> : "✌️"    # victory
+<Multi_key> <m> <h> : "❤️"    # heart
+<Multi_key> <m> <y> : "👍"   # yes/thumbs up
+<Multi_key> <m> <n> : "👎"   # no/thumbs down
+<Multi_key> <m> <f> : "🖕"   # middle finger
+<Multi_key> <m> <w> : "🤞"   # wish/crossed fingers
+<Multi_key> <m> <r> : "🤘"   # rock on
+<Multi_key> <m> <k> : "😘"   # kiss
+<Multi_key> <m> <e> : "🙄"   # eye roll
+<Multi_key> <m> <d> : "🤤"   # drool
+<Multi_key> <m> <M> : "💰"   # money
+<Multi_key> <m> <x> : "🎉"   # celebrate
+<Multi_key> <m> <1> : "💯"   # 100
+<Multi_key> <m> <t> : "🥂"   # toast
+<Multi_key> <m> <p> : "🙏"   # pray
+<Multi_key> <m> <i> : "😉"   # wink
+<Multi_key> <m> <o> : "👌"   # OK
+<Multi_key> <m> <g> : "👋"   # greeting/wave
+<Multi_key> <m> <a> : "💪"   # arm/strong
+<Multi_key> <m> <b> : "🤯"   # mind blown
+<Multi_key> <m> <z> : "😴"   # sleep
+<Multi_key> <m> <u> : "🤷"   # shrug
+<Multi_key> <m> <q> : "🤔"   # thinking
+
+# === Text Expansion (Compose + space + letter) ===
+# Edit these with your personal info
+<Multi_key> <space> <n> : "Your Name Here"
+<Multi_key> <space> <e> : "your.email@example.com"
+<Multi_key> <space> <p> : "+1-555-555-5555"
+<Multi_key> <space> <a> : "123 Street Name, City, State ZIP"
+
+# === Punctuation (Compose + space/punctuation) ===
+<Multi_key> <space> <space> : "—"   # em-dash
+<Multi_key> <minus> <minus> : "–"   # en-dash
+<Multi_key> <period> <period> <period> : "…"   # ellipsis
+<Multi_key> <less> <less> : "«"     # guillemet left
+<Multi_key> <greater> <greater> : "»"   # guillemet right
+<Multi_key> <apostrophe> <apostrophe> : "'"   # curly quote
+<Multi_key> <quotedbl> <less> : U201C   # left double quote "
+<Multi_key> <quotedbl> <greater> : U201D   # right double quote "
+
+# === Arrows ===
+<Multi_key> <minus> <greater> : "→"
+<Multi_key> <less> <minus> : "←"
+<Multi_key> <equal> <greater> : "⇒"
+<Multi_key> <less> <equal> : "⇐"
+
+# === Math/Symbols ===
+<Multi_key> <x> <x> : "×"   # multiply
+<Multi_key> <slash> <slash> : "÷"   # divide
+<Multi_key> <plus> <minus> : "±"   # plus-minus
+<Multi_key> <exclam> <equal> : "≠"   # not equal
+<Multi_key> <less> <equal> : "≤"   # less or equal
+<Multi_key> <greater> <equal> : "≥"   # greater or equal
+<Multi_key> <o> <o> : "°"   # degree
+<Multi_key> <c> <o> : "©"   # copyright
+<Multi_key> <r> <o> : "®"   # registered
+<Multi_key> <t> <m> : "™"   # trademark

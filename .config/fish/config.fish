@@ -127,7 +127,7 @@ end
 # --- tmux: Update pane current path on directory change ---
 if set -q TMUX
     function __update_tmux_pwd --on-variable PWD
-        printf '\033]7;file://%s%s\033\\' (hostname) "$PWD"
+        printf '\033]7;file://%s%s\033\\' (cat /etc/hostname 2>/dev/null; or echo "localhost") "$PWD"
     end
     __update_tmux_pwd
 end

@@ -55,6 +55,14 @@ listview {
     fixed-height: true;
     background-color: @bg;
     padding: 8px;
+    scrollbar: true;
+}
+
+scrollbar {
+    width: 4px;
+    handle-width: 4px;
+    handle-color: @accent;
+    background-color: @bg-alt;
 }
 
 element {

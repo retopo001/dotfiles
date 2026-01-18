@@ -1,6 +1,6 @@
 # Dotfiles
 
-Arch Linux / X11 / i3 development environment with Doom Emacs, Neovim, and Tokyo Night theme.
+Arch Linux / X11 / i3 development environment with Emacs, Neovim, Claude Code, and Tokyo Night theme.
 
 ## What's Included
 
@@ -13,13 +13,18 @@ dotfiles/
 │   ├── picom/           # Compositor (transparency, animations)
 │   ├── dunst/           # Notifications
 │   ├── nvim/            # Neovim (NvChad)
-│   ├── doom/            # Doom Emacs user config
+│   ├── emacs/           # Doom Emacs config (init.el, config.el, packages.el)
 │   ├── tmux/            # tmux config
 │   ├── fish/            # Fish shell
 │   ├── alacritty/       # Terminal (reference config)
 │   ├── ghostty/         # Terminal (default)
 │   ├── wezterm/         # Terminal
 │   └── wallpaper/       # Wallpapers
+├── .emacs.d/            # Vanilla Emacs config (standalone, no framework)
+│   └── init.el          # Minimal config with gptel, eglot, which-key
+├── .claude/             # Claude Code CLI config
+│   ├── settings.json    # Plugins and preferences
+│   └── mcp.json         # MCP server configuration
 ├── bin/                 # Custom scripts
 ├── .bashrc              # Bash config
 ├── .zshrc               # Zsh config
@@ -69,7 +74,7 @@ ln -sf ~/dotfiles/.zshenv ~/.zshenv
 ln -sf ~/dotfiles/bin ~/bin
 ```
 
-### 3. Install Doom Emacs
+### 3a. Install Doom Emacs (framework-based)
 
 ```bash
 git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
@@ -77,6 +82,35 @@ git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
 
 # Add to PATH (fish)
 fish_add_path ~/.config/emacs/bin
+```
+
+### 3b. OR Install Vanilla Emacs (standalone, no framework)
+
+If you prefer a minimal Emacs setup without Doom:
+
+```bash
+# Link the vanilla config
+ln -sf ~/dotfiles/.emacs.d ~/.emacs.d
+
+# Set your Anthropic API key for gptel
+export ANTHROPIC_API_KEY="your-key-here"  # Add to .bashrc/.zshrc/.config/fish/config.fish
+
+# Install packages (first launch will auto-install from package-selected-packages)
+emacs
+```
+
+The vanilla config includes: gptel (LLM client), eglot (LSP), vertico/corfu/marginalia (completion), which-key, tree-sitter, and devdocs.
+
+### 3c. Claude Code CLI
+
+```bash
+# Link Claude Code config
+ln -sf ~/dotfiles/.claude ~/.claude
+
+# Set required environment variables
+export GITHUB_TOKEN="your-github-token"  # For GitHub MCP server
+
+# The mcp.json uses ${GITHUB_TOKEN} - update with your actual token or use envsubst
 ```
 
 ### 4. Initialize Neovim

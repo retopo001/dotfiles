@@ -116,6 +116,13 @@
         (or (cl-find-if #'buffer-file-name (buffer-list))
             (get-buffer "*scratch*"))))
 
+;; =============================================================================
+;; Org Visibility - persist fold state per file
+;; =============================================================================
+(use-package org-visibility
+  :after org
+  :hook (org-mode . org-visibility-mode))
+
 
 
 
@@ -358,8 +365,8 @@
  '(custom-safe-themes t)
  '(package-selected-packages
    '(bnf-mode calfw calfw-ical calibre consult corfu devdocs gcmh gptel
-              magit marginalia moe-theme orderless use-package vertico
-              vterm which-key)))
+              magit marginalia moe-theme orderless org-visibility
+              use-package vertico vterm which-key)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

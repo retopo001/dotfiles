@@ -1,5 +1,5 @@
 #+TITLE: Emacs Cheatsheet
-#+STARTUP: overview
+
 
 * Toggles (C-c t prefix)
 | Key       | Action              |

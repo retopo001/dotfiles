@@ -86,10 +86,10 @@
                       :key bw/anthropic-api-key))
 
 
-;; opencode.el - agentic coding tools
-(add-to-list 'load-path "~/.emacs.d/opencode.el")
-(require 'opencode)
-(opencode-setup-coding)
+;; opencode.el - agentic coding tools (DISABLED - files lost in stow incident)
+;; (add-to-list 'load-path "~/.emacs.d/opencode.el")
+;; (require 'opencode)
+;; (opencode-setup-coding)
 
 ;; Google Search, not DuckDuckGo as default EWW search
 (setq eww-search-prefix "https://www.google.com/search?q=")

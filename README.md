@@ -1,141 +1,153 @@
 # Dotfiles
 
-Arch Linux / X11 / i3 development environment with Emacs, Neovim, Claude Code, and Tokyo Night theme.
+Arch Linux / X11 / i3 development environment with vanilla Emacs, Neovim, and Tokyo Night theme.
 
-## What's Included
-
-```
-dotfiles/
-├── .config/
-│   ├── i3/              # i3 window manager
-│   ├── polybar/         # Status bar
-│   ├── rofi/            # App launcher
-│   ├── picom/           # Compositor (transparency, animations)
-│   ├── dunst/           # Notifications
-│   ├── nvim/            # Neovim (NvChad)
-│   ├── emacs/           # Doom Emacs config (init.el, config.el, packages.el)
-│   ├── tmux/            # tmux config
-│   ├── fish/            # Fish shell
-│   ├── alacritty/       # Terminal (reference config)
-│   ├── ghostty/         # Terminal (default)
-│   ├── wezterm/         # Terminal
-│   └── wallpaper/       # Wallpapers
-├── .emacs.d/            # Vanilla Emacs config (standalone, no framework)
-│   └── init.el          # Minimal config with gptel, eglot, which-key
-├── .claude/             # Claude Code CLI config
-│   ├── settings.json    # Plugins and preferences
-│   └── mcp.json         # MCP server configuration
-├── bin/                 # Custom scripts
-├── .bashrc              # Bash config
-├── .zshrc               # Zsh config
-├── .zshenv              # Zsh environment
-├── archlinux/
-│   └── packages.txt     # Package list
-└── install.sh           # Setup script
-```
+**Management**: GNU Stow (symlinks). Edit files in `~/dotfiles`, changes apply immediately.
 
 ## Quick Start
 
 ```bash
-# Clone dotfiles
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles
-
-# Run install script
+git clone https://github.com/brian-wijaya/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./install.sh
 ```
 
 The install script will:
-- Backup existing configs to `~/.config_backup/`
-- Create symlinks for all configs
-- Install Doom Emacs if not present
-- Set up Neovim plugins
+- Install stow if needed
+- Backup any conflicting configs to `~/.dotfiles_backup_*/`
+- Create symlinks from `~/dotfiles` to `~`
+- Enable systemd user services (Emacs daemon)
 
-## Manual Installation
+## Structure
 
-### 1. Install Packages
-
-```bash
-# Core packages
-sudo pacman -S --needed - < ~/dotfiles/archlinux/packages.txt
-
-# AUR packages (install yay first)
-yay -S xidlehook i3lock-color clipmenu satty impala bluetui pulsemixer
+```
+dotfiles/
+├── .config/
+│   ├── i3/              # Window manager
+│   ├── polybar/         # Status bar
+│   ├── rofi/            # App launcher
+│   ├── picom/           # Compositor
+│   ├── dunst/           # Notifications
+│   ├── nvim/            # Neovim (NvChad)
+│   ├── ghostty/         # Terminal (default)
+│   ├── alacritty/       # Terminal (alt)
+│   ├── fish/            # Fish shell
+│   ├── tmux/            # Tmux
+│   ├── systemd/user/    # User services
+│   │   └── emacs.service
+│   └── wallpaper/
+├── .emacs.d/            # Vanilla Emacs
+│   ├── init.el          # Main config
+│   └── cheatsheet.org   # Keybind reference
+├── .claude/             # Claude Code CLI
+│   ├── settings.json
+│   └── mcp.json
+├── bin/                 # Scripts (~200 lines each)
+├── .bashrc
+├── .zshrc
+├── .zshenv
+├── archlinux/packages.txt
+└── install.sh
 ```
 
-### 2. Link Configs
+## Dotfile Management
+
+Uses [GNU Stow](https://www.gnu.org/software/stow/) for symlink management.
 
 ```bash
-# Create symlinks (or copy)
-ln -sf ~/dotfiles/.config/* ~/.config/
-ln -sf ~/dotfiles/.bashrc ~/.bashrc
-ln -sf ~/dotfiles/.zshrc ~/.zshrc
-ln -sf ~/dotfiles/.zshenv ~/.zshenv
-ln -sf ~/dotfiles/bin ~/bin
+# Edit any config - changes apply immediately (it's a symlink)
+vim ~/dotfiles/.config/i3/config
+
+# Add new config
+mkdir -p ~/dotfiles/.config/newapp
+cp ~/.config/newapp/config ~/dotfiles/.config/newapp/
+cd ~/dotfiles && stow -R .
+
+# Re-stow everything (after git pull, etc.)
+cd ~/dotfiles && stow -R .
+
+# Remove all symlinks
+cd ~/dotfiles && stow -D .
+
+# See what stow would do (dry run)
+cd ~/dotfiles && stow -n -v .
 ```
 
-### 3a. Install Doom Emacs (framework-based)
+## Secrets (git-crypt)
+
+API keys and sensitive configs are stored directly in files but **encrypted at rest** via [git-crypt](https://github.com/AGWA/git-crypt). Files appear as binary gibberish in the repo until unlocked.
+
+**Encrypted files** (see `.gitattributes`):
+- `.emacs.d/init.el` - Contains Anthropic API key for gptel
+- `.claude/settings.json` - Claude Code settings
 
 ```bash
-git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
-~/.config/emacs/bin/doom install
+# First-time setup (after clone)
+git-crypt unlock  # Requires GPG key already added as collaborator
 
-# Add to PATH (fish)
-fish_add_path ~/.config/emacs/bin
+# Check encryption status
+git-crypt status
+
+# Add a collaborator
+git-crypt add-gpg-user <GPG_KEY_ID>
 ```
 
-### 3b. OR Install Vanilla Emacs (standalone, no framework)
+If you clone this repo without unlocking, encrypted files will be binary. The configs won't work until you run `git-crypt unlock` with an authorized GPG key.
 
-If you prefer a minimal Emacs setup without Doom:
+## Emacs
+
+**Vanilla Emacs** (no Doom/Spacemacs). Config at `~/.emacs.d/init.el`.
+
+Features:
+- gptel (Claude/OpenAI LLM client)
+- eglot (built-in LSP)
+- vertico/corfu/marginalia (completion)
+- tree-sitter (syntax highlighting)
+- devdocs (offline documentation)
+- magit (git)
+
+### Daemon (systemd)
+
+Emacs runs as a **systemd user service** for instant startup:
 
 ```bash
-# Link the vanilla config
-ln -sf ~/dotfiles/.emacs.d ~/.emacs.d
+# Status
+systemctl --user status emacs
 
-# Set your Anthropic API key for gptel
-export ANTHROPIC_API_KEY="your-key-here"  # Add to .bashrc/.zshrc/.config/fish/config.fish
+# Restart (picks up init.el changes)
+systemctl --user restart emacs
 
-# Install packages (first launch will auto-install from package-selected-packages)
-emacs
+# View logs
+journalctl --user -u emacs -f
+
+# Open client
+emacsclient -c      # New GUI frame
+emacsclient -t      # Terminal frame
 ```
 
-The vanilla config includes: gptel (LLM client), eglot (LSP), vertico/corfu/marginalia (completion), which-key, tree-sitter, and devdocs.
+The service starts after `graphical-session.target` to ensure DISPLAY/XAUTHORITY are available.
 
-### 3c. Claude Code CLI
-
-```bash
-# Link Claude Code config
-ln -sf ~/dotfiles/.claude ~/.claude
-
-# Set required environment variables
-export GITHUB_TOKEN="your-github-token"  # For GitHub MCP server
-
-# The mcp.json uses ${GITHUB_TOKEN} - update with your actual token or use envsubst
-```
-
-### 4. Initialize Neovim
-
-```bash
-nvim  # Lazy.nvim will install plugins automatically
-:MasonInstallAll
-```
-
-### 5. Set Default Shell
-
-```bash
-chsh -s /usr/bin/fish  # or zsh
-```
-
-## Key Bindings
-
-### i3 Window Manager
+### Key Bindings
 
 | Key | Action |
 |-----|--------|
-| `Super` | Modifier key |
+| `C-c i` | Jump to function (imenu) |
+| `C-c l` | Search buffer (consult-line) |
+| `C-c r` | Search project (ripgrep) |
+| `C-c f` | Find file in project |
+| `C-c g` | Magit status |
+| `C-c d` | Devdocs lookup |
+| `C-c ?` | Open cheatsheet |
+| `C-c c c` | Calendar (khal) |
+| `C-x p f` | Project find file |
+
+## i3 Window Manager
+
+| Key | Action |
+|-----|--------|
 | `Super+Space` | App launcher (rofi) |
 | `Super+Return` | Terminal (ghostty) |
-| `Super+E` | Emacs |
+| `Super+E` | Emacs (emacsclient) |
 | `Super+W` | Close window |
 | `Super+F` | Fullscreen |
 | `Super+T` | Toggle floating |
@@ -143,133 +155,86 @@ chsh -s /usr/bin/fish  # or zsh
 | `Super+Shift+1-9` | Move to workspace |
 | `Super+Arrow` | Focus direction |
 | `Super+Shift+Arrow` | Move window |
-| `Super+K` | Show keybindings |
-
-### Applications
-
-| Key | Action |
-|-----|--------|
-| `Super+Shift+B` | Browser (Chromium) |
-| `Super+Shift+F` | File manager (Nautilus) |
-| `Super+Shift+N` | Neovim in terminal |
-| `Super+Shift+T` | btop (system monitor) |
-| `Super+Shift+M` | Spotify |
-| `Super+Shift+O` | Obsidian |
-
-### System
-
-| Key | Action |
-|-----|--------|
 | `Super+Escape` | System menu |
-| `Super+Ctrl+L` | Lock screen |
-| `Super+M` | Logout |
-| `Super+Shift+R` | Restart i3 |
+| `Super+BackSpace` | Toggle compositor |
 | `Print` | Screenshot |
-| `Super+Ctrl+V` | Clipboard history |
-
-### tmux (prefix: `Ctrl+Space`)
-
-| Key | Action |
-|-----|--------|
-| `prefix + c` | New window |
-| `prefix + \|` | Split vertical |
-| `prefix + -` | Split horizontal |
-| `prefix + h/j/k/l` | Navigate panes |
-| `prefix + x` | Kill pane |
-
-### Doom Emacs
-
-| Key | Action |
-|-----|--------|
-| `SPC` | Leader key |
-| `SPC f f` | Find file |
-| `SPC b b` | Switch buffer |
-| `SPC s p` | Search in project |
-| `SPC g g` | Magit (git) |
-| `SPC c d` | Jump to definition |
-| `SPC q q` | Quit |
-
-## Terminals
-
-Three terminal configs are included, all with matching Tokyo Night theme:
-
-- **ghostty** (default) - Fast, GPU-accelerated
-- **alacritty** - Reference config, minimal
-- **wezterm** - Feature-rich, Lua config
-
-Change default in `~/.config/i3/config`:
-```
-set $term ghostty
-```
+| `Pause` | Voice dictation |
 
 ## Shells
 
-Three shell configs at feature parity:
-
-- **fish** - Default, modern syntax
-- **zsh** - Bash-compatible, plugin ecosystem
-- **bash** - Fallback, always available
-
-All include: starship prompt, zoxide (cd), atuin (history), fzf (fuzzy find), eza (ls), tmux auto-start.
-
-## Emacs Daemon
-
-Emacs starts as a daemon automatically (via i3 autostart). `Super+E` opens an instant emacsclient.
+Fish (default), Zsh, Bash - all at feature parity:
+- Starship prompt
+- Zoxide (smart cd)
+- Atuin (history sync)
+- Fzf (fuzzy find)
+- Eza (modern ls)
 
 ```bash
-# Manual control
-emacs --daemon          # Start daemon
-emacsclient -c          # Open client
-emacsclient -e '(kill-emacs)'  # Stop daemon
+chsh -s /usr/bin/fish
 ```
 
-## Updating
+## Terminals
+
+- **ghostty** (default) - Fast, GPU-accelerated
+- **alacritty** - Minimal
+- **wezterm** - Feature-rich
+
+All use JetBrains Mono Nerd Font + Tokyo Night theme.
+
+## Installation Details
+
+### Packages
 
 ```bash
-# Update Doom packages
-doom upgrade
+# Arch packages
+sudo pacman -S --needed - < ~/dotfiles/archlinux/packages.txt
 
-# After changing init.el
-doom sync
+# AUR
+yay -S xidlehook clipmenu rofi-greenclip
+```
 
-# After changing i3/polybar config
-Super+Shift+R  # Restart i3
+### Claude Code
+
+API key is stored in `.claude/settings.json` (git-crypt encrypted). After `git-crypt unlock`, it works automatically.
+
+### Neovim
+
+```bash
+nvim  # Lazy.nvim auto-installs plugins
+:MasonInstallAll
 ```
 
 ## Troubleshooting
 
-**Fonts not rendering?**
+**Emacs daemon not starting?**
 ```bash
-sudo pacman -S ttf-jetbrains-mono-nerd
-fc-cache -fv
+systemctl --user status emacs
+journalctl --user -u emacs --no-pager
 ```
 
-**Emacs not starting?**
+**Symlinks broken after git pull?**
 ```bash
-doom doctor
-doom sync
+cd ~/dotfiles && stow -R .
 ```
 
-**i3 not loading?**
+**i3 config syntax error?**
 ```bash
-# Check for config errors
 i3 -C
 ```
 
-**LSP not working in Neovim/Emacs?**
+**LSP not working?**
 ```bash
 # Install language servers
-sudo pacman -S typescript-language-server python-lsp-server clang
+sudo pacman -S typescript-language-server python-lsp-server rust-analyzer
 go install golang.org/x/tools/gopls@latest
-rustup component add rust-analyzer
 ```
 
 ## Theme
 
-Tokyo Night color scheme throughout:
+Tokyo Night:
 - Background: `#1a1b26`
 - Foreground: `#c0caf5`
-- Accent: `#33ccff`
+- Accent: `#7aa2f7`
 
 ## License
 

@@ -12,9 +12,9 @@ configuration {
     display-run: " Run";
     display-window: " Windows";
     sidebar-mode: false;
-    run-command: "~/bin/rofi-launcher {cmd}";
+    run-command: "~/bin/rofi-launcher-debug {cmd}";
     drun-run-in-terminal: false;
-    drun-run-command: "setsid -f {exec}";
+    /* drun-run-command: "setsid -f {exec}"; */
 
     /* Scroll behavior - continuous scroll, no pagination */
     scroll-method: 1;

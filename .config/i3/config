@@ -374,7 +374,7 @@ bar {
 exec_always --no-startup-id xsetroot -solid "#1a1b26"
 
 # Compositor
-exec_always --no-startup-id pkill picom; sleep 0.5; picom -b
+exec_always --no-startup-id pkill picom; pidwait -x picom 2>/dev/null; picom -b
 
 # Wallpaper
 exec_always --no-startup-id feh --bg-fill ~/.config/wallpaper/current.jpg 2>/dev/null || feh --bg-fill /usr/share/backgrounds/*.jpg 2>/dev/null
@@ -388,8 +388,7 @@ exec --no-startup-id dunst
 # Clipboard manager
 exec --no-startup-id clipmenud
 
-# Emacs daemon (for fast emacsclient)
-exec --no-startup-id emacs --daemon
+# Emacs daemon - handled by systemd (emacs.service)
 
 # Polkit agent
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1

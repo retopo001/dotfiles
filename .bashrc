@@ -3,12 +3,10 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-# --- IDE/embedded terminal detection (prevent tmux) ---
-# Covers: Cursor, VSCode, IntelliJ, PyCharm, Emacs vterm, etc.
+# --- IDE terminal detection (prevent tmux) ---
+# Covers: Cursor, VSCode, IntelliJ, PyCharm, Junie, etc.
 _in_ide=0
-if [[ -n "$INSIDE_EMACS" ]] || [[ -n "$EMACS_VTERM_PATH" ]]; then
-    _in_ide=1
-elif [[ -n "$CURSOR_AGENT" ]] || [[ -n "$VSCODE_CWD" ]] || [[ -n "$VSCODE_INJECTION" ]] || [[ -n "$CURSOR_NO_TMUX" ]]; then
+if [[ -n "$CURSOR_AGENT" ]] || [[ -n "$VSCODE_CWD" ]] || [[ -n "$VSCODE_INJECTION" ]] || [[ -n "$CURSOR_NO_TMUX" ]]; then
     _in_ide=1
 elif [[ "$TERM_PROGRAM" == "vscode" ]]; then
     _in_ide=1
@@ -22,6 +20,7 @@ fi
 
 if [[ $_in_ide -eq 1 ]]; then
     export CURSOR_NO_TMUX=1
+    pkill -9 -f "tmux attach.*main" 2>/dev/null || true
     if [[ -n "$TMUX" ]]; then
         tmux detach 2>/dev/null
         unset TMUX TMUX_PANE
@@ -120,6 +119,11 @@ if command -v atuin >/dev/null 2>&1; then
     eval "$(atuin init bash)"
 fi
 
+# --- mise (polyglot version manager) ---
+if [[ -f "$HOME/.local/bin/mise" ]]; then
+    eval "$($HOME/.local/bin/mise activate bash)"
+fi
+
 # --- fzf (fuzzy finder) ---
 [[ -f /usr/share/fzf/key-bindings.bash ]] && source /usr/share/fzf/key-bindings.bash
 [[ -f /usr/share/fzf/completion.bash ]] && source /usr/share/fzf/completion.bash
@@ -134,7 +138,6 @@ fi
 
 # --- Auto-start tmux ---
 # Skip if in IDE terminal or already in tmux
-# Each terminal gets its own session (no sharing)
 if [[ $_in_ide -eq 0 ]] && [[ -z "$TMUX" ]] && [[ -z "$WEZTERM_NOTMUX" ]]; then
-    tmux new -s "term-$$" -c ~
+    tmux attach -t main 2>/dev/null || tmux new -s main -c ~
 fi

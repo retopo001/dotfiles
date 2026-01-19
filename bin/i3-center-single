@@ -41,7 +41,7 @@ def get_screen_dimensions():
 def count_tiled_windows(workspace):
     """Count non-floating tiled windows in workspace."""
     count = 0
-    for node in workspace.descendents():
+    for node in workspace.descendants():
         if node.type == "con" and node.window and not node.floating:
             count += 1
     return count
@@ -50,7 +50,7 @@ def count_tiled_windows(workspace):
 def get_tiled_window(workspace):
     """Get the single tiled window if there's exactly one."""
     tiled = []
-    for node in workspace.descendents():
+    for node in workspace.descendants():
         if node.type == "con" and node.window and not node.floating:
             tiled.append(node)
     return tiled[0] if len(tiled) == 1 else None
@@ -117,7 +117,7 @@ def on_window_event(i3, event):
                 check_and_center(i3, workspace)
             elif tiled_count > 1:
                 # Multiple windows - ensure all are tiled normally
-                for node in workspace.descendents():
+                for node in workspace.descendants():
                     if node.type == "con" and node.window:
                         # Check if it was centered by us (floating but not user-floating)
                         pass  # i3 handles this automatically

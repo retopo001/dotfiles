@@ -1,5 +1,5 @@
 #!/bin/bash
-# Lock screen with i3lock-color (X11)
+# Lock screen with betterlockscreen (X11)
 
 # Reset keyboard layout
 setxkbmap -layout us
@@ -12,26 +12,5 @@ fi
 # Kill screensaver if running
 pkill -f org.bw.screensaver 2>/dev/null
 
-i3lock-color \
-    --color=1a1b26 \
-    --inside-color=1a1b2600 \
-    --ring-color=33ccff \
-    --line-uses-ring \
-    --keyhl-color=7aa2f7 \
-    --bshl-color=f7768e \
-    --separator-color=00000000 \
-    --insidever-color=1a1b2600 \
-    --insidewrong-color=f7768e33 \
-    --ringver-color=7aa2f7 \
-    --ringwrong-color=f7768e \
-    --ind-pos="x+w/2:y+h/2" \
-    --radius=20 \
-    --ring-width=4 \
-    --verif-text="" \
-    --wrong-text="" \
-    --noinput-text="" \
-    --lock-text="" \
-    --lockfailed-text="" \
-    --date-str="" \
-    --time-str="" \
-    --nofork
+# Lock with blurred wallpaper
+betterlockscreen -l blur

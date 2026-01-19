@@ -37,7 +37,8 @@ dotfiles/
 │   │   └── emacs.service
 │   └── wallpaper/
 ├── .emacs.d/            # Vanilla Emacs
-│   ├── init.el          # Main config
+│   ├── init.el          # Main config (public)
+│   ├── secrets.el       # API keys (git-crypt encrypted)
 │   └── cheatsheet.org   # Keybind reference
 ├── .claude/             # Claude Code CLI
 │   ├── settings.json
@@ -78,7 +79,7 @@ cd ~/dotfiles && stow -n -v .
 API keys and sensitive configs are stored directly in files but **encrypted at rest** via [git-crypt](https://github.com/AGWA/git-crypt). Files appear as binary gibberish in the repo until unlocked.
 
 **Encrypted files** (see `.gitattributes`):
-- `.emacs.d/init.el` - Contains Anthropic API key for gptel
+- `.emacs.d/secrets.el` - API keys (loaded by init.el)
 - `.claude/settings.json` - Claude Code settings
 
 ```bash

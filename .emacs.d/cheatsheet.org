@@ -1,6 +1,11 @@
 #+TITLE: Emacs Cheatsheet
 #+STARTUP: overview
 
+* Toggles (C-c t prefix)
+| Key       | Action              |
+|-----------+---------------------|
+| C-c t w   | Toggle word wrap    |
+
 * Navigation (Custom C-c bindings)
 | Key       | Action                |
 |-----------+-----------------------|
@@ -75,11 +80,27 @@
 | C-h m     | Describe mode       |
 | C-h b     | All bindings        |
 
-* Stamp Macros (HYPER key)
+* Stamp Macros (HYPER key on Planck EZ)
+HYPER = hold Alt+Shift+Ctrl+Cmd (Oryx config)
+| Key             | Action                            |
+|-----------------+-----------------------------------|
+| Hyper+t         | Insert "TODO: "                   |
+| Hyper+s         | Insert "SHOULD BE: "              |
+| Hyper+a         | Insert timestamp                  |
+| Hyper+Backspace | Delete timestamp at point         |
+| Hyper+Delete    | Delete timestamp at point         |
+| Hyper+End       | Update timestamp to current time  |
+| Hyper+Home      | Cycle through timestamp history   |
+
+Timestamp format: 26-01-18_1845.30.Sun
+Cycle wraps around - keeps cycling through all previous values.
+
+* Calendar (C-c c prefix)
 | Key       | Action              |
 |-----------+---------------------|
-| H-t       | Insert "TODO: "     |
-| H-s       | Insert "SHOULD BE:" |
+| C-c c c   | Show khal calendar  |
+| C-c c a   | Show agenda (30d)   |
+| C-c c s   | Sync via vdirsyncer |
 
 * which-key
 Press any prefix (like C-x or C-c) and wait - shows available completions.

@@ -59,11 +59,11 @@ bindsym $mod+e exec emacsclient -c -a ""
 bindsym $mod+Shift+f exec nautilus --new-window
 
 # Browser
-bindsym $mod+Shift+b exec chromium
-bindsym $mod+Shift+Mod1+b exec chromium --incognito
+bindsym $mod+Shift+b exec google-chrome-stable
+bindsym $mod+Shift+Mod1+b exec google-chrome-stable --incognito
 
 # Music (Spotify)
-bindsym $mod+Shift+m exec chromium --app=https://open.spotify.com
+bindsym $mod+Shift+m exec google-chrome-stable --app=https://open.spotify.com
 
 # Editor (Neovim)
 bindsym $mod+Shift+n exec $term -e nvim
@@ -87,32 +87,32 @@ bindsym $mod+Shift+w exec typora
 bindsym $mod+Shift+slash exec 1password
 
 # ChatGPT
-bindsym $mod+Shift+a exec chromium --app=https://chatgpt.com
+bindsym $mod+Shift+a exec google-chrome-stable --app=https://chatgpt.com
 
 # Grok
-bindsym $mod+Shift+Mod1+a exec chromium --app=https://grok.com
+bindsym $mod+Shift+Mod1+a exec google-chrome-stable --app=https://grok.com
 
 # Calendar (HEY)
-bindsym $mod+Shift+c exec chromium --app=https://app.hey.com/calendar/weeks/
+bindsym $mod+Shift+c exec google-chrome-stable --app=https://app.hey.com/calendar/weeks/
 
 # Email (HEY)
-bindsym $mod+Shift+e exec chromium --app=https://app.hey.com
+bindsym $mod+Shift+e exec google-chrome-stable --app=https://app.hey.com
 
 # YouTube
-bindsym $mod+Shift+y exec chromium --app=https://youtube.com
+bindsym $mod+Shift+y exec google-chrome-stable --app=https://youtube.com
 
 # WhatsApp
-bindsym $mod+Shift+Mod1+g exec chromium --app=https://web.whatsapp.com
+bindsym $mod+Shift+Mod1+g exec google-chrome-stable --app=https://web.whatsapp.com
 
 # Google Messages
-bindsym $mod+Ctrl+Shift+g exec chromium --app=https://messages.google.com/web/conversations
+bindsym $mod+Ctrl+Shift+g exec google-chrome-stable --app=https://messages.google.com/web/conversations
 
 # Google Photos
-bindsym $mod+Shift+p exec chromium --app=https://photos.google.com
+bindsym $mod+Shift+p exec google-chrome-stable --app=https://photos.google.com
 
 # X (Twitter)
-bindsym $mod+Shift+x exec chromium --app=https://x.com
-bindsym $mod+Shift+Mod1+x exec chromium --app=https://x.com/compose/post
+bindsym $mod+Shift+x exec google-chrome-stable --app=https://x.com
+bindsym $mod+Shift+Mod1+x exec google-chrome-stable --app=https://x.com/compose/post
 
 # ============================================
 # WINDOW MANAGEMENT
@@ -394,6 +394,9 @@ exec --no-startup-id emacs --daemon
 
 # Polkit agent
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+
+# GNOME Keyring (for GNOME apps like Calendar)
+exec --no-startup-id gnome-keyring-daemon --start --components=secrets,pkcs11
 
 # Center single windows on wide screens (like Hyprland dwindle)
 exec --no-startup-id ~/bin/i3-center-single

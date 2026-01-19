@@ -1,0 +1,6 @@
+#!/bin/bash
+# Polybar clock at 100fps (matches 100Hz monitor)
+while true; do
+    date +"%a %b %d  %H:%M:%S:%3N"
+    sleep 0.01
+done

@@ -5,11 +5,23 @@
 ;; data loss. This file is managed via DIRECT COPY: ~/dotfiles/sync.sh
 ;;
 
+;; =============================================================================
+;; 🎛️ PROFILE SYSTEM
+;; =============================================================================
+;; Options: 'default-vanilla, 'default-doom, 'bw-vanilla
+;; default-vanilla = Stock Emacs (no evil, gray theme, stock UI)
+;; default-doom = Doom defaults (evil + SPC, doom-one theme, doom-modeline)
+;; bw-vanilla = Your custom setup (evil + C-c bindings, moe-light)
+;; =============================================================================
 
-;; Evil - git clone https://github.com/emacs-evil/evil.git to ~/emacs.d/
-(add-to-list 'load-path "~/.emacs.d/evil")
-(require 'evil)
-(evil-mode 1)
+(defvar bw/active-profile 'bw-vanilla
+  "Active profile. Change this and reload to switch profiles.")
+
+;; Evil - only load for profiles that need it
+(unless (eq bw/active-profile 'default-vanilla)
+  (add-to-list 'load-path "~/.emacs.d/evil")
+  (require 'evil)
+  (evil-mode 1))
 
 
 
@@ -61,11 +73,19 @@
   (gcmh-mode 1))
 
 ;; =============================================================================
-;; UI
+;; UI - Profile-specific settings
 ;; =============================================================================
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(setq menu-bar-update-hook nil)
+(if (eq bw/active-profile 'default-vanilla)
+    ;; Stock Emacs UI: all chrome visible
+    (progn
+      (menu-bar-mode 1)
+      (tool-bar-mode 1)
+      (scroll-bar-mode 1))
+  ;; Modern UI: minimal chrome
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1)
+  (setq menu-bar-update-hook nil))
 
 
 ;; =============================================================================
@@ -80,10 +100,26 @@
                     :family "JetBrainsMono Nerd Font")
 
 ;; =============================================================================
-;; Theme - moe-light
+;; Theme - Profile-specific
 ;; =============================================================================
-(require 'moe-theme)
-(load-theme 'moe-light t)
+(cond
+ ;; default-vanilla: No theme - use Emacs gray default
+ ((eq bw/active-profile 'default-vanilla)
+  nil)
+ ;; default-doom: doom-one dark theme
+ ((eq bw/active-profile 'default-doom)
+  (when (require 'doom-themes nil t)
+    (load-theme 'doom-one t)
+    (doom-themes-org-config))
+  (when (require 'doom-modeline nil t)
+    (doom-modeline-mode 1)
+    (setq doom-modeline-height 25))
+  (when (require 'solaire-mode nil t)
+    (solaire-global-mode 1)))
+ ;; bw-vanilla: moe-light theme
+ (t
+  (require 'moe-theme)
+  (load-theme 'moe-light t)))
 
 ;; gptel - LLM client
 (require 'gptel)
@@ -181,18 +217,24 @@
 (global-set-key (kbd "C-x C-B") 'ibuffer)
 
 ;; =============================================================================
-;; Completion
+;; Completion - Profile-specific
 ;; =============================================================================
-(vertico-mode 1)
-(marginalia-mode 1)
-(setq completion-styles '(orderless basic))
-(global-corfu-mode 1)
-(setq corfu-auto t corfu-auto-delay 0.2 corfu-auto-prefix 2)
+(unless (eq bw/active-profile 'default-vanilla)
+  ;; Modern completion for bw-vanilla and default-doom
+  (vertico-mode 1)
+  (marginalia-mode 1)
+  (setq completion-styles '(orderless basic))
+  (global-corfu-mode 1)
+  (setq corfu-auto t corfu-auto-delay 0.2 corfu-auto-prefix 2)
+  ;; Fuzzy matching
+  (use-package hotfuzz
+    :config
+    (setq completion-styles '(hotfuzz basic))))
 
-;; Fuzzy matching
-(use-package hotfuzz
-  :config
-  (setq completion-styles '(hotfuzz basic)))
+;; default-vanilla: Stock Emacs completion
+(when (eq bw/active-profile 'default-vanilla)
+  (fido-mode -1)
+  (icomplete-mode -1))
 
 ;; =============================================================================
 ;; Tree-sitter + file associations
@@ -371,48 +413,50 @@
 ;; =============================================================================
 ;; ⌨️ KEYBINDING SYSTEMS
 ;; =============================================================================
-;; Use M-x switch-keybinding-system to switch. Change the value below and reload.
-;; Options: 'default-vanilla, 'default-doom, 'bw-vanilla, 'bw-doom
+;; Use M-x switch-profile to switch. The bw/active-profile at the top controls all.
+;; Options: 'default-vanilla, 'default-doom, 'bw-vanilla
 ;; =============================================================================
 
-(defvar bw/keybinding-system 'default-doom
-  "Active keybinding system.")
-
-;; Clear bw-vanilla C-c bindings (prevents persistence when switching systems)
+;; Clear bw-vanilla C-c bindings (prevents persistence when switching profiles)
 (dolist (key '("C-c i" "C-c l" "C-c r" "C-c f" "C-c g" "C-c d" "C-c w" "C-c W"
                "C-c R" "C-c Q" "C-c h" "C-c p" "C-c y" "C-c a" "C-c n"
                "C-c e e" "C-c e d" "C-c t w" "C-c c c" "C-c c a" "C-c c s"))
   (global-unset-key (kbd key)))
 
-(defun switch-keybinding-system ()
-  "Switch keybinding system by changing variable in init.el and reloading."
+(defun switch-profile ()
+  "Switch profile by changing bw/active-profile in init.el and reloading."
   (interactive)
-  (let* ((systems '(("DEFAULT-VANILLA" . default-vanilla)
-                    ("DEFAULT-DOOM" . default-doom)
-                    ("BW-VANILLA-01-22-26" . bw-vanilla)
-                    ("BW-DOOM-01-23-26" . bw-doom)))
-         (choice (completing-read "Keybinding system: " (mapcar #'car systems) nil t))
-         (sym (cdr (assoc choice systems))))
+  (let* ((profiles '(("DEFAULT-VANILLA (stock Emacs)" . default-vanilla)
+                     ("DEFAULT-DOOM (Doom defaults)" . default-doom)
+                     ("BW-VANILLA (your custom)" . bw-vanilla)))
+         (choice (completing-read "Profile: " (mapcar #'car profiles) nil t))
+         (sym (cdr (assoc choice profiles))))
     (with-temp-buffer
       (insert-file-contents "~/.emacs.d/init.el")
       (goto-char (point-min))
-      (when (re-search-forward "^(defvar bw/keybinding-system '.*$" nil t)
-        (replace-match (format "(defvar bw/keybinding-system '%s" sym)))
+      (when (re-search-forward "^(defvar bw/active-profile '.*$" nil t)
+        (replace-match (format "(defvar bw/active-profile '%s" sym)))
       (write-file "~/.emacs.d/init.el"))
     (load-file "~/.emacs.d/init.el")
-    (message "Switched to %s" choice)))
+    (message "Switched to %s - restart Emacs for full effect" choice)))
+
+;; Alias for backwards compatibility
+(defalias 'switch-keybinding-system 'switch-profile)
 
 ;; ---------------------------------------------------------------------------
 ;; DEFAULT-VANILLA: Stock Emacs keybindings
 ;; ---------------------------------------------------------------------------
-(when (eq bw/keybinding-system 'default-vanilla)
+(when (eq bw/active-profile 'default-vanilla)
+  ;; No evil - use stock Emacs bindings
+  ;; C-x C-f = find-file, C-x C-s = save, M-x = commands, etc.
+  ;; which-key helps show available keys
   (which-key-mode 1)
   (setq which-key-idle-delay 0.5))
 
 ;; ---------------------------------------------------------------------------
 ;; DEFAULT-DOOM: Standard Doom Emacs keybindings
 ;; ---------------------------------------------------------------------------
-(when (eq bw/keybinding-system 'default-doom)
+(when (eq bw/active-profile 'default-doom)
   ;; Set SPC as leader in normal mode
   (evil-set-leader 'normal (kbd "SPC"))
   ;; Top-level
@@ -502,9 +546,9 @@
     "SPC w" "windows"))
 
 ;; ---------------------------------------------------------------------------
-;; BW-VANILLA-01-22-26: My C-c style keybindings
+;; BW-VANILLA: Your C-c style keybindings (NOT MODIFIED - preserved as-is)
 ;; ---------------------------------------------------------------------------
-(when (eq bw/keybinding-system 'bw-vanilla)
+(when (eq bw/active-profile 'bw-vanilla)
   (global-set-key (kbd "C-c i") 'consult-imenu)
   (global-set-key (kbd "C-c l") 'consult-line)
   (global-set-key (kbd "C-c r") 'consult-ripgrep)
@@ -550,9 +594,9 @@
     "C-c c" "📆 calendar"))
 
 ;; ---------------------------------------------------------------------------
-;; BW-DOOM-01-23-26: Doom SPC + my custom commands (💜)
+;; BW-DOOM: Doom SPC + custom commands (💜) - ON HOLD
 ;; ---------------------------------------------------------------------------
-(when (eq bw/keybinding-system 'bw-doom)
+(when (eq bw/active-profile 'bw-doom)
   ;; Set SPC as leader in normal mode
   (evil-set-leader 'normal (kbd "SPC"))
   ;; Top-level (same as default-doom)
@@ -809,10 +853,10 @@
  '(custom-safe-themes t)
  '(package-selected-packages
    '(ace-window bnf-mode calfw calfw-ical calibre consult consult-dir corfu
-              devdocs evil gcmh gptel hl-todo hotfuzz magit marginalia
-              moe-theme orderless org-journal org-visibility popper
-              shackle use-package vertico vterm which-key
-              which-key-posframe)))
+              devdocs doom-modeline doom-themes evil gcmh gptel hl-todo
+              hotfuzz magit marginalia moe-theme orderless org-journal
+              org-visibility popper shackle solaire-mode use-package vertico
+              vterm which-key which-key-posframe)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

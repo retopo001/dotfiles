@@ -1,0 +1,7 @@
+# Universal middle click paste
+# Runs clipboard-paste script instead of X11 PRIMARY selection
+"~/bin/clipboard-paste"
+  b:2
+
+# To find button/key codes, run: xbindkeys -k
+# Then press the button you want to identify

@@ -382,6 +382,9 @@ exec --no-startup-id dunst
 # Clipboard manager
 exec --no-startup-id clipmenud
 
+# Universal mouse button bindings (middle click paste)
+exec --no-startup-id xbindkeys
+
 # Emacs daemon - handled by systemd (emacs.service)
 
 # Polkit agent

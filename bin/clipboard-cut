@@ -6,7 +6,7 @@ window_class=$(xdotool getactivewindow getwindowclassname 2>/dev/null)
 
 case "$window_class" in
     # Terminals don't typically support cut - just copy
-    Alacritty|ghostty|kitty|WezTerm|xterm|XTerm|URxvt|Termite|gnome-terminal*|konsole|xfce4-terminal)
+    Alacritty|ghostty|*ghostty*|com.mitchellh.ghostty|kitty|WezTerm|xterm|XTerm|URxvt|Termite|gnome-terminal*|konsole|xfce4-terminal)
         # No-op for terminals (cut doesn't make sense)
         notify-send -t 1000 "Cut" "Not supported in terminal"
         ;;

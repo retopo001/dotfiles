@@ -7,15 +7,16 @@
 ;; =============================================================================
 ;; 🎛️ PROFILE SELECTOR (the ONLY thing outside profile blocks)
 ;; =============================================================================
-;; Options: 'default-vanilla, 'default-doom, 'bw-vanilla
-(defvar bw/active-profile 'bw-vanilla)
+;; Options: 'default-vanilla, 'default-doom, 'bw-vanilla, 'bw-doom
+(defvar bw/active-profile 'bw-doom)
 
 (defun switch-profile ()
   "Switch profile by changing bw/active-profile in init.el and reloading."
   (interactive)
   (let* ((profiles '(("DEFAULT-VANILLA (stock Emacs)" . default-vanilla)
                      ("DEFAULT-DOOM (Doom defaults)" . default-doom)
-                     ("BW-VANILLA (your custom)" . bw-vanilla)))
+                     ("BW-VANILLA (your C-c custom)" . bw-vanilla)
+                     ("BW-DOOM (Doom + your commands)" . bw-doom)))
          (choice (completing-read "Profile: " (mapcar #'car profiles) nil t))
          (sym (cdr (assoc choice profiles))))
     (with-temp-buffer
@@ -687,24 +688,24 @@
   (which-key-mode 1)
   (setq which-key-idle-delay 0.3)
   (which-key-add-key-based-replacements
-    "C-c i" "imenu"
-    "C-c l" "line search"
-    "C-c r" "ripgrep"
-    "C-c f" "find file"
-    "C-c g" "magit"
-    "C-c d" "devdocs"
-    "C-c w" "eww"
-    "C-c W" "docs home"
-    "C-c R" "reload init"
-    "C-c Q" "restart"
-    "C-c h" "cheatsheet"
-    "C-c p" "palette"
-    "C-c y" "duplicate"
-    "C-c a" "agenda"
-    "C-c n" "capture"
-    "C-c e" "emacs"
-    "C-c t" "toggles"
-    "C-c c" "calendar")
+    "C-c i" "📍 imenu"
+    "C-c l" "🔍 line search"
+    "C-c r" "🔎 ripgrep"
+    "C-c f" "📂 find file"
+    "C-c g" "🌿 magit"
+    "C-c d" "📖 devdocs"
+    "C-c w" "🌐 eww"
+    "C-c W" "🏠 docs home"
+    "C-c R" "🔄 reload init"
+    "C-c Q" "🔁 restart"
+    "C-c h" "📋 cheatsheet"
+    "C-c p" "🎨 palette"
+    "C-c y" "📑 duplicate"
+    "C-c a" "📅 agenda"
+    "C-c n" "✏️ capture"
+    "C-c e" "⚙️ emacs"
+    "C-c t" "🔀 toggles"
+    "C-c c" "📆 calendar")
 
   ;; -------------------------------------------------------------------------
   ;; ⏱️ Stamp Macros (HYPER key)
@@ -827,13 +828,1126 @@
 
 
 
+;; #############################################################################
+;; #############################################################################
+;; ##                                                                         ##
+;; ##  💜 PROFILE: bw-doom                                                    ##
+;; ##  Doom defaults + your custom commands                                   ##
+;; ##                                                                         ##
+;; #############################################################################
+;; #############################################################################
+(when (eq bw/active-profile 'bw-doom)
+
+  ;; -------------------------------------------------------------------------
+  ;; ⚡ Performance
+  ;; -------------------------------------------------------------------------
+  (setq gc-cons-threshold (* 256 1024 1024))
+  (setq read-process-output-max (* 4 1024 1024))
+  (setq vc-handled-backends '(Git))
+  (setq frame-inhibit-implied-resize t)
+
+  (when (featurep 'native-compile)
+    (setq native-comp-async-jobs-number 8
+          native-comp-deferred-compilation t
+          native-comp-async-report-warnings-errors nil))
+
+  ;; Scroll performance
+  (setq scroll-conservatively 0
+        scroll-step 1
+        scroll-margin 0
+        scroll-preserve-screen-position t
+        scroll-error-top-bottom t
+        auto-window-vscroll nil
+        mouse-wheel-scroll-amount '(3 ((shift) . 1))
+        mouse-wheel-progressive-speed nil
+        next-screen-context-lines 2
+        fast-but-imprecise-scrolling nil
+        redisplay-skip-fontification-on-input nil)
+
+  ;; Disable menu-bar-update-hook (performance)
+  (setq menu-bar-update-hook nil)
+
+  ;; -------------------------------------------------------------------------
+  ;; 📦 Package Setup
+  ;; -------------------------------------------------------------------------
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+  (package-initialize)
+
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (require 'use-package)
+  (setq use-package-always-ensure t)
+
+  ;; gcmh - idle garbage collection
+  (use-package gcmh
+    :demand t
+    :config
+    (setq gcmh-idle-delay 5
+          gcmh-high-cons-threshold (* 1024 1024 1024))
+    (gcmh-mode 1))
+
+  ;; -------------------------------------------------------------------------
+  ;; 😈 Evil Mode + SPC Leader (eager - hot path)
+  ;; -------------------------------------------------------------------------
+  (add-to-list 'load-path "~/.emacs.d/evil")
+  (require 'evil)
+  (evil-mode 1)
+
+  ;; Evil-collection for vim bindings everywhere
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init)
+    ;; Restore standard G behavior in vterm (go to last line, not shell cursor)
+    (evil-define-key 'normal vterm-mode-map (kbd "G") 'evil-goto-line)
+    ;; Make C-y paste from clipboard in all evil states (for universal paste)
+    (define-key evil-normal-state-map (kbd "C-y") 'yank)
+    (define-key evil-visual-state-map (kbd "C-y") 'yank)
+    (define-key evil-insert-state-map (kbd "C-y") 'yank))
+
+  ;; Create a proper prefix keymap for SPC (instant which-key popup)
+  (define-prefix-command 'bw/leader-map)
+  (define-key evil-normal-state-map (kbd "SPC") 'bw/leader-map)
+
+  ;; -------------------------------------------------------------------------
+  ;; 🖥️ UI - Doom style
+  ;; -------------------------------------------------------------------------
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (global-display-line-numbers-mode 1)
+  (global-hl-line-mode 1)
+  (column-number-mode 1)
+  (fringe-mode 0)
+
+  ;; -------------------------------------------------------------------------
+  ;; 🎨 Theme - doom-one + doom-modeline (eager - hot path)
+  ;; -------------------------------------------------------------------------
+  (use-package doom-themes
+    :demand t
+    :config
+    (load-theme 'doom-one t)
+    (doom-themes-org-config))
+
+  (use-package doom-modeline
+    :demand t
+    :config
+    (doom-modeline-mode 1)
+    (setq doom-modeline-height 25))
+
+  (use-package solaire-mode
+    :demand t
+    :config
+    (solaire-global-mode 1))
+
+  ;; -------------------------------------------------------------------------
+  ;; ✏️ Font
+  ;; -------------------------------------------------------------------------
+  (set-face-attribute 'default nil
+                      :family "JetBrainsMono Nerd Font"
+                      :height 110)
+  (set-face-attribute 'fixed-pitch nil
+                      :family "JetBrainsMono Nerd Font")
+  (set-face-attribute 'variable-pitch nil
+                      :family "JetBrainsMono Nerd Font")
+
+  ;; -------------------------------------------------------------------------
+  ;; 🔧 Basic Settings
+  ;; -------------------------------------------------------------------------
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
+  (setq ring-bell-function 'ignore)
+  (setq use-short-answers t)
+  (electric-pair-mode 1)
+  (show-paren-mode 1)
+  (setq show-paren-delay 0)
+  (global-auto-revert-mode 1)
+
+  ;; -------------------------------------------------------------------------
+  ;; 🔍 Completion - vertico/corfu/marginalia (eager - hot path)
+  ;; -------------------------------------------------------------------------
+  (use-package vertico :demand t :config (vertico-mode 1))
+  (use-package marginalia :demand t :config (marginalia-mode 1))
+  (use-package orderless :demand t :config (setq completion-styles '(orderless basic)))
+  (use-package consult :demand t)
+  (use-package corfu
+    :demand t
+    :config
+    (global-corfu-mode 1)
+    (setq corfu-auto t corfu-auto-delay 0.2 corfu-auto-prefix 2))
+
+  (use-package hotfuzz
+    :demand t
+    :config
+    (setq completion-styles '(hotfuzz basic)))
+
+  ;; -------------------------------------------------------------------------
+  ;; 🌿 Git (eager)
+  ;; -------------------------------------------------------------------------
+  (use-package magit :demand t)
+
+  ;; -------------------------------------------------------------------------
+  ;; 🤖 gptel - LLM client
+  ;; -------------------------------------------------------------------------
+  (require 'gptel)
+  (load (expand-file-name "secrets.el" user-emacs-directory) t t)
+
+  (setq gptel-model 'claude-sonnet-4-20250514
+        gptel-backend (gptel-make-anthropic "Claude"
+                        :stream t
+                        :key bw/anthropic-api-key))
+
+  ;; -------------------------------------------------------------------------
+  ;; 🛠️ opencode.el - agentic coding tools
+  ;; -------------------------------------------------------------------------
+  (add-to-list 'load-path "~/.emacs.d/opencode.el")
+  (require 'opencode)
+  (opencode-setup-coding)
+
+  ;; -------------------------------------------------------------------------
+  ;; 🌐 EWW browser config
+  ;; -------------------------------------------------------------------------
+  (setq eww-search-prefix "https://www.google.com/search?q=")
+  (setq eww-home-url "file:///home/bw/.emacs.d/docs-home.html")
+
+  (defun docs-home ()
+    "Open documentation index in EWW."
+    (interactive)
+    (eww-open-file "~/.emacs.d/docs-home.html"))
+
+  ;; -------------------------------------------------------------------------
+  ;; 📖 Devdocs
+  ;; -------------------------------------------------------------------------
+  (add-hook 'python-mode-hook (lambda () (setq-local devdocs-current-docs '("python~3.12"))))
+  (add-hook 'python-ts-mode-hook (lambda () (setq-local devdocs-current-docs '("python~3.12"))))
+  (add-hook 'rust-ts-mode-hook (lambda () (setq-local devdocs-current-docs '("rust"))))
+  (add-hook 'typescript-ts-mode-hook (lambda () (setq-local devdocs-current-docs '("typescript" "node"))))
+  (add-hook 'js-ts-mode-hook (lambda () (setq-local devdocs-current-docs '("javascript" "node"))))
+  (add-hook 'go-ts-mode-hook (lambda () (setq-local devdocs-current-docs '("go"))))
+
+  ;; -------------------------------------------------------------------------
+  ;; 💾 Desktop Save (eager restore)
+  ;; -------------------------------------------------------------------------
+  (setq desktop-dirname "~/.emacs.d/"
+        desktop-base-file-name ".emacs.desktop"
+        desktop-save t
+        desktop-load-locked-desktop t
+        desktop-restore-eager t  ; restore ALL buffers eagerly
+        desktop-auto-save-timeout 60)
+  (desktop-save-mode 1)
+
+  (setq initial-buffer-choice
+        (lambda ()
+          (or (cl-find-if #'buffer-file-name (buffer-list))
+              (get-buffer "*scratch*"))))
+
+  ;; -------------------------------------------------------------------------
+  ;; 📁 Org (eager)
+  ;; -------------------------------------------------------------------------
+  (use-package org-visibility
+    :demand t
+    :after org
+    :hook (org-mode . org-visibility-mode))
+
+  (setq org-agenda-files '("~/vault/org/"))
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file "~/vault/org/todo.org")
+           "* TODO %?\n  %U")))
+
+  ;; -------------------------------------------------------------------------
+  ;; 🪟 Window Management (eager)
+  ;; -------------------------------------------------------------------------
+  (use-package ace-window
+    :demand t
+    :config
+    (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+
+  (use-package shackle
+    :demand t
+    :config
+    (setq shackle-rules
+          '(("*Help*" :select t :align below :size 0.33)
+            ("*Warnings*" :align below :size 0.25)
+            ("*compilation*" :select nil :align below :size 0.25)
+            ("*Messages*" :select nil :align below :size 0.25)
+            ("*Completions*" :align below :size 0.3)
+            ("*Backtrace*" :select t :align below :size 0.4)
+            ("*Calendar*" :select t :align below :size 0.3)
+            ("\\*vterm.*" :regexp t :select t :align below :size 0.4)
+            ("*bw-calendar*" :select t :align right :size 0.4)
+            ("*bw-agenda*" :select t :align right :size 0.4)
+            ("*Org Agenda*" :select t :align right :size 0.5)))
+    (shackle-mode 1))
+
+  (use-package popper
+    :demand t
+    :bind (("C-`" . popper-toggle)
+           ("M-`" . popper-cycle)
+           ("C-M-`" . popper-toggle-type))
+    :init
+    (setq popper-reference-buffers
+          '("\\*Messages\\*"
+            "\\*Warnings\\*"
+            "Output\\*$"
+            "\\*Async Shell Command\\*"
+            "\\*compilation\\*"
+            "\\*Completions\\*"
+            "\\*Help\\*"
+            "\\*Backtrace\\*"
+            "\\*bw-calendar\\*"
+            "\\*bw-agenda\\*"
+            "\\*vdirsyncer\\*"
+            help-mode
+            compilation-mode))
+    :config
+    (popper-mode 1))
+
+  (winner-mode 1)
+
+  ;; -------------------------------------------------------------------------
+  ;; 💾 Savehist (eager)
+  ;; -------------------------------------------------------------------------
+  (use-package savehist
+    :demand t
+    :ensure nil
+    :config
+    (setq savehist-file "~/.emacs.d/savehist"
+          savehist-save-minibuffer-history t
+          history-length 1000
+          history-delete-duplicates t
+          savehist-additional-variables '(search-ring
+                                          regexp-search-ring
+                                          extended-command-history))
+    (savehist-mode 1))
+
+  (use-package consult-dir
+    :demand t
+    :bind (("C-x C-d" . consult-dir)
+           :map vertico-map
+           ("C-x C-d" . consult-dir)
+           ("C-x C-j" . consult-dir-jump-file)))
+
+  ;; -------------------------------------------------------------------------
+  ;; 🎨 Hl-todo (eager)
+  ;; -------------------------------------------------------------------------
+  (use-package hl-todo
+    :demand t
+    :hook (prog-mode . hl-todo-mode)
+    :config
+    (setq hl-todo-keyword-faces
+          '(("TODO"   . "#FF0000")
+            ("FIXME"  . "#FF0000")
+            ("DEBUG"  . "#A020F0")
+            ("HACK"   . "#FFA500")
+            ("NOTE"   . "#1E90FF")
+            ("REVIEW" . "#1E90FF"))))
+
+  ;; -------------------------------------------------------------------------
+  ;; 🌳 Tree-sitter (eager)
+  ;; -------------------------------------------------------------------------
+  (setq treesit-language-source-alist
+        '((python "https://github.com/tree-sitter/tree-sitter-python")
+          (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
+          (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+          (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+          (json "https://github.com/tree-sitter/tree-sitter-json")
+          (css "https://github.com/tree-sitter/tree-sitter-css")
+          (rust "https://github.com/tree-sitter/tree-sitter-rust")
+          (go "https://github.com/tree-sitter/tree-sitter-go")
+          (toml "https://github.com/tree-sitter/tree-sitter-toml")))
+
+  (when (treesit-available-p)
+    (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-ts-mode))
+    (add-to-list 'auto-mode-alist '("\\.go\\'" . go-ts-mode))
+    (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
+    (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+    (add-to-list 'auto-mode-alist '("\\.py\\'" . python-ts-mode))
+    (add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
+    (add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
+    (add-to-list 'auto-mode-alist '("\\.css\\'" . css-ts-mode))
+    (add-to-list 'auto-mode-alist '("\\.toml\\'" . toml-ts-mode)))
+
+  ;; -------------------------------------------------------------------------
+  ;; 🔌 Eglot (LSP)
+  ;; -------------------------------------------------------------------------
+  (require 'eglot)
+  (add-hook 'python-ts-mode-hook 'eglot-ensure)
+  (add-hook 'rust-ts-mode-hook 'eglot-ensure)
+  (add-hook 'typescript-ts-mode-hook 'eglot-ensure)
+  (add-hook 'tsx-ts-mode-hook 'eglot-ensure)
+  (add-hook 'js-ts-mode-hook 'eglot-ensure)
+  (add-hook 'go-ts-mode-hook 'eglot-ensure)
+
+  ;; -------------------------------------------------------------------------
+  ;; 💾 Backups
+  ;; -------------------------------------------------------------------------
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups"))
+        auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-saves/" t)))
+  (make-directory "~/.emacs.d/backups" t)
+  (make-directory "~/.emacs.d/auto-saves" t)
+
+  ;; -------------------------------------------------------------------------
+  ;; 🛠️ Helper Functions (bw-doom specific)
+  ;; -------------------------------------------------------------------------
+  (defun reload-init ()
+    "Eval init.el to reload config."
+    (interactive)
+    (load-file "~/.emacs.d/init.el")
+    (message "init.el reloaded!"))
+
+  (defun bw/restart-emacs ()
+    "Save buffers, eval current buffer if .el, restart daemon with new frame."
+    (interactive)
+    (save-some-buffers)
+    (when (and buffer-file-name (string-match "\\.el\\'" buffer-file-name))
+      (eval-buffer)
+      (message "Evaluated %s" buffer-file-name))
+    (desktop-save-in-desktop-dir)
+    (call-process-shell-command
+     "nohup sh -c 'sleep 0.5 && emacsclient -c' >/dev/null 2>&1 &")
+    (kill-emacs))
+
+  (defun bw/open-cheatsheet ()
+    "Open cheatsheet."
+    (interactive)
+    (find-file "~/vault/org/cheatsheet.org"))
+
+  (defun bw/open-palette ()
+    "Open palette."
+    (interactive)
+    (find-file "~/vault/org/palette.org"))
+
+  (defun bw/edit-init ()
+    "Edit init.el."
+    (interactive)
+    (find-file "~/.emacs.d/init.el"))
+
+  (defun bw/dired-init ()
+    "Dired to init.el."
+    (interactive)
+    (dired-jump nil "~/.emacs.d/init.el"))
+
+  (defun bw/duplicate-line ()
+    "Duplicate the current line below."
+    (interactive)
+    (let ((col (current-column)))
+      (move-beginning-of-line 1)
+      (kill-line)
+      (yank)
+      (newline)
+      (yank)
+      (move-to-column col)))
+
+  (defun bw/editor ()
+    "Open last visited file buffer, or scratch if none."
+    (interactive)
+    (let ((file-buf (cl-find-if #'buffer-file-name (buffer-list))))
+      (if file-buf
+          (switch-to-buffer file-buf)
+        (switch-to-buffer "*scratch*"))))
+
+  (defun bw/email ()
+    "Email client (placeholder - not yet configured)."
+    (interactive)
+    (message "Email not configured yet. See SPC o h c for setup notes."))
+
+  (defun bw/yank-file-path ()
+    "Copy the current buffer's file path to clipboard."
+    (interactive)
+    (if buffer-file-name
+        (progn
+          (kill-new buffer-file-name)
+          (message "Copied: %s" buffer-file-name))
+      (message "Buffer has no file")))
+
+  (defun bw/new-buffer ()
+    "Create a new empty buffer."
+    (interactive)
+    (let ((buf (generate-new-buffer "*new*")))
+      (switch-to-buffer buf)
+      (setq buffer-offer-save t)))
+
+  (defun bw/reload-theme ()
+    "Reload the current theme."
+    (interactive)
+    (load-theme (car custom-enabled-themes) t)
+    (message "Reloaded theme: %s" (car custom-enabled-themes)))
+
+  (defun bw/search-symbol-at-point ()
+    "Search for symbol at point in buffer."
+    (interactive)
+    (consult-line (thing-at-point 'symbol)))
+
+  (defun bw/zen-mode ()
+    "Toggle a minimal distraction-free writing mode."
+    (interactive)
+    (if (bound-and-true-p olivetti-mode)
+        (progn
+          (olivetti-mode -1)
+          (display-line-numbers-mode 1))
+      (olivetti-mode 1)
+      (display-line-numbers-mode -1)))
+
+  ;; -------------------------------------------------------------------------
+  ;; 📆 Calendar (eager)
+  ;; -------------------------------------------------------------------------
+  (use-package calfw :demand t)
+  (use-package calfw-ical :demand t :after calfw)
+
+  (defun bw/calendar ()
+    "Display calendar output in a buffer."
+    (interactive)
+    (let ((buf (get-buffer-create "*bw-calendar*")))
+      (with-current-buffer buf
+        (read-only-mode -1)
+        (erase-buffer)
+        (call-process "khal" nil buf nil "calendar")
+        (goto-char (point-min))
+        (read-only-mode 1))
+      (pop-to-buffer buf)))
+
+  (defun bw/agenda ()
+    "Display upcoming events."
+    (interactive)
+    (let ((buf (get-buffer-create "*bw-agenda*")))
+      (with-current-buffer buf
+        (read-only-mode -1)
+        (erase-buffer)
+        (call-process "khal" nil buf nil "list" "today" "30d")
+        (goto-char (point-min))
+        (read-only-mode 1))
+      (pop-to-buffer buf)))
+
+  (defun bw/calendar-sync ()
+    "Sync calendars using vdirsyncer."
+    (interactive)
+    (message "Syncing calendars...")
+    (async-shell-command "vdirsyncer sync" "*vdirsyncer*"))
+
+  ;; -------------------------------------------------------------------------
+  ;; ⏱️ Stamp Macros
+  ;; -------------------------------------------------------------------------
+  (defvar bw/timestamp-regexp
+    "[0-9]\\{2\\}-[0-9]\\{2\\}-[0-9]\\{2\\}_[0-9]\\{4\\}\\.[0-9]\\{2\\}\\.\\(Mon\\|Tue\\|Wed\\|Thu\\|Fri\\|Sat\\|Sun\\)"
+    "Regex matching timestamp format YY-MM-DD_HHMM.SS.Day")
+
+  (defun bw/timestamp-bounds ()
+    "Return (start . end) of timestamp at/near point, or nil."
+    (save-excursion
+      (let ((orig (point)) (bol (line-beginning-position)) (eol (line-end-position)))
+        (cond
+         ((looking-at bw/timestamp-regexp)
+          (cons (match-beginning 0) (match-end 0)))
+         ((and (re-search-backward bw/timestamp-regexp bol t)
+               (<= orig (match-end 0)))
+          (cons (match-beginning 0) (match-end 0)))
+         ((and (goto-char orig)
+               (re-search-forward bw/timestamp-regexp eol t)
+               (>= orig (match-beginning 0)))
+          (cons (match-beginning 0) (match-end 0)))))))
+
+  (defun bw/stamp-todo ()
+    "Insert TODO: stamp."
+    (interactive)
+    (insert "TODO: "))
+
+  (defun bw/stamp-should-be ()
+    "Insert SHOULD BE: stamp."
+    (interactive)
+    (insert "SHOULD BE: "))
+
+  (defun bw/stamp-timestamp ()
+    "Insert timestamp."
+    (interactive)
+    (insert (format-time-string "%y-%m-%d_%H%M.%S.%a")))
+
+  ;; -------------------------------------------------------------------------
+  ;; ⌨️ Keybindings - SPC Leader (using prefix keymap for instant which-key)
+  ;; -------------------------------------------------------------------------
+
+  ;; Create sub-keymaps for each prefix
+  (define-prefix-command 'bw/leader-b-map) ; buffers
+  (define-prefix-command 'bw/leader-c-map) ; code
+  (define-prefix-command 'bw/leader-f-map) ; files
+  (define-prefix-command 'bw/leader-g-map) ; git
+  (define-prefix-command 'bw/leader-h-map) ; help
+  (define-prefix-command 'bw/leader-hr-map) ; help reload
+  (define-prefix-command 'bw/leader-i-map) ; insert
+  (define-prefix-command 'bw/leader-n-map) ; notes
+  (define-prefix-command 'bw/leader-o-map) ; open
+  (define-prefix-command 'bw/leader-oh-map) ; open refs
+  (define-prefix-command 'bw/leader-p-map) ; project
+  (define-prefix-command 'bw/leader-q-map) ; quit
+  (define-prefix-command 'bw/leader-s-map) ; search
+  (define-prefix-command 'bw/leader-t-map) ; toggle
+  (define-prefix-command 'bw/leader-w-map) ; windows
+
+  ;; Bind sub-keymaps to leader
+  (define-key bw/leader-map (kbd "b") 'bw/leader-b-map)
+  (define-key bw/leader-map (kbd "c") 'bw/leader-c-map)
+  (define-key bw/leader-map (kbd "f") 'bw/leader-f-map)
+  (define-key bw/leader-map (kbd "g") 'bw/leader-g-map)
+  (define-key bw/leader-map (kbd "h") 'bw/leader-h-map)
+  (define-key bw/leader-map (kbd "i") 'bw/leader-i-map)
+  (define-key bw/leader-map (kbd "n") 'bw/leader-n-map)
+  (define-key bw/leader-map (kbd "o") 'bw/leader-o-map)
+  (define-key bw/leader-map (kbd "p") 'bw/leader-p-map)
+  (define-key bw/leader-map (kbd "q") 'bw/leader-q-map)
+  (define-key bw/leader-map (kbd "s") 'bw/leader-s-map)
+  (define-key bw/leader-map (kbd "t") 'bw/leader-t-map)
+  (define-key bw/leader-map (kbd "w") 'bw/leader-w-map)
+
+  ;; Nested: h r
+  (define-key bw/leader-h-map (kbd "r") 'bw/leader-hr-map)
+  (define-key bw/leader-hr-map (kbd "r") 'reload-init)
+  ;; Nested: o h
+  (define-key bw/leader-o-map (kbd "h") 'bw/leader-oh-map)
+
+  ;; --- Top-level shortcuts ---
+  (define-key bw/leader-map (kbd "SPC") 'execute-extended-command)
+  (define-key bw/leader-map (kbd "!") 'shell-command)
+  (define-key bw/leader-map (kbd "&") 'async-shell-command)
+  (define-key bw/leader-map (kbd "*") 'bw/search-symbol-at-point)
+  (define-key bw/leader-map (kbd ".") 'find-file)
+  (define-key bw/leader-map (kbd ",") 'consult-buffer)
+  (define-key bw/leader-map (kbd "/") 'consult-ripgrep)
+  (define-key bw/leader-map (kbd ":") 'eval-expression)
+  (define-key bw/leader-map (kbd ";") 'eval-expression)
+  (define-key bw/leader-map (kbd "'") 'vertico-repeat)
+  (define-key bw/leader-map (kbd "`") 'evil-switch-to-windows-last-buffer)
+  (define-key bw/leader-map (kbd "u") 'universal-argument)
+  (define-key bw/leader-map (kbd "x") 'scratch-buffer)
+
+  ;; --- SPC b - buffers ---
+  (define-key bw/leader-b-map (kbd "b") 'consult-buffer)
+  (define-key bw/leader-b-map (kbd "d") 'kill-current-buffer)
+  (define-key bw/leader-b-map (kbd "i") 'ibuffer)
+  (define-key bw/leader-b-map (kbd "k") 'kill-current-buffer)
+  (define-key bw/leader-b-map (kbd "n") 'next-buffer)
+  (define-key bw/leader-b-map (kbd "p") 'previous-buffer)
+  (define-key bw/leader-b-map (kbd "s") 'save-buffer)
+  (define-key bw/leader-b-map (kbd "l") 'evil-switch-to-windows-last-buffer)
+  (define-key bw/leader-b-map (kbd "N") 'bw/new-buffer)
+  (define-key bw/leader-b-map (kbd "r") 'revert-buffer)
+  (define-key bw/leader-b-map (kbd "R") 'rename-buffer)
+  (define-key bw/leader-b-map (kbd "x") 'scratch-buffer)
+  (define-key bw/leader-b-map (kbd "z") 'bury-buffer)
+  (define-key bw/leader-b-map (kbd "e") 'bw/editor)
+
+  ;; --- SPC c - code ---
+  (define-key bw/leader-c-map (kbd "a") 'eglot-code-actions)
+  (define-key bw/leader-c-map (kbd "d") 'xref-find-definitions)
+  (define-key bw/leader-c-map (kbd "D") 'xref-find-references)
+  (define-key bw/leader-c-map (kbd "f") 'eglot-format)
+  (define-key bw/leader-c-map (kbd "r") 'eglot-rename)
+  (define-key bw/leader-c-map (kbd "y") 'bw/duplicate-line)
+  (define-key bw/leader-c-map (kbd "w") 'delete-trailing-whitespace)
+  (define-key bw/leader-c-map (kbd "x") 'flymake-show-diagnostics-buffer)
+
+  ;; --- SPC f - files ---
+  (define-key bw/leader-f-map (kbd "f") 'find-file)
+  (define-key bw/leader-f-map (kbd "r") 'consult-recent-file)
+  (define-key bw/leader-f-map (kbd "s") 'save-buffer)
+  (define-key bw/leader-f-map (kbd "S") 'save-some-buffers)
+  (define-key bw/leader-f-map (kbd "p") 'project-find-file)
+  (define-key bw/leader-f-map (kbd "e") 'bw/dired-init)
+  (define-key bw/leader-f-map (kbd "E") 'bw/edit-init)
+  (define-key bw/leader-f-map (kbd "c") 'copy-file)
+  (define-key bw/leader-f-map (kbd "D") 'delete-file)
+  (define-key bw/leader-f-map (kbd "R") 'rename-file)
+  (define-key bw/leader-f-map (kbd "y") 'bw/yank-file-path)
+
+  ;; --- SPC g - git ---
+  (define-key bw/leader-g-map (kbd "g") 'magit-status)
+  (define-key bw/leader-g-map (kbd "b") 'magit-blame)
+  (define-key bw/leader-g-map (kbd "l") 'magit-log)
+  (define-key bw/leader-g-map (kbd "c") 'magit-commit)
+  (define-key bw/leader-g-map (kbd "C") 'magit-clone)
+  (define-key bw/leader-g-map (kbd "d") 'magit-diff)
+  (define-key bw/leader-g-map (kbd "f") 'magit-fetch)
+  (define-key bw/leader-g-map (kbd "F") 'magit-pull)
+  (define-key bw/leader-g-map (kbd "i") 'magit-init)
+  (define-key bw/leader-g-map (kbd "p") 'magit-push)
+  (define-key bw/leader-g-map (kbd "r") 'magit-rebase)
+  (define-key bw/leader-g-map (kbd "s") 'magit-stage)
+  (define-key bw/leader-g-map (kbd "S") 'magit-stash)
+  (define-key bw/leader-g-map (kbd "t") 'magit-tag)
+
+  ;; --- SPC h - help ---
+  (define-key bw/leader-h-map (kbd "f") 'describe-function)
+  (define-key bw/leader-h-map (kbd "v") 'describe-variable)
+  (define-key bw/leader-h-map (kbd "k") 'describe-key)
+  (define-key bw/leader-h-map (kbd "m") 'describe-mode)
+  (define-key bw/leader-h-map (kbd "b") 'describe-bindings)
+  (define-key bw/leader-h-map (kbd "i") 'info)
+  (define-key bw/leader-h-map (kbd "d") 'devdocs-lookup)
+  (define-key bw/leader-h-map (kbd "a") 'apropos)
+  (define-key bw/leader-h-map (kbd "c") 'describe-char)
+  (define-key bw/leader-h-map (kbd "e") 'view-echo-area-messages)
+  (define-key bw/leader-h-map (kbd "F") 'describe-face)
+  (define-key bw/leader-h-map (kbd "l") 'view-lossage)
+  (define-key bw/leader-h-map (kbd "M") 'man)
+  (define-key bw/leader-h-map (kbd "o") 'describe-symbol)
+  (define-key bw/leader-h-map (kbd "p") 'find-library)
+  (define-key bw/leader-h-map (kbd "P") 'describe-package)
+  (define-key bw/leader-h-map (kbd "t") 'help-with-tutorial)
+  (define-key bw/leader-h-map (kbd "w") 'where-is)
+  (define-key bw/leader-h-map (kbd "x") 'describe-command)
+  (define-key bw/leader-hr-map (kbd "R") 'reload-init)
+  (define-key bw/leader-hr-map (kbd "t") 'bw/reload-theme)
+
+  ;; --- SPC i - insert ---
+  (define-key bw/leader-i-map (kbd "t") 'bw/stamp-todo)
+  (define-key bw/leader-i-map (kbd "S") 'bw/stamp-should-be)
+  (define-key bw/leader-i-map (kbd "d") 'bw/stamp-timestamp)
+  (define-key bw/leader-i-map (kbd "e") 'emoji-search)
+  (define-key bw/leader-i-map (kbd "f") 'insert-file)
+  (define-key bw/leader-i-map (kbd "r") 'evil-show-registers)
+  (define-key bw/leader-i-map (kbd "s") 'yas-insert-snippet)
+  (define-key bw/leader-i-map (kbd "u") 'insert-char)
+  (define-key bw/leader-i-map (kbd "y") 'yank-from-kill-ring)
+
+  ;; --- SPC n - notes ---
+  (define-key bw/leader-n-map (kbd "a") 'org-agenda)
+  (define-key bw/leader-n-map (kbd "c") 'org-capture)
+
+  ;; --- SPC o - open ---
+  (define-key bw/leader-o-map (kbd "-") 'dired-jump)
+  (define-key bw/leader-o-map (kbd "a") 'org-agenda)
+  (define-key bw/leader-o-map (kbd "A") 'bw/agenda)
+  (define-key bw/leader-o-map (kbd "b") 'bookmark-jump)
+  (define-key bw/leader-o-map (kbd "B") 'bookmark-set)
+  (define-key bw/leader-o-map (kbd "c") 'calendar)
+  (define-key bw/leader-o-map (kbd "C") 'bw/calendar)
+  (define-key bw/leader-o-map (kbd "d") 'dired)
+  (define-key bw/leader-o-map (kbd "e") 'eshell)
+  (define-key bw/leader-o-map (kbd "f") 'consult-recent-file)
+  (define-key bw/leader-o-map (kbd "g") 'gptel)
+  (define-key bw/leader-o-map (kbd "i") 'consult-imenu)
+  (define-key bw/leader-o-map (kbd "m") 'bw/email)
+  (define-key bw/leader-o-map (kbd "M") 'man)
+  (define-key bw/leader-o-map (kbd "n") 'org-capture)
+  (define-key bw/leader-o-map (kbd "o") 'opencode)
+  (define-key bw/leader-o-map (kbd "p") 'list-processes)
+  (define-key bw/leader-o-map (kbd "P") 'bw/open-palette)
+  (define-key bw/leader-o-map (kbd "r") 'consult-recent-file)
+  (define-key bw/leader-o-map (kbd "s") 'shell)
+  (define-key bw/leader-o-map (kbd "S") 'bw/calendar-sync)
+  (define-key bw/leader-o-map (kbd "t") 'vterm)
+  (define-key bw/leader-o-map (kbd "T") 'neotree-toggle)
+  (define-key bw/leader-o-map (kbd "F") 'neotree-find)
+  (define-key bw/leader-o-map (kbd "w") 'eww)
+  (define-key bw/leader-o-map (kbd "D") 'docs-home)
+  ;; SPC o h - reference pages
+  (define-key bw/leader-oh-map (kbd "c") 'bw/open-cheatsheet)
+  (define-key bw/leader-oh-map (kbd "d") 'devdocs-peruse)
+  (define-key bw/leader-oh-map (kbd "h") 'info-emacs-manual)
+  (define-key bw/leader-oh-map (kbd "H") 'info)
+
+  ;; --- SPC p - project ---
+  (define-key bw/leader-p-map (kbd "!") 'project-shell-command)
+  (define-key bw/leader-p-map (kbd "&") 'project-async-shell-command)
+  (define-key bw/leader-p-map (kbd "b") 'project-switch-to-buffer)
+  (define-key bw/leader-p-map (kbd "c") 'project-compile)
+  (define-key bw/leader-p-map (kbd "d") 'project-dired)
+  (define-key bw/leader-p-map (kbd "e") 'project-eshell)
+  (define-key bw/leader-p-map (kbd "f") 'project-find-file)
+  (define-key bw/leader-p-map (kbd "F") 'project-find-dir)
+  (define-key bw/leader-p-map (kbd "g") 'project-find-regexp)
+  (define-key bw/leader-p-map (kbd "k") 'project-kill-buffers)
+  (define-key bw/leader-p-map (kbd "p") 'project-switch-project)
+  (define-key bw/leader-p-map (kbd "r") 'project-query-replace-regexp)
+  (define-key bw/leader-p-map (kbd "s") 'consult-ripgrep)
+  (define-key bw/leader-p-map (kbd "x") 'project-execute-extended-command)
+
+  ;; --- SPC q - quit ---
+  (define-key bw/leader-q-map (kbd "f") 'delete-frame)
+  (define-key bw/leader-q-map (kbd "K") 'save-buffers-kill-emacs)
+  (define-key bw/leader-q-map (kbd "q") 'save-buffers-kill-terminal)
+  (define-key bw/leader-q-map (kbd "Q") 'kill-emacs)
+  (define-key bw/leader-q-map (kbd "r") 'restart-emacs)
+  (define-key bw/leader-q-map (kbd "R") 'bw/restart-emacs)
+
+  ;; --- SPC s - search ---
+  (define-key bw/leader-s-map (kbd "b") 'consult-line-multi)
+  (define-key bw/leader-s-map (kbd "d") 'consult-ripgrep)
+  (define-key bw/leader-s-map (kbd "f") 'consult-find)
+  (define-key bw/leader-s-map (kbd "g") 'consult-grep)
+  (define-key bw/leader-s-map (kbd "i") 'consult-imenu)
+  (define-key bw/leader-s-map (kbd "I") 'consult-imenu-multi)
+  (define-key bw/leader-s-map (kbd "l") 'consult-line)
+  (define-key bw/leader-s-map (kbd "m") 'consult-bookmark)
+  (define-key bw/leader-s-map (kbd "o") 'consult-outline)
+  (define-key bw/leader-s-map (kbd "p") 'consult-ripgrep)
+  (define-key bw/leader-s-map (kbd "r") 'consult-register)
+  (define-key bw/leader-s-map (kbd "s") 'consult-line)
+  (define-key bw/leader-s-map (kbd "S") 'bw/search-symbol-at-point)
+
+  ;; --- SPC t - toggle ---
+  (define-key bw/leader-t-map (kbd "b") 'toggle-scroll-bar)
+  (define-key bw/leader-t-map (kbd "c") 'display-fill-column-indicator-mode)
+  (define-key bw/leader-t-map (kbd "f") 'flymake-mode)
+  (define-key bw/leader-t-map (kbd "F") 'toggle-frame-fullscreen)
+  (define-key bw/leader-t-map (kbd "h") 'hl-line-mode)
+  (define-key bw/leader-t-map (kbd "i") 'indent-guide-mode)
+  (define-key bw/leader-t-map (kbd "l") 'display-line-numbers-mode)
+  (define-key bw/leader-t-map (kbd "r") 'read-only-mode)
+  (define-key bw/leader-t-map (kbd "s") 'flyspell-mode)
+  (define-key bw/leader-t-map (kbd "t") 'consult-theme)
+  (define-key bw/leader-t-map (kbd "v") 'visible-mode)
+  (define-key bw/leader-t-map (kbd "w") 'visual-line-mode)
+  (define-key bw/leader-t-map (kbd "z") 'bw/zen-mode)
+
+  ;; --- SPC w - windows ---
+  (define-key bw/leader-w-map (kbd "+") 'enlarge-window)
+  (define-key bw/leader-w-map (kbd "-") 'shrink-window)
+  (define-key bw/leader-w-map (kbd "<") 'shrink-window-horizontally)
+  (define-key bw/leader-w-map (kbd ">") 'enlarge-window-horizontally)
+  (define-key bw/leader-w-map (kbd "=") 'balance-windows)
+  (define-key bw/leader-w-map (kbd "1") 'delete-other-windows)
+  (define-key bw/leader-w-map (kbd "2") 'split-window-below)
+  (define-key bw/leader-w-map (kbd "3") 'split-window-right)
+  (define-key bw/leader-w-map (kbd "0") 'delete-window)
+  (define-key bw/leader-w-map (kbd "d") 'delete-window)
+  (define-key bw/leader-w-map (kbd "h") 'windmove-left)
+  (define-key bw/leader-w-map (kbd "j") 'windmove-down)
+  (define-key bw/leader-w-map (kbd "k") 'windmove-up)
+  (define-key bw/leader-w-map (kbd "l") 'windmove-right)
+  (define-key bw/leader-w-map (kbd "H") 'windmove-swap-states-left)
+  (define-key bw/leader-w-map (kbd "J") 'windmove-swap-states-down)
+  (define-key bw/leader-w-map (kbd "K") 'windmove-swap-states-up)
+  (define-key bw/leader-w-map (kbd "L") 'windmove-swap-states-right)
+  (define-key bw/leader-w-map (kbd "m") 'maximize-window)
+  (define-key bw/leader-w-map (kbd "o") 'other-window)
+  (define-key bw/leader-w-map (kbd "q") 'quit-window)
+  (define-key bw/leader-w-map (kbd "r") 'winner-redo)
+  (define-key bw/leader-w-map (kbd "s") 'split-window-below)
+  (define-key bw/leader-w-map (kbd "u") 'winner-undo)
+  (define-key bw/leader-w-map (kbd "v") 'split-window-right)
+  (define-key bw/leader-w-map (kbd "w") 'ace-window)
+  (define-key bw/leader-w-map (kbd "x") 'ace-swap-window)
+
+  ;; -------------------------------------------------------------------------
+  ;; 🔑 which-key (eager - instant, with emojis)
+  ;; -------------------------------------------------------------------------
+  (use-package which-key
+    :demand t
+    :config
+    (which-key-mode 1)
+    (setq which-key-idle-delay 0.03
+          which-key-idle-secondary-delay 0.03
+          which-key-separator ":"
+          which-key-prefix-prefix ""
+          which-key-add-column-padding 2
+          which-key-show-early-on-C-h t
+          echo-keystrokes 0.01)
+    ;; Label the prefix keymaps
+    (which-key-add-keymap-based-replacements bw/leader-map
+      "b" "📋+buffers"
+      "c" "💻+code"
+      "f" "📂+files"
+      "g" "🌿+git"
+      "h" "❓+help"
+      "i" "✏️+insert"
+      "n" "📝+notes"
+      "o" "📖+open"
+      "p" "🗂️+project"
+      "q" "🚪+quit"
+      "s" "🔍+search"
+      "t" "🔀+toggle"
+      "w" "🪟+windows"
+      ;; Top-level commands
+      "SPC" "🚀 M-x"
+      "!" "💥 shell-cmd"
+      "&" "⚡ async-cmd"
+      "*" "🔍 symbol"
+      "." "📄 find-file"
+      "," "🔄 buffer"
+      "/" "🔎 ripgrep"
+      ":" "⚡ eval"
+      ";" "⚡ eval"
+      "'" "🔁 repeat"
+      "`" "↩️ last-buf"
+      "u" "🔢 universal"
+      "x" "📝 scratch")
+
+    ;; Buffers
+    (which-key-add-keymap-based-replacements bw/leader-b-map
+      "b" "🔄 switch"
+      "d" "❌ kill"
+      "e" "📝 editor"
+      "i" "📋 ibuffer"
+      "k" "❌ kill"
+      "l" "↩️ last"
+      "n" "➡️ next"
+      "N" "✨ new"
+      "p" "⬅️ prev"
+      "r" "🔄 revert"
+      "R" "✏️ rename"
+      "s" "💾 save"
+      "x" "📝 scratch"
+      "z" "📦 bury")
+
+    ;; Code
+    (which-key-add-keymap-based-replacements bw/leader-c-map
+      "a" "🎯 actions"
+      "d" "🔍 definition"
+      "D" "📚 references"
+      "f" "🎨 format"
+      "r" "✏️ rename"
+      "w" "🧹 whitespace"
+      "x" "⚠️ diagnostics"
+      "y" "📑 duplicate")
+
+    ;; Files
+    (which-key-add-keymap-based-replacements bw/leader-f-map
+      "c" "📋 copy"
+      "D" "🗑️ delete"
+      "e" "⚙️ dired-init"
+      "E" "⚙️ edit-init"
+      "f" "📄 find"
+      "p" "🗂️ project"
+      "r" "🕐 recent"
+      "R" "✏️ rename"
+      "s" "💾 save"
+      "S" "💾 save-all"
+      "y" "📋 yank-path")
+
+    ;; Git
+    (which-key-add-keymap-based-replacements bw/leader-g-map
+      "b" "👤 blame"
+      "c" "💾 commit"
+      "C" "📥 clone"
+      "d" "📊 diff"
+      "f" "📥 fetch"
+      "F" "📥 pull"
+      "g" "📊 status"
+      "i" "🆕 init"
+      "l" "📜 log"
+      "p" "📤 push"
+      "r" "🔀 rebase"
+      "s" "➕ stage"
+      "S" "📦 stash"
+      "t" "🏷️ tag")
+
+    ;; Help
+    (which-key-add-keymap-based-replacements bw/leader-h-map
+      "a" "🔍 apropos"
+      "b" "📖 bindings"
+      "c" "🔤 char"
+      "d" "📚 devdocs"
+      "e" "📨 messages"
+      "f" "🔧 function"
+      "F" "🎨 face"
+      "i" "ℹ️ info"
+      "k" "⌨️ key"
+      "l" "📜 lossage"
+      "m" "📋 mode"
+      "M" "📖 man"
+      "o" "🔍 symbol"
+      "p" "📚 library"
+      "P" "📦 package"
+      "r" "🔄+reload"
+      "t" "📖 tutorial"
+      "v" "📦 variable"
+      "w" "❓ where-is"
+      "x" "🔧 command")
+
+    ;; Help reload
+    (which-key-add-keymap-based-replacements bw/leader-hr-map
+      "r" "🔄 reload"
+      "R" "🔄 reload-init"
+      "t" "🎨 theme")
+
+    ;; Insert
+    (which-key-add-keymap-based-replacements bw/leader-i-map
+      "d" "📅 timestamp"
+      "e" "😀 emoji"
+      "f" "📄 file"
+      "r" "📋 register"
+      "s" "📝 snippet"
+      "S" "💭 SHOULD-BE"
+      "t" "✅ TODO"
+      "u" "🔤 unicode"
+      "y" "📋 kill-ring")
+
+    ;; Notes
+    (which-key-add-keymap-based-replacements bw/leader-n-map
+      "a" "📅 agenda"
+      "c" "✏️ capture")
+
+    ;; Open
+    (which-key-add-keymap-based-replacements bw/leader-o-map
+      "-" "📁 dired-jump"
+      "a" "📅 org-agenda"
+      "A" "📅 bw-agenda"
+      "b" "🔖 bookmark"
+      "B" "🔖 set-bookmark"
+      "c" "📆 calendar"
+      "C" "📆 bw-calendar"
+      "d" "📁 dired"
+      "D" "🏠 docs-home"
+      "e" "🐚 eshell"
+      "f" "🕐 recent"
+      "F" "🌲 neotree-find"
+      "g" "🤖 gptel"
+      "h" "📚+refs"
+      "i" "📍 imenu"
+      "m" "📧 mail"
+      "M" "📖 man"
+      "n" "✏️ capture"
+      "o" "🛠️ opencode"
+      "p" "📊 processes"
+      "P" "🎨 palette"
+      "r" "🕐 recent"
+      "s" "🐚 shell"
+      "S" "🔄 cal-sync"
+      "t" "💻 vterm"
+      "T" "🌲 neotree"
+      "w" "🌐 eww")
+
+    ;; Open refs
+    (which-key-add-keymap-based-replacements bw/leader-oh-map
+      "c" "📋 cheatsheet"
+      "d" "📖 devdocs"
+      "h" "📘 emacs-manual"
+      "H" "ℹ️ info")
+
+    ;; Project
+    (which-key-add-keymap-based-replacements bw/leader-p-map
+      "!" "💥 shell-cmd"
+      "&" "⚡ async-cmd"
+      "b" "🔄 buffer"
+      "c" "🔨 compile"
+      "d" "📁 dired"
+      "e" "🐚 eshell"
+      "f" "📄 find-file"
+      "F" "📁 find-dir"
+      "g" "🔎 grep"
+      "k" "❌ kill-bufs"
+      "p" "📂 switch"
+      "r" "🔄 replace"
+      "s" "🔎 ripgrep"
+      "x" "🚀 run-cmd")
+
+    ;; Quit
+    (which-key-add-keymap-based-replacements bw/leader-q-map
+      "f" "🖼️ del-frame"
+      "K" "💾 save-kill"
+      "q" "💾 save-quit"
+      "Q" "⚡ quit-now"
+      "r" "🔄 restart"
+      "R" "🔄 bw-restart")
+
+    ;; Search
+    (which-key-add-keymap-based-replacements bw/leader-s-map
+      "b" "📚 all-buffers"
+      "d" "📁 directory"
+      "f" "📄 find-file"
+      "g" "🔎 grep"
+      "i" "📍 imenu"
+      "I" "📍 imenu-all"
+      "l" "📄 line"
+      "m" "🔖 bookmark"
+      "o" "📑 outline"
+      "p" "🔎 ripgrep"
+      "r" "📋 register"
+      "s" "📄 line"
+      "S" "🔍 symbol")
+
+    ;; Toggle
+    (which-key-add-keymap-based-replacements bw/leader-t-map
+      "b" "📜 scrollbar"
+      "c" "📏 fill-col"
+      "f" "⚠️ flymake"
+      "F" "🖥️ fullscreen"
+      "h" "🎯 hl-line"
+      "i" "📐 indent"
+      "l" "🔢 line-nums"
+      "r" "🔒 read-only"
+      "s" "📝 spell"
+      "t" "🎨 theme"
+      "v" "👁️ visible"
+      "w" "↩️ word-wrap"
+      "z" "🧘 zen")
+
+    ;; Windows
+    (which-key-add-keymap-based-replacements bw/leader-w-map
+      "+" "📈 taller"
+      "-" "📉 shorter"
+      "<" "◀️ narrower"
+      ">" "▶️ wider"
+      "=" "⚖️ balance"
+      "0" "❌ delete"
+      "1" "1️⃣ only"
+      "2" "➖ split-h"
+      "3" "➕ split-v"
+      "d" "❌ delete"
+      "h" "⬅️ left"
+      "j" "⬇️ down"
+      "k" "⬆️ up"
+      "l" "➡️ right"
+      "H" "⬅️ move-left"
+      "J" "⬇️ move-down"
+      "K" "⬆️ move-up"
+      "L" "➡️ move-right"
+      "m" "🔲 maximize"
+      "o" "🔄 other"
+      "q" "❌ quit"
+      "r" "↪️ redo"
+      "s" "➖ split-h"
+      "u" "↩️ undo"
+      "v" "➕ split-v"
+      "w" "🔄 ace"
+      "x" "🔀 swap")
+
+)
+
+  ;; -------------------------------------------------------------------------
+  ;; 🌲 Neotree (eager)
+  ;; -------------------------------------------------------------------------
+  (use-package neotree
+    :demand t
+    :config
+    (setq neo-theme 'nerd
+          neo-smart-open t
+          neo-window-width 30
+          neo-show-hidden-files t))
+
+  ;; -------------------------------------------------------------------------
+  ;; 📋 Ibuffer (built-in, eager config)
+  ;; -------------------------------------------------------------------------
+  (require 'ibuffer)
+  (setq ibuffer-expert t
+        ibuffer-show-empty-filter-groups nil)
+  (add-hook 'ibuffer-mode-hook
+            (lambda ()
+              (ibuffer-auto-mode 1)))
+
+  ) ;; END bw-doom
+
+
+
 ;;; init.el ends here
 (custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(custom-safe-themes t)
  '(package-selected-packages
-   '(ace-window bnf-mode calfw calfw-ical calibre consult consult-dir corfu
-     devdocs doom-modeline doom-themes evil gcmh gptel hl-todo
-     hotfuzz magit marginalia moe-theme orderless org-journal
-     org-visibility popper shackle solaire-mode use-package vertico
-     vterm which-key which-key-posframe)))
-(custom-set-faces)
+   '(ace-window bnf-mode calfw calfw-ical calibre consult consult-dir
+                corfu devdocs doom-modeline doom-themes evil
+                evil-collection gcmh gptel hl-todo hotfuzz magit
+                marginalia moe-theme neotree orderless org-journal
+                org-visibility popper shackle simple-httpd
+                solaire-mode use-package vertico vterm which-key
+                which-key-posframe)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

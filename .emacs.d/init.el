@@ -951,9 +951,8 @@
 )
 
   ;; ---------------------------------------------------------------------------
-  ;; 🔑 Keyhints - Discoverable prefix keys in child frame (ADR-003)
+  ;; 🔑 Keyhints - Discoverable prefix keys in side window (ADR-003)
   ;; ---------------------------------------------------------------------------
-  (defvar bw/keyhints-frame nil "Child frame for keyhints display.")
   (defvar bw/keyhints-buffer nil "Buffer for keyhints content.")
   (defvar bw/keyhints-timer nil "Timer for updating keyhints.")
 
@@ -961,8 +960,8 @@
     "Discover available prefix keys for current context."
     (let* ((bindings (which-key--get-current-bindings))
            (prefixes '()))
+      ;; Always add SPC leader if evil is loaded
       (when (and (bound-and-true-p evil-mode)
-                 (eq evil-state 'normal)
                  (keymapp (lookup-key evil-normal-state-map (kbd "SPC"))))
         (push '("SPC" . "leader") prefixes))
       (dolist (b bindings)
@@ -990,63 +989,40 @@
                (bw/discover-prefixes) " "))
 
   (defun bw/keyhints-create ()
-    "Create the keyhints child frame."
-    (when (display-graphic-p)
-      (setq bw/keyhints-buffer (get-buffer-create " *keyhints*"))
-      (with-current-buffer bw/keyhints-buffer
-        (erase-buffer)
-        (insert (bw/format-keyhints)))
-      (let ((parent (selected-frame)))
-        (setq bw/keyhints-frame
-              (make-frame
-               `((parent-frame . ,parent)
-                 (width . 150)
-                 (height . 1)
-                 (left . 0)
-                 (top . ,(- (frame-pixel-height parent)
-                           (frame-char-height parent) 25))
-                 (undecorated . t)
-                 (no-accept-focus . t)
-                 (no-focus-on-map . t)
-                 (internal-border-width . 0)
-                 (vertical-scroll-bars . nil)
-                 (horizontal-scroll-bars . nil)
-                 (menu-bar-lines . 0)
-                 (tool-bar-lines . 0)
-                 (tab-bar-lines . 0)
-                 (background-color . "#21242b")
-                 (foreground-color . "#bbc2cf"))))
-        (with-selected-frame bw/keyhints-frame
-          (switch-to-buffer bw/keyhints-buffer t t)
-          (setq mode-line-format nil
-                cursor-type nil)))))
+    "Create the keyhints side window (above echo area)."
+    (setq bw/keyhints-buffer (get-buffer-create "*keyhints*"))
+    (with-current-buffer bw/keyhints-buffer
+      (erase-buffer)
+      (insert (propertize (bw/format-keyhints)
+                         'face '(:foreground "#7c828d")))
+      (setq mode-line-format nil
+            header-line-format nil
+            cursor-type nil
+            buffer-read-only t))
+    (let ((win (display-buffer-in-side-window
+                bw/keyhints-buffer
+                '((side . bottom)
+                  (slot . 0)
+                  (window-height . 1)
+                  (window-parameters . ((no-delete-other-windows . t)
+                                       (mode-line-format . none)))))))
+      (when win
+        (set-window-dedicated-p win t))))
 
   (defun bw/keyhints-update ()
-    "Update keyhints content."
-    (when (and (frame-live-p bw/keyhints-frame)
-               (buffer-live-p bw/keyhints-buffer))
+    "Update keyhints content based on current context."
+    (when (buffer-live-p bw/keyhints-buffer)
       (with-current-buffer bw/keyhints-buffer
         (let ((inhibit-read-only t))
           (erase-buffer)
           (insert (propertize (bw/format-keyhints)
-                             'face '(:foreground "#bbc2cf")))))))
-
-  (defun bw/keyhints-reposition ()
-    "Reposition keyhints frame after parent resize."
-    (when (frame-live-p bw/keyhints-frame)
-      (let* ((parent (frame-parent bw/keyhints-frame))
-             (ph (frame-pixel-height parent))
-             (ch (frame-char-height bw/keyhints-frame)))
-        (modify-frame-parameters bw/keyhints-frame
-                                 `((top . ,(- ph ch 25))
-                                   (width . 1.0))))))
+                             'face '(:foreground "#7c828d")))))))
 
   ;; Initialize keyhints after frame is ready
   (add-hook 'window-setup-hook #'bw/keyhints-create)
-  (add-hook 'window-size-change-functions (lambda (_) (bw/keyhints-reposition)))
 
   ;; Timer to update content on idle
-  (run-with-idle-timer 0.5 t #'bw/keyhints-update)
+  (setq bw/keyhints-timer (run-with-idle-timer 0.5 t #'bw/keyhints-update))
 
   (use-package solaire-mode
     :demand t

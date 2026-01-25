@@ -900,12 +900,23 @@
     :after evil
     :config
     (evil-collection-init)
-    ;; Restore standard G behavior in vterm (go to last line, not shell cursor)
-    (evil-define-key 'normal vterm-mode-map (kbd "G") 'evil-goto-line)
     ;; Make C-y paste from clipboard in all evil states (for universal paste)
     (define-key evil-normal-state-map (kbd "C-y") 'yank)
     (define-key evil-visual-state-map (kbd "C-y") 'yank)
     (define-key evil-insert-state-map (kbd "C-y") 'yank))
+
+  ;; vterm bindings (deferred until vterm loads)
+  (with-eval-after-load 'vterm
+    (define-key vterm-mode-map (kbd "C-c C-l") 'vterm-clear)
+    ;; Standard vim navigation (use ]] to jump to prompt)
+    (evil-define-key 'normal vterm-mode-map (kbd "g g") 'evil-goto-first-line)
+    (evil-define-key 'normal vterm-mode-map (kbd "G") 'evil-goto-line))
+
+  ;; Claude Code MCP server (with error handling)
+  (when (file-exists-p "~/.emacs.d/emacs-mcp-server.el")
+    (load "~/.emacs.d/emacs-mcp-server" t)
+    (when (fboundp 'emacs-mcp-server-start)
+      (emacs-mcp-server-start)))
 
   ;; Create a proper prefix keymap for SPC (instant which-key popup)
   (define-prefix-command 'bw/leader-map)
@@ -935,7 +946,48 @@
     :demand t
     :config
     (doom-modeline-mode 1)
-    (setq doom-modeline-height 25))
+    (setq doom-modeline-height 25)
+
+    ;; -------------------------------------------------------------------------
+    ;; 🔑 Keyhints - Discoverable prefix keys in modeline (ADR-003)
+    ;; -------------------------------------------------------------------------
+    (defun bw/discover-prefixes ()
+      "Discover available prefix keys for current context."
+      (let* ((bindings (which-key--get-current-bindings))
+             (prefixes '()))
+        (when (and (bound-and-true-p evil-mode)
+                   (eq evil-state 'normal)
+                   (keymapp (lookup-key evil-normal-state-map (kbd "SPC"))))
+          (push '("SPC" . "leader") prefixes))
+        (dolist (b bindings)
+          (let ((key (car b))
+                (desc (cdr b)))
+            (when (string= desc "prefix")
+              (cond
+               ((string= key "C-c") (push '("C-c" . "mode") prefixes))
+               ((string= key "C-x") (push '("C-x" . "emacs") prefixes))
+               ((string= key "M-g") (push '("M-g" . "goto") prefixes))
+               ((string= key "M-s") (push '("M-s" . "search") prefixes))
+               ((string= key "g") (push '("g" . "go") prefixes))
+               ((string= key "z") (push '("z" . "fold") prefixes))
+               ((string= key "[") (push '("[" . "prev") prefixes))
+               ((string= key "]") (push '("]" . "next") prefixes))))))
+        (nreverse prefixes)))
+
+    (defun bw/format-keyhints ()
+      "Format discovered prefixes as a modeline string."
+      (mapconcat (lambda (p) (format "%s:%s" (car p) (cdr p)))
+                 (bw/discover-prefixes) " "))
+
+    (doom-modeline-def-segment keyhints
+      "Display available prefix keys."
+      (when (bound-and-true-p which-key-mode)
+        (propertize (concat " " (bw/format-keyhints) " ")
+                    'face 'doom-modeline-buffer-minor-mode)))
+
+    (doom-modeline-def-modeline 'main
+      '(bar modals matches buffer-info remote-host buffer-position selection-info)
+      '(keyhints misc-info minor-modes input-method buffer-encoding major-mode process vcs check)))
 
   (use-package solaire-mode
     :demand t
@@ -960,6 +1012,10 @@
   (setq-default tab-width 4)
   (setq ring-bell-function 'ignore)
   (setq use-short-answers t)
+
+  ;; Sync Emacs kill ring with system clipboard (for universal paste)
+  (setq select-enable-clipboard t)
+  (setq select-enable-primary t)
   (electric-pair-mode 1)
   (show-paren-mode 1)
   (setq show-paren-delay 0)

@@ -50,3 +50,43 @@ Live environment (`~/`) is source of truth. Manual `cp` to `~/dotfiles/` for ver
 - Slightly more manual work
 - No risk of symlink-related data loss
 - Clear mental model: edit in place, copy when ready
+
+---
+
+## ADR-003: Discoverable Interface - No Hidden Menus
+
+**Date**: 2026-01-24
+
+**Status**: Accepted
+
+**Context**:
+Emacs has deeply nested keybinding trees. Many useful features are hidden behind prefix keys that aren't visible anywhere on screen. Example: in vterm, `[` opens a prompt navigation menu - but nothing indicates this. Users must memorize or stumble upon these features.
+
+**Philosophy**:
+We do not concern ourselves with crowding the interface. At any given time, the keyboard inputs needed to use any aspect of Emacs should not require prior memorization and must be explicitly visible as on-screen hints.
+
+**Decision**:
+At any screen where a unique which-key panel or minibuffer command is one key press away, a hint for it should be visible somewhere (e.g., centered in the modeline/status bar).
+
+For most screens, this means displaying:
+- `SPC` → Leader menu
+- `C-c` → Mode commands
+- `M-x` → All commands
+- Mode-specific prefixes (e.g., `[`/`]` in vterm for prompt navigation)
+
+**Implementation Requirements**:
+1. Modeline segment showing available prefix keys for current major mode
+2. Dynamic updates when mode changes
+3. Brief descriptive labels (e.g., "SPC:leader C-c:mode M-x:cmd")
+4. Mode-specific hints (vterm shows `[]:prompts`, magit shows its prefixes, etc.)
+
+**Consequences**:
+- Slightly busier modeline
+- Zero-memorization onboarding for any Emacs mode
+- Features are used because they're visible, not forgotten because they're hidden
+- Consistent discoverability across all modes
+
+**Alternatives Considered**:
+1. Rely on which-key alone - Still requires knowing the first key to press
+2. Documentation/cheatsheets - External to the interface, gets stale
+3. Hydras everywhere - Too intrusive, blocks workflow

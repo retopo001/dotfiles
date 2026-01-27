@@ -1,39 +1,88 @@
 # Claude Code Global Instructions
 
-## Philosophy
+MCP config: `/home/bw/.claude.json` (user-level, `mcpServers` key). No project-level `.mcp.json`.
 
-Live environment is the source of truth. `~/dotfiles/` is version control.
+Dotfiles: edit live (`~/.emacs.d`, `~/.config`, etc.) → test → `cp -r <source> ~/dotfiles/` → commit in `~/dotfiles/`.
+`~/dotfiles/` mirrors `~/` for tracked configs.
+NEVER use symlinks, stow, chezmoi, or sync scripts for dotfile management — caused catastrophic data loss.
 
-## Workflow
+<session_preamble>
+On first user message of every session, before any other tool call:
+1. vault-rag search_sessions(query=user's first message verbatim)
+On session end or context compaction:
+2. vault-rag save_session(summary, topics, key_facts from session work)
+</session_preamble>
 
-1. Edit configs in their live locations (`~/.emacs.d`, `~/.config`, etc.)
-2. Test until working
-3. Copy to dotfiles: `cp -r <source> ~/dotfiles/`
-4. Commit: `cd ~/dotfiles && git add -A && git commit`
+<tool_dispatch>
+Resolve every tool call through this table. One tool per operation. No deliberation.
 
-## What NOT To Do
+x11_desktop:
+  arrange_windows → i3_command
+  resize_window → i3_command "resize set {w} ppt 0 ppt"
+  focus_window → i3_command "[con_id=X] focus"
+  query_windows → i3_windows
+  query_workspaces → i3_workspaces
+  screenshot → x11_screenshot (optionally with window_id)
+  send_keys → x11_key
+  type_text → x11_type
+  click → x11_click
+  move_cursor → x11_mouse_move
+  get_focused → x11_get_active_window
+  start_process → x11 process_start
+  notify_persistent → x11 notify
 
-- No symlinks (stow, chezmoi, ln -s) - caused catastrophic data loss
-- No sync scripts - too brittle, removed
-- No automation - just manual `cp`
+emacs:
+  execute_elisp → emacs_elisp
+  send_keys → emacs_key
+  type_text → emacs_type
+  navigate → emacs_navigate
+  read_buffer → emacs_buffer_read
+  list_buffers → emacs_buffer_list
+  list_windows → emacs_window_list
+  search → emacs_find
+  screenshot → emacs_screenshot (use x11_screenshot if frame capture needed)
 
-## Common Copy Commands
+browser:
+  get_tabs → tabs_context_mcp
+  new_tab → tabs_create_mcp
+  navigate → navigate
+  read_page → read_page (accessibility tree)
+  read_text → get_page_text (plain text)
+  find_element → find
+  fill_form → form_input
+  click/type/screenshot → computer (action=left_click|type|screenshot)
+  execute_js → javascript_tool
+  console → read_console_messages
+  network → read_network_requests
 
-```bash
-cp -r ~/.emacs.d ~/dotfiles/
-cp -r ~/.config/i3 ~/dotfiles/.config/
-cp ~/.zshrc ~/dotfiles/
-cp ~/CLAUDE.md ~/dotfiles/
-```
+filesystem:
+  read_file → Read
+  edit_file → Edit
+  write_file → Write
+  search_content → Grep
+  search_names → Glob
+  run_command → Bash
+  privileged_command → sudo (MCP)
 
-## Structure
+somatic:
+  timestamp → somatic-temporal now/delta
+  transient_alert → somatic-hud flash_text
+  pre_irreversible → somatic-safety check_permission
+  user_state → somatic-fusion get_snapshot
+  typing_rhythm → somatic-input-timing get_timing
+  pointer_state → somatic-pointer get_dynamics
+  x11_events → somatic-x11-bus get_events
+  clipboard_meta → somatic-clipboard get_latest
+  window_geometry → somatic-geometry get_layout
+  keystrokes → somatic-input-capture get_keystrokes
 
-`~/dotfiles/` mirrors `~/` for tracked configs. Not everything in `~/` is tracked.
+knowledge:
+  search_vault → vault-rag search_hybrid
+  search_sessions → vault-rag search_sessions
+  get_document → vault-rag get_document
 
-## Hard Rules
-
-- NEVER use symlinks for dotfile management
-- NEVER suggest stow, chezmoi, or similar tools
-- NEVER create automation scripts for dotfile management
-
-This boundary exists because symlinks caused catastrophic data loss (Emacs packages, hours of config work, gptel setup, opencode.el - all destroyed).
+cross_context:
+  pre_irreversible → somatic-safety check_permission, then somatic-hud flash_text (red)
+  post_visual_change → get_anomalies + get_events(count=20), then i3_windows, then x11_screenshot
+  compound_sequence → BASELINE(get_snapshot + get_events) → SETUP → ACT → VERIFY(get_anomalies + get_events + screenshot, diff against baseline)
+</tool_dispatch>

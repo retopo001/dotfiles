@@ -57,8 +57,7 @@ SECTIONS is an alist of (HEADER . CONTENT) pairs."
 Returns (SYMBOL-NAME . SECTIONS-ALIST) or nil."
   (let* ((symbol-name (or (thing-at-point 'symbol t) ""))
          (sections nil))
-    (when (string-empty-p symbol-name)
-      (cl-return-from bw/doc-panel--gather-info nil))
+    (unless (string-empty-p symbol-name)
 
     ;; 1. Eldoc documentation (hover info from eglot/eldoc)
     (let ((eldoc-buf (get-buffer " *eldoc*")))
@@ -124,7 +123,7 @@ Returns (SYMBOL-NAME . SECTIONS-ALIST) or nil."
       (error nil))
 
     (when sections
-      (cons symbol-name (nreverse sections)))))
+      (cons symbol-name (nreverse sections))))))
 
 ;; --- Update logic ---
 (defun bw/doc-panel--update ()

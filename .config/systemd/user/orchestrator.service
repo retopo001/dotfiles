@@ -1,0 +1,13 @@
+[Unit]
+Description=Claude Orchestrator Daemon
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.claude/orchestrator/daemon.py
+Restart=on-failure
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target

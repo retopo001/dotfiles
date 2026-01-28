@@ -221,6 +221,9 @@ bindsym $mod+Print exec gpick
 # Emoji picker
 bindsym $mod+period exec rofimoji
 
+# Keystroke display toggle (for demos/learning)
+bindsym $mod+F11 exec --no-startup-id pkill screenkey || screenkey --no-systray -s small --opacity 0.8
+
 # ============================================
 # CLIPBOARD (Universal - Super+C/X/V)
 # ============================================
@@ -351,6 +354,10 @@ for_window [class="Pavucontrol"] floating enable
 
 # Clipboard panel
 for_window [class="clipboard-panel"] floating enable, border none, move position mouse
+
+# Somatic attention overlays
+for_window [class="somatic-attention"] floating enable, border none, sticky enable
+no_focus [class="somatic-attention"]
 
 # Signal
 for_window [class="Signal"] floating enable

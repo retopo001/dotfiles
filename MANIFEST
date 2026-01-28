@@ -23,6 +23,8 @@
 /home/bw/.claude/settings.local.json
 # /home/bw/.claude.json  # Contains GitHub PAT - git-crypt required
 /home/bw/.claude/skills
+/home/bw/.claude/hooks
+/home/bw/.claude/orchestrator
 
 # X11 / Input
 /home/bw/.xinitrc

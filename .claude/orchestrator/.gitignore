@@ -1,0 +1,7 @@
+# Runtime files - not tracked
+current_session.json
+daemon.log
+daemon.sock
+state.db
+__pycache__/
+*.pyc
